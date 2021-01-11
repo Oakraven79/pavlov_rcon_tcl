@@ -46,7 +46,20 @@ import random
 import tkinter as tk
 from tkinter import ttk
 
+
+import logging
+import sys
+
 import pavlovrcon
+
+# SEt up the logger, just push to STDOUT
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 
@@ -156,12 +169,12 @@ async def send_rcon(command):
     data = await rcon_obj.send(command)
     # close the rcon connection
     await rcon_obj.close()
-    print(data)
+    logger.info(data)
 
     return data
 
 def button_hi():
-    print("Button")
+    logger.info("Button")
 
 def button_give_money(unique_id, amount):
     """
@@ -172,7 +185,7 @@ def button_give_money(unique_id, amount):
     :return:
     """
 
-    print("Give {} ${}".format(unique_id, amount))
+    logger.info("Give {} ${}".format(unique_id, amount))
     asyncio.run(send_rcon("GiveCash {} {}".format(unique_id, amount)))
 
 def button_give_item(unique_id, item):
@@ -183,7 +196,7 @@ def button_give_item(unique_id, item):
     :return:
     """
 
-    print("Give {} {}".format(unique_id, item))
+    logger.info("Give {} {}".format(unique_id, item))
     asyncio.run(send_rcon("GiveItem {} {}".format(unique_id, item)))
 
 
@@ -196,20 +209,20 @@ def button_switch_map():
 
     :return:
     """
-    print("SwitchMap!")
+    logger.info("SwitchMap!")
     selections = app.get_current_map_selection_values()
-    print(selections)
+    logger.info(selections)
 
     mapped_game_mode = GAME_MODES.get(selections['game_mode'], None)
     if mapped_game_mode is None:
-        print("Game mode: {} is unknown".format(selections['game_mode']))
+        logger.info("Game mode: {} is unknown".format(selections['game_mode']))
         return
     # now to check the MAP name against the list. Since it is possible to specify workshop maps
     # we need to allow for maps that are in the MAP_IDS dict and if they are not we make sure they have
     # UGC in front before we send to the server.
     raw_map_id = selections['map']
     if not raw_map_id.strip():
-        print("Unable to switch map, no map specified")
+        logger.info("Unable to switch map, no map specified")
         return
     mapped_map_id = MAP_IDS.get(raw_map_id, None)
     if mapped_map_id is None:
@@ -220,14 +233,14 @@ def button_switch_map():
         if raw_map_id.isdigit():
             mapped_map_id = "UGC{}".format(raw_map_id)
         else:
-            print("Map ID is not a number so i'm skipping it")
+            logger.info("Map ID is not a number so i'm skipping it")
             return
     if mapped_map_id.startswith("---"):
         # This is the just the spacer, don't select this!
         return
     # mapped_map_id is ready to submit to the server
     switch_str = "SwitchMap {} {}".format(mapped_map_id, mapped_game_mode)
-    print(switch_str)
+    logger.info(switch_str)
     asyncio.run(send_rcon(switch_str))
 
 
@@ -238,7 +251,7 @@ class HoverButton(tk.Button):
         self.bind("<Leave>", self.on_leave)
 
     def on_enter(self, e):
-        #print("Enter")
+        #logger.info("Enter")
         if platform.system() == "Darwin":  ### if its a Mac
             self['highlightbackground'] = "green"
         else:
@@ -246,7 +259,7 @@ class HoverButton(tk.Button):
 
 
     def on_leave(self, e):
-        #print("leave")
+        #logger.info("leave")
         if platform.system() == "Darwin":  ### if its a Mac
             self['highlightbackground'] = "SystemButtonFace"
         else:
@@ -272,7 +285,7 @@ class PlayerListFrame:
         :param data_dict:
         :return:
         """
-        print("Updating the players with {}".format(data))
+        logger.info("Updating the players with {}".format(data))
 
 
         # Each player has a Unique ID, so we build a list of those as each frame, if the user dissappears so does the frame
@@ -313,7 +326,7 @@ class PlayerListFrame:
         :param data_dict:
         :return:
         """
-        print("Creating Frame: {}".format(data_dict))
+        logger.info("Creating Frame: {}".format(data_dict))
         main_frame = tk.LabelFrame(self.parent_frame, text=data_dict['UniqueId'], bd=5)
 
         main_frame.pack(fill='x')
@@ -366,11 +379,15 @@ class PlayerListFrame:
                                                                                pady=0)
         main_frame.give_item_label_frame.give_item_money_button.pack(side="left")
 
+        # Kill Player
+
         # Kick player
+        # TBD
+
+
+
 
         return main_frame
-
-
 
 
     def update_single_player_frame(self, label_frame_obj, data_dict, items_list):
@@ -381,32 +398,28 @@ class PlayerListFrame:
         :param data_dict:
         :return:
         """
-        print("updating Frame: {}".format(data_dict))
+        logger.info("updating Frame: {}".format(data_dict))
 
         label_frame_obj.player_name_label['text'] = data_dict['PlayerName']
         label_frame_obj.player_kda_label['text'] = "K/D/A: {}".format(data_dict['KDA'])
         label_frame_obj.player_cash_label['text'] = "Cash: ${}".format(data_dict['Cash'])
         label_frame_obj.player_team_label['text'] = "Team: {}".format(data_dict['TeamId'])
 
-
         # If the items list has changed at all, then we overwrite the list of items
         # if nothing has changed, then we do nothing and leave it where it is.
-        #label_frame_obj.give_item_label_frame.choice_var.set(items_list[0])
 
         if hasattr(self, 'current_items_list'):
             if self.current_items_list != items_list:
-                print("Updating items list to: {}".format(items_list))
+                logger.info("Updating items list to: {}".format(items_list))
                 label_frame_obj.give_item_label_frame.selected_item.set_menu(*items_list)
                 if len(items_list) > 0:
                     label_frame_obj.give_item_label_frame.choice_var.set(items_list[0])
 
         else:
-            print("Initial current_items_list set: {}".format(items_list))
+            logger.info("Initial current_items_list set: {}".format(items_list))
             label_frame_obj.give_item_label_frame.selected_item.set_menu(*items_list)
             if len(items_list) > 0:
                 label_frame_obj.give_item_label_frame.choice_var.set(items_list[0])
-
-
 
 
     def delete_single_player_frame(self, label_frame_obj):
@@ -416,7 +429,7 @@ class PlayerListFrame:
         :param label_frame_obj:
         :return:
         """
-        print("Deleting frame!")
+        logger.info("Deleting frame!")
 
         label_frame_obj.destroy()
 
@@ -493,7 +506,7 @@ class Application(tk.Frame):
         :param server_name:
         :return:
         """
-        # Try look up the map from the values to print a better looking one
+        # Try look up the map from the values to logger.info a better looking one
         map_values_list = list(MAP_IDS.values())
         if current_map in map_values_list:
             current_map = "{} ({})".format(list(MAP_IDS.keys())[map_values_list.index(current_map)], current_map)
@@ -552,6 +565,13 @@ class Application(tk.Frame):
 
         # GiveTeamCash {TeamId} {CashAmt}
 
+
+        # Show list of banned players, allows for unbans
+
+        # Give item to all connected players 
+
+
+
     def get_current_map_selection_values(self):
         """
         GEt the current values in the switch map area of the server actions
@@ -571,7 +591,7 @@ class Application(tk.Frame):
 
         :return:
         """
-        print("Creating player frame...")
+        logger.info("Creating player frame...")
         # Create the player window (bit of chaining between fucntions though, this needs self.server_players_frame to exist)
         self.player_frame = PlayerListFrame(self.server_players_frame)
 
@@ -584,7 +604,7 @@ class Application(tk.Frame):
         :param player_dict:
         :return:
         """
-        print(player_dict)
+        logger.info(player_dict)
 
         self.player_frame.update_player_frame(player_dict, self.get_available_items())
 
@@ -597,7 +617,7 @@ class Application(tk.Frame):
         :param player_dict:
         :return:
         """
-        print("Setting server items list as: {}".format(items_list))
+        logger.info("Setting server items list as: {}".format(items_list))
 
         self.current_map_items = items_list
 
@@ -635,11 +655,11 @@ async def main_update():
 
 
 def update_windows():
-    print("Running")
+    logger.info("Running")
     try:
         asyncio.run(main_update())
     except asyncio.exceptions.TimeoutError as exc:
-        print("Server took tool long to respond, Will try again shortly...")
+        logger.info("Server took tool long to respond, Will try again shortly...")
     # Add itself back in to the main loop so it runs again.
     root.after(5000, update_windows)
 
@@ -656,15 +676,12 @@ app = Application(master=root)
 # Bind the action to the root container so it gets the event and then let app object sort out the layout
 
 def handle_configure(event):
-    print("window geometry:\n" + root.geometry())
+    logger.info("window geometry:\n" + root.geometry())
 #root.bind("<Configure>", handle_configure)
 
-root.after(20, update_windows)
-
-
-
-
-
-
-# start the app main loop
-app.mainloop()
+try:
+    root.after(20, update_windows)
+    # start the app main loop
+    app.mainloop()
+except Exception as exc:
+    logger.info("Exception occurred: {}".format(exc))
