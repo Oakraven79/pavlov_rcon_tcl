@@ -1,3 +1,15 @@
+"""
+This file comes from the following repo and all credits for this file go to the author Makupi
+
+https://github.com/makupi/async-pavlov/blob/master/pavlov/pavlov.py
+
+https://github.com/makupi/async-pavlov
+
+I used this to get this app started so thank you very much for an easy to use library!
+
+"""
+
+
 import asyncio
 import hashlib
 import json
