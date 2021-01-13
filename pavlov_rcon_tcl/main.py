@@ -1,43 +1,3 @@
-"""
-
-RefreshList
-{
-        "PlayerList": [
-                {
-                        "Username": "Oakraven",
-                        "UniqueId": "76561198040783597"
-                }
-        ]
-}
-Help
-{
-        "Help": "Kick UniqueID, Kill UniqueID, Ban UniqueID, Unban UniqueId, BlackList, RotateMap, MapList, SwitchMap MapId, SwitchTeam UniqueID TeamID, ItemList, GiveItem UniqueID ItemID, SetCash UniqueID CashAmt, GiveCash UniqueID CashAmt, GiveTeamCash TeamId CashAmt, InspectPlayer UniqueID, RefreshList, ServerInfo, ResetSND, SetLimitedAmmoType AmmoType, SetPlayerSkin UniqueID SkinID, Disconnect"
-}
-
-InspectPlayer 76561198040783597
-{
-        "PlayerInfo":
-        {
-                "PlayerName": "Oakraven",
-                "UniqueId": "76561198040783597",
-                "KDA": "0/4/0",
-                "Cash": "9400",
-                "TeamId": "0"
-        }
-}
-ServerInfo
-{
-        "ServerInfo":
-        {
-                "MapLabel": "UGC1929882349",
-                "GameMode": "ZWV",
-                "ServerName": "Great Leap To Zombies",
-                "RoundState": "Started",
-                "PlayerCount": "1/16"
-        }
-}
-"""
-
 
 import platform
 import asyncio
@@ -52,7 +12,9 @@ import sys
 
 import pavlovrcon
 
-# SEt up the logger, just push to STDOUT
+###############################################################
+# Set up the logger, just push to STDOUT
+###############################################################
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(sys.stdout)
@@ -61,8 +23,19 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+###############################################################
+# Main App container
+###############################################################
+def init_app():
+    root = tk.Tk()
+    root.title("Pavlov RCON Helper")
+    root.iconbitmap("rcon.ico")
+    app = Application(master=root)
+    return root, app
 
-
+###############################################################
+# Some helper maps to make things pretty
+###############################################################
 GAME_MODES = {
     'Seek And Destroy':'SND',
     'Team Death Match': 'TDM',
@@ -71,7 +44,7 @@ GAME_MODES = {
     'Zombie Wave' : 'ZWV',
 }
 
-# Map Ids, Keys MUST be Unique!
+# Map Ids, Keys MUST be Unique as they ge translated into a list!
 MAP_IDS = {
     'Data Center':'datacenter',
     'Sand':'sand',
@@ -82,6 +55,11 @@ MAP_IDS = {
     'Kill House' : 'killhouse',
     'Shooting Range' : 'range',
     'Tutorial' : 'tutorial',
+    '--- New' : '', #Spacer
+    'station' : 'station',
+    'stalingrad' : 'stalingrad',
+    'santorini':'santorini',
+    'industry' : 'industry',
     '--- PropHunt' : '', # Spacer
     'PH Warehouse' : 'UGC1810463805',
     'PH Hotel' : 'UGC1825578429',
@@ -99,10 +77,27 @@ MAP_IDS = {
 }
 
 # If the name of the item has a human friendly version, add it here.
-KNOWN_ITEM_NAME_MAP = {}
+# NOTE: KEYS AN VALUES MUST ALL BE UNIQUE!
+KNOWN_ITEM_NAME_MAP = {
+    "M249 Light Machine Gun (LMGA)" :"LMGA",
+}
+# inverted one for lookups
+KNOWN_ITEM_NAME_MAP_INV = {v: k for k, v in KNOWN_ITEM_NAME_MAP.items()}
 
+MENU_FONT_SIZE = 14
+
+
+###############################################################
 # Simple thing to get an Rcon connection, TODO: Make this a decorator
+###############################################################
 def get_rcon():
+    """
+    This is responsible for providing an active connection to the desired server connection.
+
+    TODO: Makes this persistent and connection shared instead of creating a new one each time, perhaps merge with send rcon
+
+    :return:
+    """
     return pavlovrcon.PavlovRCON("192.168.0.15", 9102, 'password')
 
 # Send a command
@@ -110,7 +105,7 @@ async def send_rcon(command):
 
     # if command == "RefreshList":
     #
-    #     if random.randint(0,9) > 4:
+    #     if random.randint(0,9) > -1:
     #
     #         data = {
     #                     "PlayerList": [
@@ -160,11 +155,12 @@ async def send_rcon(command):
     #             }
     # elif command == "ItemList":
     #     data = {'ItemList': ['ak', 'vanas', 'AUG', 'awp', 'smg', 'shotgun', 'AR', 'sock', 'm9', 'cet9', 'Armour', 'kevlarhelmet', 'Grenade', 'grenade_ru', 'AK47', 'AK12', 'DE', '1911', 'mp5', 'p90', 'Smoke', 'smoke_ru', 'flash', 'flash_ru', 'sawedoff', 'Pliers', 'LMGA', 'AutoShotgun', 'AntiTank', 'kar98', 'AutoSniper', '57', 'uzi', 'Knife', 'DrumShotgun', 'Revolver', 'supp_pistol', 'supp_rifle', 'scope', 'Grip_Angled', 'Grip_Vertical', 'acog', 'holo', 'reddot', 'painkillers', 'ammo_rifle', 'ammo_sniper', 'ammo_smg', 'ammo_pistol', 'ammo_shotgun', 'ammo_special', 'taser', 'crowbar', 'boltcutters', 'lockpick', 'handcuffs', 'repairtool', 'pickaxe', 'keycard', 'syringe', 'luger', 'mp40', 'G43', 'Tokarev', 'webley', 'm1garand', 'svt40', 'grenade_us', 'smoke_us', 'grenade_ger', 'smoke_ger', 'grenade_svt', 'smoke_svt', 'bar', 'bren', 'ppsh', 'sten', 'mosin', 'springfield', 'thompson', 'mg42', 'leeenfield', 'RL_M1A1', 'RL_PIAT', 'rl_panzer', 'stg44', 'dp27', 'kross', 'vss', 'tankmg', 'tankturret', 'backblast', 'runover', 'Fire', 'fall', 'scar', 'skinhelmet_us', 'skinhelmet_ger', 'skinhelmet_svt', 'FlashLight', 'Katana', 'AdminSword', 'DiamondSword', 'OneHandedSword', 'BlueRoseSword', 'ContributorSword', 'ContributorSwordSecond', 'ContributorSwordThird', 'ContributorSwordFour', 'ContributorSwordFifth', 'Torch', 'AncientSWORD', 'TwitchSword', 'DarkAncientSword', 'NetherScythe', 'PerkBottleBase', 'juggernautbottle', 'staminupbottle', 'ExcaliburSword', 'TestingBow', 'MCBow', 'PatreonBow', 'Enderpearl', 'SnakeBow', 'PatreonSword', 'DiamondAxe']}
-
+    #
     # elif command == "ServerInfo":
     #     data = {'ServerInfo': {'MapLabel': 'UGC1741218360', 'GameMode': 'ZWV', 'ServerName': 'Great Leap To Zombies', 'RoundState': 'Started', 'PlayerCount': '0/16'}}
-
+    #
     # else:
+
     rcon_obj = get_rcon()
     data = await rcon_obj.send(command)
     # close the rcon connection
@@ -173,6 +169,9 @@ async def send_rcon(command):
 
     return data
 
+###############################################################
+# Action button handlers
+###############################################################
 def button_hi():
     logger.info("Button")
 
@@ -188,6 +187,18 @@ def button_give_money(unique_id, amount):
     logger.info("Give {} ${}".format(unique_id, amount))
     asyncio.run(send_rcon("GiveCash {} {}".format(unique_id, amount)))
 
+def button_give_players_item(unique_id_list, item):
+    """
+
+    :param unique_id_list:
+    :param item:
+    :return:
+    """
+    # TODO: Async this call
+    for unique_id in unique_id_list:
+        button_give_item(unique_id, item)
+
+
 def button_give_item(unique_id, item):
     """
 
@@ -197,6 +208,10 @@ def button_give_item(unique_id, item):
     """
 
     logger.info("Give {} {}".format(unique_id, item))
+    # maybe repalce the human readable one with the mapped one
+    replace_item = KNOWN_ITEM_NAME_MAP.get(item, None)
+    if replace_item is not None:
+        item = replace_item
     asyncio.run(send_rcon("GiveItem {} {}".format(unique_id, item)))
 
 
@@ -243,7 +258,10 @@ def button_switch_map():
     logger.info(switch_str)
     asyncio.run(send_rcon(switch_str))
 
-
+###############################################################
+# Class to modify a button so you know when you are hovering
+# over it
+###############################################################
 class HoverButton(tk.Button):
     def __init__(self, master, **kw):
         tk.Button.__init__(self,master=master,**kw)
@@ -265,7 +283,9 @@ class HoverButton(tk.Button):
         else:
             self['bg'] = "SystemButtonFace"
 
-
+###############################################################
+# Tkinter holder and manager for all connected players
+###############################################################
 class PlayerListFrame:
 
     def __init__(self, parent_frame):
@@ -275,8 +295,6 @@ class PlayerListFrame:
         """
         self.parent_frame = parent_frame
         self.player_frame_dict = dict()
-
-
 
     def update_player_frame(self, data, items_list):
         """
@@ -333,7 +351,7 @@ class PlayerListFrame:
 
 
         main_frame.player_name_label = tk.Label(main_frame, text=data_dict['PlayerName'])
-        main_frame.player_name_label.config(font=("Impact", 44))
+        main_frame.player_name_label.config(font=("Impact", MENU_FONT_SIZE))
         main_frame.player_name_label.pack(side='left')
 
         main_frame.player_kda_label = tk.Label(main_frame, text="K/D/A: {}".format(data_dict['KDA']))
@@ -380,8 +398,13 @@ class PlayerListFrame:
         main_frame.give_item_label_frame.give_item_money_button.pack(side="left")
 
         # Kill Player
+        main_frame.kill_button = HoverButton(main_frame, text="Kill Player", command=button_hi, padx=5, pady=0)
+        main_frame.kill_button.pack(side="left")
 
         # Kick player
+        main_frame.kick_button = HoverButton(main_frame, text="Kick Player", command=button_hi, padx=5, pady=0)
+        main_frame.kick_button.pack(side="left")
+
         # TBD
 
 
@@ -436,8 +459,9 @@ class PlayerListFrame:
 
 
 
-
-
+###############################################################
+# Main Application Frame
+###############################################################
 class Application(tk.Frame):
 
 
@@ -490,12 +514,14 @@ class Application(tk.Frame):
         # ServerInfo
 
         frame.server_name_label = tk.Label(frame, text="Server name")
+        frame.server_name_label.config(font=("Impact", MENU_FONT_SIZE))
         frame.server_name_label.pack()
 
         frame.server_map_label = tk.Label(frame, text="Current Map")
         frame.server_map_label.pack()
 
         frame.server_player_count_label = tk.Label(frame, text="Player Count")
+        frame.server_player_count_label.config(font=("Impact", MENU_FONT_SIZE))
         frame.server_player_count_label.pack()
 
 
@@ -511,6 +537,8 @@ class Application(tk.Frame):
         if current_map in map_values_list:
             current_map = "{} ({})".format(list(MAP_IDS.keys())[map_values_list.index(current_map)], current_map)
         self.server_info_frame.server_name_label['text'] = "Server: {}".format(server_name)
+
+
         self.server_info_frame.server_map_label['text'] = "Map: {} (Mode: {}) (Status: {})".format(current_map, game_mode, game_status)
         self.server_info_frame.server_player_count_label['text'] = "{} Players Connected".format(player_count)
 
@@ -522,28 +550,33 @@ class Application(tk.Frame):
         frame = self.server_actions_frame
 
         # Disconnect
-        frame.disconnect_button = HoverButton(frame, text="Disconnect", command=button_hi, padx=5, pady=5)
-        frame.disconnect_button.pack()
+        frame.disconnect_button = HoverButton(frame, text="Disconnect RCON", command=button_hi, padx=5, pady=2)
+        frame.disconnect_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.disconnect_button.pack(fill='x')
         # ResetSND
-        frame.reset_snd_button = HoverButton(frame, text="Reset SnD", command=button_hi, padx=5, pady=5)
-        frame.reset_snd_button.pack()
+        frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy", command=button_hi, padx=5, pady=2)
+        frame.reset_snd_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.reset_snd_button.pack(fill='x')
         # RotateMap
-        frame.rotate_map_button = HoverButton(frame, text="Rotate Map", command=button_rotate_map, padx=5, pady=5)
-        frame.rotate_map_button.pack()
+        frame.rotate_map_button = HoverButton(frame, text="Rotate Map", command=button_rotate_map, padx=5, pady=2)
+        frame.rotate_map_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.rotate_map_button.pack(fill='x')
 
         # SetLimitedAmmoType {0-2}
-        frame.set_limited_ammo_type_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3, text="Set Limited Ammo Type", padx=5, pady=5)
-        frame.set_limited_ammo_type_frame.pack()
+        frame.set_limited_ammo_type_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3, text="Set Limited Ammo Type", padx=5, pady=2)
+        frame.set_limited_ammo_type_frame.pack(fill='x')
 
-        frame.set_limited_ammo_type_frame.ammo_spin = tk.Spinbox(frame.set_limited_ammo_type_frame, from_=0, to=2, width=1)
+        frame.set_limited_ammo_type_frame.ammo_spin = tk.Spinbox(frame.set_limited_ammo_type_frame, from_=0, to=2, width=2)
+        frame.set_limited_ammo_type_frame.ammo_spin.config(font=("Impact", MENU_FONT_SIZE))
         frame.set_limited_ammo_type_frame.ammo_spin.pack(side="left")
 
-        frame.set_limited_ammo_type_frame.apply_button = HoverButton(frame.set_limited_ammo_type_frame, text="Apply Ammo Limit", command=button_hi, padx=5, pady=5)
-        frame.set_limited_ammo_type_frame.apply_button.pack(side="right")
+        frame.set_limited_ammo_type_frame.apply_button = HoverButton(frame.set_limited_ammo_type_frame, text="Apply Ammo Limit", command=button_hi, padx=5, pady=2)
+        frame.set_limited_ammo_type_frame.apply_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.set_limited_ammo_type_frame.apply_button.pack(fill="x")
 
         # SwitchMap {MapName/ID} {GameMode}
         frame.set_switch_map_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
-                                                          text="Switch Map", padx=5, pady=5)
+                                                          text="Switch Map", padx=5, pady=2)
         frame.set_switch_map_frame.pack(fill='x')
 
         # Map combo box
@@ -556,11 +589,13 @@ class Application(tk.Frame):
         frame.set_switch_map_frame.choice_var.set(list(GAME_MODES.keys())[0])
         frame.set_switch_map_frame.game_mode = tk.OptionMenu( frame.set_switch_map_frame, frame.set_switch_map_frame.choice_var,
             *(list(GAME_MODES.keys())))
+        frame.set_switch_map_frame.game_mode.config(font=("Helvetica", MENU_FONT_SIZE))
         frame.set_switch_map_frame.game_mode.pack(side='left')
         # Apply button
         frame.set_switch_map_frame.apply_button = HoverButton(frame.set_switch_map_frame,
                                                                      text="Switch Map", command=button_switch_map, padx=5,
-                                                                     pady=5)
+                                                                     pady=2)
+        frame.set_switch_map_frame.apply_button.config(font=("Helvetica", MENU_FONT_SIZE))
         frame.set_switch_map_frame.apply_button.pack(side="right")
 
         # GiveTeamCash {TeamId} {CashAmt}
@@ -568,7 +603,33 @@ class Application(tk.Frame):
 
         # Show list of banned players, allows for unbans
 
-        # Give item to all connected players 
+        # Give item to all connected players
+        frame.give_all_players_item_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
+                                                          text="Give all players item", padx=5, pady=2)
+        frame.give_all_players_item_frame.pack(fill='x')
+
+        frame.give_all_players_item_frame.choice_var = tk.StringVar()
+
+        items_list = ["None", ]
+        frame.give_all_players_item_frame.choice_var.set("")
+        if hasattr(self, 'current_map_items'):
+            items_list = self.current_map_items
+            frame.give_all_players_item_frame.choice_var.set(items_list[0])
+
+        frame.give_all_players_item_frame.item_selection = ttk.OptionMenu(frame.give_all_players_item_frame,
+                                                             frame.give_all_players_item_frame.choice_var,
+                                                             *items_list)
+        frame.give_all_players_item_frame.item_selection.configure(width=20)
+        frame.give_all_players_item_frame.item_selection.pack(side="left")
+        frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
+                                                                text="Give this to all players",
+                                                                command=lambda: button_give_players_item(self.all_player_ids,
+                                                                      frame.give_all_players_item_frame.choice_var.get()),
+                                                                padx=5,
+                                                                pady=2)
+        frame.give_all_players_item_frame.apply_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.give_all_players_item_frame.apply_button.pack(fill="x")
+
 
 
 
@@ -597,16 +658,23 @@ class Application(tk.Frame):
 
 
 
-    def update_player_window(self, player_dict):
+    def update_player_window(self, player_list_dict, max_players):
         """
         Given a list of the players currently connected it will
 
         :param player_dict:
+        :param max_players: Int for th emax number (used to format the window
+
         :return:
         """
-        logger.info(player_dict)
+        logger.info("update_player_window: {}".format(player_list_dict))
 
-        self.player_frame.update_player_frame(player_dict, self.get_available_items())
+
+        self.all_player_ids = [ int(x['PlayerInfo']['UniqueId']) for x in player_list_dict]
+        logger.info("All player IDS: {}".format(self.all_player_ids))
+
+
+        self.player_frame.update_player_frame(player_list_dict, self.get_available_items())
 
 
     def update_server_items(self, items_list):
@@ -618,8 +686,31 @@ class Application(tk.Frame):
         :return:
         """
         logger.info("Setting server items list as: {}".format(items_list))
+        new_item_list = []
+        known_item_keys = list(KNOWN_ITEM_NAME_MAP_INV.keys())
+        for item in items_list:
+            if item in known_item_keys:
+                new_item_list.append(KNOWN_ITEM_NAME_MAP_INV[item])
+                logger.info("Replaced Items '{}' with '{}' for readability".format(item, KNOWN_ITEM_NAME_MAP_INV[item]))
+            else:
+                new_item_list.append(item)
+        new_item_list.sort()
 
-        self.current_map_items = items_list
+        list_is_new = False
+
+        if hasattr(self, "current_map_items"):
+            if new_item_list !=  self.current_map_items:
+                list_is_new = True
+        else:
+            list_is_new = True
+
+        self.current_map_items = new_item_list
+
+        # Now need to update the server actions to include the new items list
+        if list_is_new and len(new_item_list) >0:
+            self.server_actions_frame.give_all_players_item_frame.item_selection.set_menu(*new_item_list)
+            self.server_actions_frame.give_all_players_item_frame.choice_var.set(new_item_list[0])
+
 
     def get_available_items(self):
         """
@@ -629,8 +720,9 @@ class Application(tk.Frame):
         return self.current_map_items
 
 
-
-
+###############################################################
+# Functions to be used to update the server contents
+###############################################################
 async def main_update():
 
     data = await send_rcon("ServerInfo")
@@ -641,6 +733,7 @@ async def main_update():
     game_mode = data.get('ServerInfo', {}).get('GameMode', '')
     game_status = data.get('ServerInfo', {}).get('RoundState', '')
     player_count = data.get('ServerInfo', {}).get('PlayerCount', '')
+    max_players = int(player_count.split("/")[1])
     app.update_server_window(server_name, map_name, game_mode, game_status, player_count)
     # Get the Item list from the server Which shows what items the players are allowed to have here
     data = await send_rcon("ItemList")
@@ -649,7 +742,7 @@ async def main_update():
     data = await send_rcon("RefreshList")
     players_dict = {k:v for k, v in zip([x['Username'] for x in data['PlayerList']] , [x['UniqueId'] for x in data['PlayerList']]) }
     data = await asyncio.gather(*[send_rcon("InspectPlayer {}".format(x)) for x in list(players_dict.values())])
-    app.update_player_window(data)
+    app.update_player_window(data, max_players)
 
 
 
@@ -664,14 +757,13 @@ def update_windows():
     root.after(5000, update_windows)
 
 
-# Main App container
-root = tk.Tk()
-root.title("Pavlov RCON Helper")
-root.iconbitmap("rcon.ico")
+###############################################################
+# Application kick off stuff
+###############################################################
+root, app = init_app()
 
 
 
-app = Application(master=root)
 # testing resize handling
 # Bind the action to the root container so it gets the event and then let app object sort out the layout
 
@@ -679,6 +771,11 @@ def handle_configure(event):
     logger.info("window geometry:\n" + root.geometry())
 #root.bind("<Configure>", handle_configure)
 
+
+# Now that i have the bulk of the windows working
+# I need to do the following
+# 1. Handle connects and disconnects
+# 2. Allow the user to specify different connection creds (via command line, config file or from within the app)
 try:
     root.after(20, update_windows)
     # start the app main loop
