@@ -6,7 +6,6 @@ import random
 import tkinter as tk
 from tkinter import ttk
 
-
 import logging
 import sys
 
@@ -30,6 +29,8 @@ def init_app():
     root = tk.Tk()
     root.title("Pavlov RCON Helper")
     root.iconbitmap("rcon.ico")
+    root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+    root.state('zoomed')
     app = Application(master=root)
     return root, app
 
@@ -84,13 +85,20 @@ KNOWN_ITEM_NAME_MAP = {
 # inverted one for lookups
 KNOWN_ITEM_NAME_MAP_INV = {v: k for k, v in KNOWN_ITEM_NAME_MAP.items()}
 
+###############################################################
+# Fonts
+###############################################################
+
 MENU_FONT_SIZE = 14
+MENU_FONT_NAME = "Cabin Bold"
 
 
 ###############################################################
 # Simple thing to get an Rcon connection, TODO: Make this a decorator
 ###############################################################
-def get_rcon():
+PERSISTED_RCON = None
+
+def get_rcon(use_persisted_connection=False):
     """
     This is responsible for providing an active connection to the desired server connection.
 
@@ -98,10 +106,18 @@ def get_rcon():
 
     :return:
     """
-    return pavlovrcon.PavlovRCON("192.168.0.15", 9102, 'password')
+    if use_persisted_connection:
+        global PERSISTED_RCON
+        if PERSISTED_RCON is None:
+            PERSISTED_RCON = pavlovrcon.PavlovRCON("192.168.0.15", 9102, 'password')
+        if not PERSISTED_RCON.is_connected():
+            PERSISTED_RCON = pavlovrcon.PavlovRCON("192.168.0.15", 9102, 'password')
+        return PERSISTED_RCON
+    else:
+        return pavlovrcon.PavlovRCON("192.168.0.15", 9102, 'password')
 
 # Send a command
-async def send_rcon(command):
+async def send_rcon(command, use_persisted_connection=False):
 
     # if command == "RefreshList":
     #
@@ -161,12 +177,15 @@ async def send_rcon(command):
     #
     # else:
 
-    rcon_obj = get_rcon()
+
+
+    rcon_obj = get_rcon(use_persisted_connection)
     data = await rcon_obj.send(command)
     # close the rcon connection
-    await rcon_obj.close()
+    if not use_persisted_connection:
+        await rcon_obj.send("Disconnect")
+        await rcon_obj.close()
     logger.info(data)
-
     return data
 
 ###############################################################
@@ -174,6 +193,24 @@ async def send_rcon(command):
 ###############################################################
 def button_hi():
     logger.info("Button")
+
+def button_kill_player(unique_id):
+    """
+
+    :param unique_id:
+    :return:
+    """
+    logger.info("Kill {}".format(unique_id))
+    asyncio.run(send_rcon("Kill {}".format(unique_id)))
+
+def button_kick_player(unique_id):
+    """
+
+    :param unique_id:
+    :return:
+    """
+    logger.info("Kick {}".format(unique_id))
+    asyncio.run(send_rcon("Kick {}".format(unique_id)))
 
 def button_give_money(unique_id, amount):
     """
@@ -350,33 +387,39 @@ class PlayerListFrame:
         main_frame.pack(fill='x')
 
 
+
         main_frame.player_name_label = tk.Label(main_frame, text=data_dict['PlayerName'])
-        main_frame.player_name_label.config(font=("Impact", MENU_FONT_SIZE))
-        main_frame.player_name_label.pack(side='left')
+        main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=50)
+        main_frame.player_name_label.grid(row=0,column=0, sticky="ns", pady = 5, padx = 5)
 
         main_frame.player_kda_label = tk.Label(main_frame, text="K/D/A: {}".format(data_dict['KDA']))
-        main_frame.player_kda_label.pack(side='left')
+        main_frame.player_kda_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
+        main_frame.player_kda_label.grid(row=0,column=1, sticky="nsew", pady = 5, padx = 5)
 
         main_frame.player_cash_label = tk.Label(main_frame, text="Cash: ${}".format(data_dict['Cash']))
-        main_frame.player_cash_label.pack(side='left')
+        main_frame.player_cash_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.player_cash_label.grid(row=0,column=2, sticky="nsew", pady = 5, padx = 5)
 
         main_frame.player_team_label = tk.Label(main_frame, text="Team: {}".format(data_dict['TeamId']))
-        main_frame.player_team_label.pack(side='left')
+        main_frame.player_team_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.player_team_label.grid(row=0,column=3, sticky="nsew", pady = 5, padx = 5)
 
         # Give money button
         main_frame.give_money_label_frame = tk.LabelFrame(main_frame, text="Give Money", bd=5, borderwidth=3)
-        main_frame.give_money_label_frame.pack(side='left')
+        main_frame.give_money_label_frame.grid(row=0,column=4, sticky="nsew", pady = 5, padx = 5)
 
-        main_frame.give_money_label_frame.give_money_button = HoverButton(main_frame.give_money_label_frame, text="+$1000", command=lambda: button_give_money(data_dict['UniqueId'], 1000), padx=5, pady=0)
+        main_frame.give_money_label_frame.give_money_button = HoverButton(main_frame.give_money_label_frame, text="+$1000", command=lambda: button_give_money(data_dict['UniqueId'], 1000), padx=5, pady=2)
+        main_frame.give_money_label_frame.give_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.give_money_label_frame.give_money_button.pack(side="left")
         main_frame.give_money_label_frame.give_more_money_button = HoverButton(main_frame.give_money_label_frame,
                                                                           text="+$5000", command=lambda: button_give_money(data_dict['UniqueId'], 5000), padx=2,
-                                                                          pady=0)
+                                                                          pady=2)
+        main_frame.give_money_label_frame.give_more_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.give_money_label_frame.give_more_money_button.pack(side="left")
 
         # Item Selector
         main_frame.give_item_label_frame = tk.LabelFrame(main_frame, text="Give Item", bd=5, borderwidth=3)
-        main_frame.give_item_label_frame.pack(side='left')
+        main_frame.give_item_label_frame.grid(row=0,column=5, sticky="nsew", pady = 5, padx = 5)
 
         main_frame.give_item_label_frame.choice_var = tk.StringVar()
 
@@ -392,18 +435,21 @@ class PlayerListFrame:
         main_frame.give_item_label_frame.selected_item.configure(width=20)
         main_frame.give_item_label_frame.selected_item.pack(side='left')
 
-        main_frame.give_item_label_frame.give_item_money_button = HoverButton(main_frame.give_item_label_frame,
+        main_frame.give_item_label_frame.give_item_button = HoverButton(main_frame.give_item_label_frame,
                                                                                text="Give Item", command=lambda: button_give_item(data_dict['UniqueId'], main_frame.give_item_label_frame.choice_var.get()), padx=2,
                                                                                pady=0)
-        main_frame.give_item_label_frame.give_item_money_button.pack(side="left")
+        main_frame.give_item_label_frame.give_item_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.give_item_label_frame.give_item_button.pack(side="left")
 
         # Kill Player
-        main_frame.kill_button = HoverButton(main_frame, text="Kill Player", command=button_hi, padx=5, pady=0)
-        main_frame.kill_button.pack(side="left")
+        main_frame.kill_button = HoverButton(main_frame, text="Kill Player", command=lambda: button_kill_player(data_dict['UniqueId']), padx=5, pady=0)
+        main_frame.kill_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.kill_button.grid(row=0,column=6, sticky="nsew", pady = 5, padx = 5)
 
         # Kick player
-        main_frame.kick_button = HoverButton(main_frame, text="Kick Player", command=button_hi, padx=5, pady=0)
-        main_frame.kick_button.pack(side="left")
+        main_frame.kick_button = HoverButton(main_frame, text="Kick Player", command=lambda: button_kick_player(data_dict['UniqueId']), padx=5, pady=0)
+        main_frame.kick_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.kick_button.grid(row=0,column=7, sticky="nsew", pady = 5, padx = 5)
 
         # TBD
 
@@ -466,9 +512,9 @@ class Application(tk.Frame):
 
 
     def __init__(self, master=None):
-        super().__init__(master, width=1200, height=1200)
+        super().__init__(master, width=master.winfo_screenwidth(), height=master.winfo_screenheight())
         self.master = master
-        self.pack()
+        self.pack(fill='both')
         self.create_menu()
         self.create_frames()
 
@@ -514,15 +560,16 @@ class Application(tk.Frame):
         # ServerInfo
 
         frame.server_name_label = tk.Label(frame, text="Server name")
-        frame.server_name_label.config(font=("Impact", MENU_FONT_SIZE))
-        frame.server_name_label.pack()
+        frame.server_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE+2))
+        frame.server_name_label.pack(fill=tk.BOTH, expand=tk.YES)
 
         frame.server_map_label = tk.Label(frame, text="Current Map")
-        frame.server_map_label.pack()
+        frame.server_map_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.server_map_label.pack(fill=tk.BOTH, expand=tk.YES)
 
         frame.server_player_count_label = tk.Label(frame, text="Player Count")
-        frame.server_player_count_label.config(font=("Impact", MENU_FONT_SIZE))
-        frame.server_player_count_label.pack()
+        frame.server_player_count_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE+2))
+        frame.server_player_count_label.pack(fill=tk.BOTH, expand=tk.YES)
 
 
 
@@ -535,11 +582,11 @@ class Application(tk.Frame):
         # Try look up the map from the values to logger.info a better looking one
         map_values_list = list(MAP_IDS.values())
         if current_map in map_values_list:
-            current_map = "{} ({})".format(list(MAP_IDS.keys())[map_values_list.index(current_map)], current_map)
+            current_map = "{} - {}".format(list(MAP_IDS.keys())[map_values_list.index(current_map)], current_map)
         self.server_info_frame.server_name_label['text'] = "Server: {}".format(server_name)
 
 
-        self.server_info_frame.server_map_label['text'] = "Map: {} (Mode: {}) (Status: {})".format(current_map, game_mode, game_status)
+        self.server_info_frame.server_map_label['text'] = "Map: {}\nMode: {}\nStatus: {}".format(current_map, game_mode, game_status)
         self.server_info_frame.server_player_count_label['text'] = "{} Players Connected".format(player_count)
 
     def create_server_action_buttons(self):
@@ -549,35 +596,35 @@ class Application(tk.Frame):
         """
         frame = self.server_actions_frame
 
-        # Disconnect
-        frame.disconnect_button = HoverButton(frame, text="Disconnect RCON", command=button_hi, padx=5, pady=2)
-        frame.disconnect_button.config(font=("Helvetica", MENU_FONT_SIZE))
-        frame.disconnect_button.pack(fill='x')
+        # Disconnect (COmmented out as we don't really need this at the moment)
+        # frame.disconnect_button = HoverButton(frame, text="Disconnect RCON", command=button_hi, padx=5, pady=2)
+        # frame.disconnect_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        # frame.disconnect_button.pack(fill='x')
         # ResetSND
         frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy", command=button_hi, padx=5, pady=2)
-        frame.reset_snd_button.config(font=("Helvetica", MENU_FONT_SIZE))
-        frame.reset_snd_button.pack(fill='x')
+        frame.reset_snd_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.reset_snd_button.grid(row=0,column=0, sticky="nsew", pady = 5, padx = 5)
         # RotateMap
         frame.rotate_map_button = HoverButton(frame, text="Rotate Map", command=button_rotate_map, padx=5, pady=2)
-        frame.rotate_map_button.config(font=("Helvetica", MENU_FONT_SIZE))
-        frame.rotate_map_button.pack(fill='x')
+        frame.rotate_map_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.rotate_map_button.grid(row=1,column=0,columnspan=2, sticky="nsew", pady = 5, padx = 5)
 
         # SetLimitedAmmoType {0-2}
         frame.set_limited_ammo_type_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3, text="Set Limited Ammo Type", padx=5, pady=2)
-        frame.set_limited_ammo_type_frame.pack(fill='x')
+        frame.set_limited_ammo_type_frame.grid(row=0,column=1, sticky="nsew", pady = 5, padx = 5)
 
         frame.set_limited_ammo_type_frame.ammo_spin = tk.Spinbox(frame.set_limited_ammo_type_frame, from_=0, to=2, width=2)
-        frame.set_limited_ammo_type_frame.ammo_spin.config(font=("Impact", MENU_FONT_SIZE))
+        frame.set_limited_ammo_type_frame.ammo_spin.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_limited_ammo_type_frame.ammo_spin.pack(side="left")
 
         frame.set_limited_ammo_type_frame.apply_button = HoverButton(frame.set_limited_ammo_type_frame, text="Apply Ammo Limit", command=button_hi, padx=5, pady=2)
-        frame.set_limited_ammo_type_frame.apply_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.set_limited_ammo_type_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_limited_ammo_type_frame.apply_button.pack(fill="x")
 
         # SwitchMap {MapName/ID} {GameMode}
         frame.set_switch_map_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
                                                           text="Switch Map", padx=5, pady=2)
-        frame.set_switch_map_frame.pack(fill='x')
+        frame.set_switch_map_frame.grid(row=2,column=0, columnspan=2,sticky="nsew", pady = 5, padx = 5)
 
         # Map combo box
         frame.set_switch_map_frame.map_id_combo = ttk.Combobox(frame.set_switch_map_frame, values=list(MAP_IDS.keys()))
@@ -589,13 +636,13 @@ class Application(tk.Frame):
         frame.set_switch_map_frame.choice_var.set(list(GAME_MODES.keys())[0])
         frame.set_switch_map_frame.game_mode = tk.OptionMenu( frame.set_switch_map_frame, frame.set_switch_map_frame.choice_var,
             *(list(GAME_MODES.keys())))
-        frame.set_switch_map_frame.game_mode.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.set_switch_map_frame.game_mode.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_switch_map_frame.game_mode.pack(side='left')
         # Apply button
         frame.set_switch_map_frame.apply_button = HoverButton(frame.set_switch_map_frame,
                                                                      text="Switch Map", command=button_switch_map, padx=5,
                                                                      pady=2)
-        frame.set_switch_map_frame.apply_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.set_switch_map_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_switch_map_frame.apply_button.pack(side="right")
 
         # GiveTeamCash {TeamId} {CashAmt}
@@ -606,7 +653,7 @@ class Application(tk.Frame):
         # Give item to all connected players
         frame.give_all_players_item_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
                                                           text="Give all players item", padx=5, pady=2)
-        frame.give_all_players_item_frame.pack(fill='x')
+        frame.give_all_players_item_frame.grid(row=3,column=0, columnspan=2, sticky="nsew", pady = 5, padx = 5)
 
         frame.give_all_players_item_frame.choice_var = tk.StringVar()
 
@@ -627,7 +674,7 @@ class Application(tk.Frame):
                                                                       frame.give_all_players_item_frame.choice_var.get()),
                                                                 padx=5,
                                                                 pady=2)
-        frame.give_all_players_item_frame.apply_button.config(font=("Helvetica", MENU_FONT_SIZE))
+        frame.give_all_players_item_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_all_players_item_frame.apply_button.pack(fill="x")
 
 
@@ -725,7 +772,7 @@ class Application(tk.Frame):
 ###############################################################
 async def main_update():
 
-    data = await send_rcon("ServerInfo")
+    data = await send_rcon("ServerInfo", use_persisted_connection=False)
 
     # Update the server details
     server_name = data.get('ServerInfo',{}).get('ServerName','')
@@ -736,10 +783,10 @@ async def main_update():
     max_players = int(player_count.split("/")[1])
     app.update_server_window(server_name, map_name, game_mode, game_status, player_count)
     # Get the Item list from the server Which shows what items the players are allowed to have here
-    data = await send_rcon("ItemList")
+    data = await send_rcon("ItemList", use_persisted_connection=False)
     app.update_server_items(data.get("ItemList", list()))
     # Get the player info
-    data = await send_rcon("RefreshList")
+    data = await send_rcon("RefreshList", use_persisted_connection=False)
     players_dict = {k:v for k, v in zip([x['Username'] for x in data['PlayerList']] , [x['UniqueId'] for x in data['PlayerList']]) }
     data = await asyncio.gather(*[send_rcon("InspectPlayer {}".format(x)) for x in list(players_dict.values())])
     app.update_player_window(data, max_players)
