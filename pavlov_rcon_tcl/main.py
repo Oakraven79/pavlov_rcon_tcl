@@ -47,6 +47,8 @@ GAME_MODES = {
 
 # Map Ids, Keys MUST be Unique as they ge translated into a list!
 MAP_IDS = {
+    'City War' : 'UGC2297877134',
+    '--- Originals' : '',
     'Data Center':'datacenter',
     'Sand':'sand',
     'Bridge' : 'bridge',
@@ -389,7 +391,7 @@ class PlayerListFrame:
 
 
         main_frame.player_name_label = tk.Label(main_frame, text=data_dict['PlayerName'])
-        main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=50)
+        main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=30)
         main_frame.player_name_label.grid(row=0,column=0, sticky="ns", pady = 5, padx = 5)
 
         main_frame.player_kda_label = tk.Label(main_frame, text="K/D/A: {}".format(data_dict['KDA']))
@@ -397,7 +399,7 @@ class PlayerListFrame:
         main_frame.player_kda_label.grid(row=0,column=1, sticky="nsew", pady = 5, padx = 5)
 
         main_frame.player_cash_label = tk.Label(main_frame, text="Cash: ${}".format(data_dict['Cash']))
-        main_frame.player_cash_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.player_cash_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3), width=20)
         main_frame.player_cash_label.grid(row=0,column=2, sticky="nsew", pady = 5, padx = 5)
 
         main_frame.player_team_label = tk.Label(main_frame, text="Team: {}".format(data_dict['TeamId']))
@@ -538,14 +540,17 @@ class Application(tk.Frame):
         """
         # Server Info Frame
         self.server_info_frame = tk.LabelFrame(self, text="Server Info", relief="raised", borderwidth=3)
+        self.server_info_frame.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
         self.server_info_frame.place(relx=0, rely=0, relheight=0.3, relwidth=0.5)
         self.create_server_info_items()
         # Server Actions Frame
         self.server_actions_frame = tk.LabelFrame(self, relief="raised", borderwidth=3, text="Server Actions")
+        self.server_actions_frame.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
         self.server_actions_frame.place(relx=0.5, rely=0, relheight=0.3, relwidth=0.5)
         self.create_server_action_buttons()
         # Server Players Frame
         self.server_players_frame = tk.LabelFrame(self, relief="raised", borderwidth=3, text="Current Players")
+        self.server_players_frame.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
         self.server_players_frame.place(relx=0, rely=0.3, relheight=0.7, relwidth=1)
         self.create_player_info_items()
 
@@ -666,7 +671,7 @@ class Application(tk.Frame):
         frame.give_all_players_item_frame.item_selection = ttk.OptionMenu(frame.give_all_players_item_frame,
                                                              frame.give_all_players_item_frame.choice_var,
                                                              *items_list)
-        frame.give_all_players_item_frame.item_selection.configure(width=20)
+        frame.give_all_players_item_frame.item_selection.configure(width=50)
         frame.give_all_players_item_frame.item_selection.pack(side="left")
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
                                                                 text="Give this to all players",
