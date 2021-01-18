@@ -15,7 +15,7 @@ import pavlovrcon
 # Set up the logger, just push to STDOUT
 ###############################################################
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.ERROR)
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -70,6 +70,8 @@ GAME_MODES = {
     'Gun Game' : 'GUN',
     'Zombie Wave' : 'ZWV',
     "Tank TDM": "TANKTDM",
+    "WW2GUN" : "WW2GUN",
+    "King of the Hill":"KOTH"
 }
 
 # Map Ids, Keys MUST be Unique as they ge translated into a list!
@@ -762,7 +764,7 @@ class Application(tk.Frame):
 
         :return:
         """
-        self.server_info_frame.server_name_label['text'] = "ERROR: Unable to connect to server - {}:{}".format(RCON_HOST, RCON_PORT)
+        self.server_info_frame.server_name_label['text'] = "ERROR: Unable to connect to server listed in server.json - {}:{}".format(RCON_HOST, RCON_PORT)
         self.server_info_frame.server_map_label['text'] = "Please see logs."
 
         self.server_info_frame.server_player_count_label['text'] = "Retrying shortly..."
