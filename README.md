@@ -8,6 +8,14 @@ I wanted to build a tool that I could use to admin Pavlov from within VR but set
 
 There are plenty of tools to manage Pavlov via RCON, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface 
 
+## Features:
+
+Supports most RCON commands (more to be added)
+
+You can specify the workshop ID of a custom map into the switch map button (as described in the RCON instructions above)
+
+For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
+
 ## Installation
 Step 0. Make sure your Pavlov server has RCON set up as per [http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Rcon_Overview_and_Commands] 
 
