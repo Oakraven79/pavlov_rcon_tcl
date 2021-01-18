@@ -15,7 +15,7 @@ import pavlovrcon
 # Set up the logger, just push to STDOUT
 ###############################################################
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -114,6 +114,18 @@ KNOWN_ITEM_NAME_MAP = {
 # inverted one for lookups
 KNOWN_ITEM_NAME_MAP_INV = {v: k for k, v in KNOWN_ITEM_NAME_MAP.items()}
 
+# Skins for players
+SKINS_LIST = [
+    "clown",
+    "prisoner",
+    "naked",
+    "farmer",
+    "russian",
+    "nato",
+    "german"
+]
+
+
 ###############################################################
 # Fonts
 ###############################################################
@@ -150,8 +162,6 @@ async def send_rcon(command, use_persisted_connection=False):
 
     # if command == "RefreshList":
     #
-    #     if random.randint(0,9) > -1:
-    #
     #         data = {
     #                     "PlayerList": [
     #                             {
@@ -162,42 +172,60 @@ async def send_rcon(command, use_persisted_connection=False):
     #                             "Username": "Oakraven2",
     #                             "UniqueId": "76561198040783598"
     #                         },
+    #                         {
+    #                             "Username": "Oakraven3",
+    #                             "UniqueId": "76561198040783599"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven4",
+    #                             "UniqueId": "76561198040783510"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven5",
+    #                             "UniqueId": "76561198040783511"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven6",
+    #                             "UniqueId": "76561198040783512"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven7",
+    #                             "UniqueId": "76561198040783513"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven8",
+    #                             "UniqueId": "76561198040783513"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven9",
+    #                             "UniqueId": "76561198040783514"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven10",
+    #                             "UniqueId": "76561198040783515"
+    #                         },
+    #                         {
+    #                             "Username": "Oakraven11",
+    #                             "UniqueId": "76561198040783516"
+    #                         },
     #
     #                     ]
     #             }
-    #     else:
-    #         data = {
-    #             "PlayerList": [
-    #                 {
-    #                     "Username": "Oakraven",
-    #                     "UniqueId": "76561198040783597"
-    #                 },
     #
-    #             ]
-    #         }
+    # elif command.startswith("InspectPlayer"):
+    #     unique_id = command.split(" ")[1]
     #
-    # elif command == "InspectPlayer 76561198040783597":
     #     data = {
     #                     "PlayerInfo":
     #                     {
-    #                             "PlayerName": "Oakraven",
-    #                             "UniqueId": "76561198040783597",
+    #                             "PlayerName": "Oakraven{}".format(unique_id[-4:]),
+    #                             "UniqueId": "{}".format(unique_id),
     #                             "KDA": "0/4/0",
     #                             "Cash": "9400",
     #                             "TeamId": "0"
     #                     }
     #             }
-    # elif command == "InspectPlayer 76561198040783598":
-    #     data = {
-    #                     "PlayerInfo":
-    #                     {
-    #                             "PlayerName": "Oakraven2",
-    #                             "UniqueId": "76561198040783598",
-    #                             "KDA": "0/4/0",
-    #                             "Cash": "9400",
-    #                             "TeamId": "0"
-    #                     }
-    #             }
+    #
     # elif command == "ItemList":
     #     data = {'ItemList': ['ak', 'vanas', 'AUG', 'awp', 'smg', 'shotgun', 'AR', 'sock', 'm9', 'cet9', 'Armour', 'kevlarhelmet', 'Grenade', 'grenade_ru', 'AK47', 'AK12', 'DE', '1911', 'mp5', 'p90', 'Smoke', 'smoke_ru', 'flash', 'flash_ru', 'sawedoff', 'Pliers', 'LMGA', 'AutoShotgun', 'AntiTank', 'kar98', 'AutoSniper', '57', 'uzi', 'Knife', 'DrumShotgun', 'Revolver', 'supp_pistol', 'supp_rifle', 'scope', 'Grip_Angled', 'Grip_Vertical', 'acog', 'holo', 'reddot', 'painkillers', 'ammo_rifle', 'ammo_sniper', 'ammo_smg', 'ammo_pistol', 'ammo_shotgun', 'ammo_special', 'taser', 'crowbar', 'boltcutters', 'lockpick', 'handcuffs', 'repairtool', 'pickaxe', 'keycard', 'syringe', 'luger', 'mp40', 'G43', 'Tokarev', 'webley', 'm1garand', 'svt40', 'grenade_us', 'smoke_us', 'grenade_ger', 'smoke_ger', 'grenade_svt', 'smoke_svt', 'bar', 'bren', 'ppsh', 'sten', 'mosin', 'springfield', 'thompson', 'mg42', 'leeenfield', 'RL_M1A1', 'RL_PIAT', 'rl_panzer', 'stg44', 'dp27', 'kross', 'vss', 'tankmg', 'tankturret', 'backblast', 'runover', 'Fire', 'fall', 'scar', 'skinhelmet_us', 'skinhelmet_ger', 'skinhelmet_svt', 'FlashLight', 'Katana', 'AdminSword', 'DiamondSword', 'OneHandedSword', 'BlueRoseSword', 'ContributorSword', 'ContributorSwordSecond', 'ContributorSwordThird', 'ContributorSwordFour', 'ContributorSwordFifth', 'Torch', 'AncientSWORD', 'TwitchSword', 'DarkAncientSword', 'NetherScythe', 'PerkBottleBase', 'juggernautbottle', 'staminupbottle', 'ExcaliburSword', 'TestingBow', 'MCBow', 'PatreonBow', 'Enderpearl', 'SnakeBow', 'PatreonSword', 'DiamondAxe']}
     #
@@ -207,9 +235,13 @@ async def send_rcon(command, use_persisted_connection=False):
     # else:
 
 
+    try:
+        rcon_obj = get_rcon(use_persisted_connection)
 
-    rcon_obj = get_rcon(use_persisted_connection)
-    data = await rcon_obj.send(command)
+        data = await rcon_obj.send(command)
+    except Exception as exc:
+        logger.error("Unable to Send RCON COMMAND: {}".format(exc))
+        return None
     # close the rcon connection
     if not use_persisted_connection:
         await rcon_obj.send("Disconnect")
@@ -241,6 +273,15 @@ def button_kick_player(unique_id):
     logger.info("Kick {}".format(unique_id))
     asyncio.run(send_rcon("Kick {}".format(unique_id)))
 
+def button_ban_player(unique_id):
+    """
+
+    :param unique_id:
+    :return:
+    """
+    logger.info("Ban {}".format(unique_id))
+    asyncio.run(send_rcon("Ban {}".format(unique_id)))
+
 def button_give_money(unique_id, amount):
     """
 
@@ -260,7 +301,7 @@ def button_give_players_item(unique_id_list, item):
     :param item:
     :return:
     """
-    # TODO: Async this call
+    # TODO: Async this call as it goes slow with lots of players
     for unique_id in unique_id_list:
         button_give_item(unique_id, item)
 
@@ -280,6 +321,26 @@ def button_give_item(unique_id, item):
         item = replace_item
     asyncio.run(send_rcon("GiveItem {} {}".format(unique_id, item)))
 
+def button_switch_team(unique_id, team_id):
+    """
+
+    :param unique_id:
+    :param team_id:
+    :return:
+    """
+    logger.info("SwitchTeam {} {}".format(unique_id, team_id))
+    asyncio.run(send_rcon("SwitchTeam {} {}".format(unique_id, team_id)))
+
+def button_switch_skins(unique_id, skin_name):
+    """
+
+
+    :param unique_id:
+    :param skin_name:
+    :return:
+    """
+    logger.info("SetPlayerSkin {} {}".format(unique_id, skin_name))
+    asyncio.run(send_rcon("SetPlayerSkin {} {}".format(unique_id, skin_name)))
 
 def button_rotate_map():
     asyncio.run(send_rcon("RotateMap"))
@@ -413,9 +474,8 @@ class PlayerListFrame:
         logger.info("Creating Frame: {}".format(data_dict))
         main_frame = tk.LabelFrame(self.parent_frame, text=data_dict['UniqueId'], bd=5)
 
+        # Main Frame for all the player info to live in
         main_frame.pack(fill='x')
-
-
 
         main_frame.player_name_label = tk.Label(main_frame, text=data_dict['PlayerName'])
         main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=30)
@@ -433,9 +493,23 @@ class PlayerListFrame:
         main_frame.player_team_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.player_team_label.grid(row=0,column=3, sticky="nsew", pady = 5, padx = 5)
 
+        # Switch teams
+        main_frame.move_player_label_frame = tk.LabelFrame(main_frame, text="Switch Team", bd=5, borderwidth=3)
+        main_frame.move_player_label_frame.grid(row=0, column=4, sticky="nsew", pady=5, padx=5)
+
+        main_frame.move_player_label_frame.team_0_button = HoverButton(main_frame.move_player_label_frame, text="0", command=lambda: button_switch_team(data_dict['UniqueId'], 0), padx=5, pady=2)
+        main_frame.move_player_label_frame.team_0_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.move_player_label_frame.team_0_button.pack(side="left")
+        main_frame.move_player_label_frame.team_1_button = HoverButton(main_frame.move_player_label_frame, text="1", command=lambda: button_switch_team(data_dict['UniqueId'], 1), padx=5, pady=2)
+        main_frame.move_player_label_frame.team_1_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.move_player_label_frame.team_1_button.pack(side="left")
+        main_frame.move_player_label_frame.team_2_button = HoverButton(main_frame.move_player_label_frame, text="2", command=lambda: button_switch_team(data_dict['UniqueId'], 2), padx=5, pady=2)
+        main_frame.move_player_label_frame.team_2_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.move_player_label_frame.team_2_button.pack(side="left")
+
         # Give money button
         main_frame.give_money_label_frame = tk.LabelFrame(main_frame, text="Give Money", bd=5, borderwidth=3)
-        main_frame.give_money_label_frame.grid(row=0,column=4, sticky="nsew", pady = 5, padx = 5)
+        main_frame.give_money_label_frame.grid(row=0,column=5, sticky="nsew", pady = 5, padx = 5)
 
         main_frame.give_money_label_frame.give_money_button = HoverButton(main_frame.give_money_label_frame, text="+$1000", command=lambda: button_give_money(data_dict['UniqueId'], 1000), padx=5, pady=2)
         main_frame.give_money_label_frame.give_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
@@ -448,7 +522,7 @@ class PlayerListFrame:
 
         # Item Selector
         main_frame.give_item_label_frame = tk.LabelFrame(main_frame, text="Give Item", bd=5, borderwidth=3)
-        main_frame.give_item_label_frame.grid(row=0,column=5, sticky="nsew", pady = 5, padx = 5)
+        main_frame.give_item_label_frame.grid(row=0,column=6, sticky="nsew", pady = 5, padx = 5)
 
         main_frame.give_item_label_frame.choice_var = tk.StringVar()
 
@@ -470,19 +544,42 @@ class PlayerListFrame:
         main_frame.give_item_label_frame.give_item_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.give_item_label_frame.give_item_button.pack(side="left")
 
+        # Switch Skin
+        main_frame.switch_skin_label_frame = tk.LabelFrame(main_frame, text="Set Player Skin", bd=5, borderwidth=3)
+        main_frame.switch_skin_label_frame.grid(row=0,column=7, sticky="nsew", pady = 5, padx = 5)
+
+        main_frame.switch_skin_label_frame.choice_var = tk.StringVar()
+        if len(SKINS_LIST) > 0:
+            main_frame.switch_skin_label_frame.choice_var.set(SKINS_LIST[0])
+        main_frame.switch_skin_label_frame.selected_item = ttk.OptionMenu(
+            main_frame.switch_skin_label_frame,
+            main_frame.switch_skin_label_frame.choice_var,
+            *SKINS_LIST
+        )
+        main_frame.switch_skin_label_frame.selected_item.configure(width=10)
+        main_frame.switch_skin_label_frame.selected_item.pack(side='left')
+
+        main_frame.switch_skin_label_frame.give_item_button = HoverButton(main_frame.switch_skin_label_frame,
+                                                                               text="Switch!", command=lambda: button_switch_skins(data_dict['UniqueId'], main_frame.switch_skin_label_frame.choice_var.get()), padx=2,
+                                                                               pady=0)
+        main_frame.switch_skin_label_frame.give_item_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.switch_skin_label_frame.give_item_button.pack(side="left")
+
+
         # Kill Player
         main_frame.kill_button = HoverButton(main_frame, text="Kill Player", command=lambda: button_kill_player(data_dict['UniqueId']), padx=5, pady=0)
         main_frame.kill_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.kill_button.grid(row=0,column=6, sticky="nsew", pady = 5, padx = 5)
+        main_frame.kill_button.grid(row=0,column=8, sticky="nsew", pady = 5, padx = 5)
 
         # Kick player
         main_frame.kick_button = HoverButton(main_frame, text="Kick Player", command=lambda: button_kick_player(data_dict['UniqueId']), padx=5, pady=0)
         main_frame.kick_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.kick_button.grid(row=0,column=7, sticky="nsew", pady = 5, padx = 5)
+        main_frame.kick_button.grid(row=0,column=9, sticky="nsew", pady = 5, padx = 5)
 
-        # TBD
-
-
+        # Ban player
+        main_frame.ban_button = HoverButton(main_frame, text="BAN PLAYER", command=lambda: button_ban_player(data_dict['UniqueId']), padx=5, pady=0)
+        main_frame.ban_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 5))
+        main_frame.ban_button.grid(row=0,column=10, sticky="nsew", pady = 5, padx = 5)
 
 
         return main_frame
@@ -620,6 +717,18 @@ class Application(tk.Frame):
 
         self.server_info_frame.server_map_label['text'] = "Map: {}\nMode: {}\nStatus: {}".format(current_map, game_mode, game_status)
         self.server_info_frame.server_player_count_label['text'] = "{} Players Connected".format(player_count)
+
+    def update_server_window_for_error(self):
+        """
+        Call this when there is a connection problem and it will mark the Server info as disconnected
+
+        :return:
+        """
+        self.server_info_frame.server_name_label['text'] = "ERROR: Unable to connect to server - {}:{}".format(RCON_HOST, RCON_PORT)
+        self.server_info_frame.server_map_label['text'] = "Please see logs."
+
+        self.server_info_frame.server_player_count_label['text'] = "Retrying shortly..."
+
 
     def create_server_action_buttons(self):
         """
@@ -806,24 +915,33 @@ async def main_update():
 
     data = await send_rcon("ServerInfo", use_persisted_connection=False)
 
-    # Update the server details
-    server_name = data.get('ServerInfo',{}).get('ServerName','')
-    map_name = data.get('ServerInfo', {}).get('MapLabel', '')
-    game_mode = data.get('ServerInfo', {}).get('GameMode', '')
-    game_status = data.get('ServerInfo', {}).get('RoundState', '')
-    player_count = data.get('ServerInfo', {}).get('PlayerCount', '')
-    max_players = int(player_count.split("/")[1])
-    app.update_server_window(server_name, map_name, game_mode, game_status, player_count)
+    max_players = 0 # Init this for further down
+
+    if data is not None:
+        # Update the server details
+        server_name = data.get('ServerInfo',{}).get('ServerName','')
+        map_name = data.get('ServerInfo', {}).get('MapLabel', '')
+        game_mode = data.get('ServerInfo', {}).get('GameMode', '')
+        game_status = data.get('ServerInfo', {}).get('RoundState', '')
+        player_count = data.get('ServerInfo', {}).get('PlayerCount', '')
+        max_players = int(player_count.split("/")[1])
+        app.update_server_window(server_name, map_name, game_mode, game_status, player_count)
+    else:
+        app.update_server_window_for_error()
     # Get the Item list from the server Which shows what items the players are allowed to have here
+
     data = await send_rcon("ItemList", use_persisted_connection=False)
-    app.update_server_items(data.get("ItemList", list()))
+    if data is not None:
+        app.update_server_items(data.get("ItemList", list()))
     # Get the player info
     data = await send_rcon("RefreshList", use_persisted_connection=False)
-    players_dict = {k:v for k, v in zip([x['Username'] for x in data['PlayerList']] , [x['UniqueId'] for x in data['PlayerList']]) }
-    data = await asyncio.gather(*[send_rcon("InspectPlayer {}".format(x)) for x in list(players_dict.values())])
-    app.update_player_window(data, max_players)
+    if data is not None:
+        players_dict = {k:v for k, v in zip([x['Username'] for x in data['PlayerList']] , [x['UniqueId'] for x in data['PlayerList']]) }
+    if data is not None:
+        data = await asyncio.gather(*[send_rcon("InspectPlayer {}".format(x)) for x in list(players_dict.values())])
+        app.update_player_window(data, max_players)
 
-
+    # TODO: Add a visual flag to the app for a connection problem
 
 
 def update_windows():
@@ -854,7 +972,6 @@ def handle_configure(event):
 # Now that i have the bulk of the windows working
 # I need to do the following
 # 1. Handle connects and disconnects
-# 2. Allow the user to specify different connection creds (via command line, config file or from within the app)
 try:
     root.after(20, update_windows)
     # start the app main loop

@@ -34,10 +34,7 @@ Please Note that it is very new and sometimes crashes and needs a restart. Work 
 On the TODO List: 
 
 - Add scroll bars when there are more players than available screen
-- Add team switching for players
-- Add uniform switching for players
 - Add give team cash to server actions
-- Ability to Ban Player
 - Add ability to list banned players and unban in server actions
 - Sometimes the background tasks freeze the UI, working to background that properly.
 
