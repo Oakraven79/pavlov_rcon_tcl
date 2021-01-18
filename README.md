@@ -27,7 +27,7 @@ Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
 Step 3. Unzip that file where you want.
 
-Step 4. edit `server.json` and supply the creds for you server
+Step 4. edit `server.json` and supply the credentials for your server
 
 Step 5. either `run_win.bat` (for windows machines) or run `python main.py` from the `pavlov_rcon_tcl` filder 
 
