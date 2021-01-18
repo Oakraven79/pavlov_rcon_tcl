@@ -18,10 +18,13 @@ You can specify the workshop ID of a custom map into the switch map button (as d
 
 For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
 
-## Installation
-Step 0. Make sure your Pavlov server has RCON set up as per [http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Rcon_Overview_and_Commands] 
+See screen shot [here](http://www.greatleapskyward.com/pavlov.jpg) (please note the data is faked to show the layout)
 
-Step 1. Go to www.python.org/downloads/ and install python 3.8 or above and get it working on your system. 
+
+## Installation
+Step 0. Make sure your Pavlov server has RCON set up as per [the Official Pavlov wiki](http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Rcon_Overview_and_Commands) 
+
+Step 1. Go to [the Python website](http://www.python.org/downloads/) and install python 3.8 or above and get it working on your system. 
 
 Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
@@ -39,7 +42,5 @@ On the TODO List:
 - Add ability to list banned players and unban in server actions
 - Sometimes the background tasks freeze the UI, working to background that properly.
 - Make the item list easy to read.
-- Make the map list easier to read
-
-
-
+- Make the map list easier to read.
+- Make the window scale appropriately to the screen size. 
