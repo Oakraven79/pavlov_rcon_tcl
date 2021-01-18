@@ -11,7 +11,7 @@ There are plenty of tools to manage Pavlov via RCON, check out http://wiki.pavlo
 ## Installation
 Step 0. Make sure your Pavlov server has RCON set up as per [http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Rcon_Overview_and_Commands] 
 
-Step 1. Go to www.python.org/downloads/ and install python 3.8 or above and get it working on your system.
+Step 1. Go to www.python.org/downloads/ and install python 3.8 or above and get it working on your system. 
 
 Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
@@ -21,5 +21,7 @@ Step 4. edit `server.json` and supply the creds for you server
 
 Step 5. either `run_win.bat` (for windows machines) or run `python main.py` from the `pavlov_rcon_tcl` filder 
 
-Please Note that it is very new and sometimes crashes and needs a restart. 
+Please Note that it is very new and sometimes crashes and needs a restart. Work in progress! 
+
+
 
