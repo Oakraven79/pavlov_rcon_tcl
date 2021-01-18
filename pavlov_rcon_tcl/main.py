@@ -1,7 +1,7 @@
 
 import platform
 import asyncio
-import random
+import json
 
 import tkinter as tk
 from tkinter import ttk
@@ -21,6 +21,32 @@ handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+###############################################################
+# Load server password creds
+###############################################################
+RCON_HOST = None
+RCON_PORT = None
+RCON_PASS = None
+
+try:
+    with open('server.json') as server_conn_json_file:
+        data = json.load(server_conn_json_file)
+        RCON_HOST = data['host']
+        RCON_PORT = int(data['port'])
+        RCON_PASS = data['password']
+except Exception as exc:
+    print("There was a problem reading server.json! Error: {}".format(exc))
+    print("""
+Ideally the file looks like this:
+    
+{
+  "host"      : "192.168.0.15",
+  "password"  : "password",
+  "port"      : "9102"
+}
+    """)
+    sys.exit(1)
 
 ###############################################################
 # Main App container
@@ -43,6 +69,7 @@ GAME_MODES = {
     'Deathmatch' : 'DM',
     'Gun Game' : 'GUN',
     'Zombie Wave' : 'ZWV',
+    "Tank TDM": "TANKTDM",
 }
 
 # Map Ids, Keys MUST be Unique as they ge translated into a list!
@@ -116,7 +143,7 @@ def get_rcon(use_persisted_connection=False):
             PERSISTED_RCON = pavlovrcon.PavlovRCON("192.168.0.15", 9102, 'password')
         return PERSISTED_RCON
     else:
-        return pavlovrcon.PavlovRCON("192.168.0.15", 9102, 'password')
+        return pavlovrcon.PavlovRCON(RCON_HOST, RCON_PORT, RCON_PASS)
 
 # Send a command
 async def send_rcon(command, use_persisted_connection=False):
