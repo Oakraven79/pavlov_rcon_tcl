@@ -10,11 +10,11 @@ There are plenty of tools to manage Pavlov via RCON, check out http://wiki.pavlo
 ## Installation
 Step 1. Go to www.python.org/downloads/ and install python 3.8 or above and get it working on your system.
 
-Step 2. Download the code as a zip (Code -> Download zip)
+Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
 Step 3. Unzip that file where you want.
 
-Step 4. edit server.json and supply the creds for you server
+Step 4. edit `server.json` and supply the creds for you server
 
-Step 5. either 'run_win.bat' 
+Step 5. either `run_win.bat` or run  
 
