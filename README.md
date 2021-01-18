@@ -6,7 +6,9 @@ This is under active development.
 ## Why does this exist?
 I wanted to build a tool that I could use to admin Pavlov from within VR but set myself a challenge to use as much vanilla python as possible. So part fun project but also hoping to contribute to what is a really cool game!
 
-There are plenty of tools to manage Pavlov via RCON, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface 
+There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface
+
+This was my attempt at the simplest way to connect to your server in game and quickly fire off commands.  
 
 ## Features:
 
@@ -34,7 +36,6 @@ Please Note that it is very new and sometimes crashes and needs a restart. Work 
 On the TODO List: 
 
 - Add scroll bars when there are more players than available screen
-- Add give team cash to server actions
 - Add ability to list banned players and unban in server actions
 - Sometimes the background tasks freeze the UI, working to background that properly.
 

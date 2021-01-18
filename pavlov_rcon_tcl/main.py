@@ -255,6 +255,18 @@ async def send_rcon(command, use_persisted_connection=False):
 def button_hi():
     logger.info("Button")
 
+def button_set_ammo_limit_type(ammo_limit_type):
+    """
+
+    SetLimitedAmmoType AmmoType
+
+    :param ammo_limit:
+    :return:
+    """
+    logger.info("SetLimitedAmmoType {}".format(ammo_limit_type))
+    asyncio.run(send_rcon("SetLimitedAmmoType {}".format(ammo_limit_type)))
+
+
 def button_kill_player(unique_id):
     """
 
@@ -343,7 +355,33 @@ def button_switch_skins(unique_id, skin_name):
     asyncio.run(send_rcon("SetPlayerSkin {} {}".format(unique_id, skin_name)))
 
 def button_rotate_map():
+    """
+
+    :return:
+    """
     asyncio.run(send_rcon("RotateMap"))
+
+
+def button_reset_snd():
+    """
+    ResetSND
+
+    :return:
+    """
+    asyncio.run(send_rcon("ResetSND"))
+
+
+def button_give_team_cash(team_id, cash_amount):
+    """
+
+    :param team_id:
+    :param cash_amount:
+    :return:
+    """
+    logger.info("GiveTeamCash {} {}".format(team_id, cash_amount))
+    asyncio.run(send_rcon("GiveTeamCash {} {}".format(team_id, cash_amount)))
+
+
 
 def button_switch_map():
     """
@@ -665,12 +703,12 @@ class Application(tk.Frame):
         # Server Info Frame
         self.server_info_frame = tk.LabelFrame(self, text="Server Info", relief="raised", borderwidth=3)
         self.server_info_frame.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
-        self.server_info_frame.place(relx=0, rely=0, relheight=0.3, relwidth=0.5)
+        self.server_info_frame.place(relx=0, rely=0, relheight=0.3, relwidth=0.35)
         self.create_server_info_items()
         # Server Actions Frame
         self.server_actions_frame = tk.LabelFrame(self, relief="raised", borderwidth=3, text="Server Actions")
         self.server_actions_frame.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
-        self.server_actions_frame.place(relx=0.5, rely=0, relheight=0.3, relwidth=0.5)
+        self.server_actions_frame.place(relx=0.35, rely=0, relheight=0.3, relwidth=0.65)
         self.create_server_action_buttons()
         # Server Players Frame
         self.server_players_frame = tk.LabelFrame(self, relief="raised", borderwidth=3, text="Current Players")
@@ -742,7 +780,7 @@ class Application(tk.Frame):
         # frame.disconnect_button.config(font=("Helvetica", MENU_FONT_SIZE))
         # frame.disconnect_button.pack(fill='x')
         # ResetSND
-        frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy", command=button_hi, padx=5, pady=2)
+        frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy", command=button_reset_snd, padx=5, pady=2)
         frame.reset_snd_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.reset_snd_button.grid(row=0,column=0, sticky="nsew", pady = 5, padx = 5)
         # RotateMap
@@ -758,7 +796,7 @@ class Application(tk.Frame):
         frame.set_limited_ammo_type_frame.ammo_spin.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_limited_ammo_type_frame.ammo_spin.pack(side="left")
 
-        frame.set_limited_ammo_type_frame.apply_button = HoverButton(frame.set_limited_ammo_type_frame, text="Apply Ammo Limit", command=button_hi, padx=5, pady=2)
+        frame.set_limited_ammo_type_frame.apply_button = HoverButton(frame.set_limited_ammo_type_frame, text="Apply Ammo Limit", command=lambda: button_set_ammo_limit_type(frame.set_limited_ammo_type_frame.ammo_spin.get()), padx=5, pady=2)
         frame.set_limited_ammo_type_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_limited_ammo_type_frame.apply_button.pack(fill="x")
 
@@ -787,6 +825,31 @@ class Application(tk.Frame):
         frame.set_switch_map_frame.apply_button.pack(side="right")
 
         # GiveTeamCash {TeamId} {CashAmt}
+        frame.give_team_cash_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
+                                                          text="Give Team Cash", padx=5, pady=2)
+        frame.give_team_cash_frame.grid(row=1, column=2, columnspan=2, sticky="nsew", pady=5, padx=5)
+
+        frame.give_team_cash_frame.team_0_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 0\n+$1000", command=lambda: button_give_team_cash(0, 1000), padx=15,
+                                             pady=2)
+        frame.give_team_cash_frame.team_0_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.give_team_cash_frame.team_0_1000_button.pack(side="left", fill='x', expand=True)
+
+        frame.give_team_cash_frame.team_1_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 1\n+$1000",
+                                                                    command=lambda: button_give_team_cash(1, 1000),
+                                                                    padx=15,
+                                                                    pady=2)
+        frame.give_team_cash_frame.team_1_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.give_team_cash_frame.team_1_1000_button.pack(side="left", fill='x', expand=True)
+
+        frame.give_team_cash_frame.team_2_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 2\n+$1000",
+                                                                    command=lambda: button_give_team_cash(2, 1000),
+                                                                    padx=15,
+                                                                    pady=2)
+        frame.give_team_cash_frame.team_2_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.give_team_cash_frame.team_2_1000_button.pack(side="left", fill='x', expand=True)
+
+
+
 
 
         # Show list of banned players, allows for unbans
@@ -794,7 +857,7 @@ class Application(tk.Frame):
         # Give item to all connected players
         frame.give_all_players_item_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
                                                           text="Give all players item", padx=5, pady=2)
-        frame.give_all_players_item_frame.grid(row=3,column=0, columnspan=2, sticky="nsew", pady = 5, padx = 5)
+        frame.give_all_players_item_frame.grid(row=0,column=2, columnspan=2, sticky="nsew", pady = 5, padx = 5)
 
         frame.give_all_players_item_frame.choice_var = tk.StringVar()
 
@@ -807,7 +870,7 @@ class Application(tk.Frame):
         frame.give_all_players_item_frame.item_selection = ttk.OptionMenu(frame.give_all_players_item_frame,
                                                              frame.give_all_players_item_frame.choice_var,
                                                              *items_list)
-        frame.give_all_players_item_frame.item_selection.configure(width=50)
+        frame.give_all_players_item_frame.item_selection.configure(width=30)
         frame.give_all_players_item_frame.item_selection.pack(side="left")
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
                                                                 text="Give this to all players",
@@ -905,7 +968,10 @@ class Application(tk.Frame):
 
         :return:
         """
-        return self.current_map_items
+        if hasattr(self, "current_map_items"):
+            return self.current_map_items
+        else:
+            return list()
 
 
 ###############################################################
