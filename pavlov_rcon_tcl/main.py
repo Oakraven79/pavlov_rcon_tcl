@@ -53,7 +53,7 @@ Ideally the file looks like this:
 ###############################################################
 def init_app():
     root = tk.Tk()
-    root.title("Pavlov RCON Helper")
+    root.title("Pavlov RCON Helper V0.01")
     root.iconbitmap("rcon.ico")
     root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
     root.state('zoomed')
@@ -123,7 +123,7 @@ MENU_FONT_NAME = "Cabin Bold"
 
 
 ###############################################################
-# Simple thing to get an Rcon connection, TODO: Make this a decorator
+# Simple thing to get an Rcon connection
 ###############################################################
 PERSISTED_RCON = None
 
