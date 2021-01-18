@@ -44,3 +44,4 @@ On the TODO List:
 - Make the item list easy to read.
 - Make the map list easier to read.
 - Make the window scale appropriately to the screen size. 
+- Multi server support

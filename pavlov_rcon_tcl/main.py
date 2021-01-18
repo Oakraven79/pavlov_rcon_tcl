@@ -1,5 +1,5 @@
 
-import platform
+
 import asyncio
 import json
 
@@ -10,6 +10,18 @@ import logging
 import sys
 
 import pavlovrcon
+
+from widgets import HoverButton
+
+# Import helper lists
+from games_modes import GAME_MODES
+from maps_list import MAP_IDS
+from items_list import KNOWN_ITEM_NAME_MAP
+from skins_list import SKINS_LIST
+
+
+# inverted this list for lookup items_list.py
+KNOWN_ITEM_NAME_MAP_INV = {v: k for k, v in KNOWN_ITEM_NAME_MAP.items()}
 
 ###############################################################
 # Set up the logger, just push to STDOUT
@@ -60,72 +72,6 @@ def init_app():
     app = Application(master=root)
     return root, app
 
-###############################################################
-# Some helper maps to make things pretty
-###############################################################
-GAME_MODES = {
-    'Seek And Destroy':'SND',
-    'Team Death Match': 'TDM',
-    'Deathmatch' : 'DM',
-    'Gun Game' : 'GUN',
-    'Zombie Wave' : 'ZWV',
-    "Tank TDM": "TANKTDM",
-    "WW2GUN" : "WW2GUN",
-    "King of the Hill":"KOTH"
-}
-
-# Map Ids, Keys MUST be Unique as they ge translated into a list!
-MAP_IDS = {
-    'City War' : 'UGC2297877134',
-    '--- Originals' : '',
-    'Data Center':'datacenter',
-    'Sand':'sand',
-    'Bridge' : 'bridge',
-    'Container Yard': 'containeryard',
-    'Siberia' : 'prisonbreak',
-    'Hospital (Zombies)': 'hospital',
-    'Kill House' : 'killhouse',
-    'Shooting Range' : 'range',
-    'Tutorial' : 'tutorial',
-    '--- New' : '', #Spacer
-    'station' : 'station',
-    'stalingrad' : 'stalingrad',
-    'santorini':'santorini',
-    'industry' : 'industry',
-    '--- PropHunt' : '', # Spacer
-    'PH Warehouse' : 'UGC1810463805',
-    'PH Hotel' : 'UGC1825578429',
-    '--- CS Maps' : ' ', # Spacer
-    'DUST II' : "UGC1664873782",
-    "Mirage" : "UGC1661803933",
-    '--- Zombies' : '  ', # Spacer
-    "NachtDerUntoten (CODz)": "UGC1836053818",
-    "Der Riese (CODz)" : "UGC1890699727",
-    "Kino Der Toten (CODz)" : "UGC1929882349",
-    "Call of the Dead (CODz)" : "UGC1948201228",
-    "Oasis: Minecraft Zombies":"UGC1931739042",
-    "Zombies - Subway - End Days" : "UGC1741218360",
-    "Zombies - Three Islands - END DAYS" : "UGC1804442427",
-}
-
-# If the name of the item has a human friendly version, add it here.
-# NOTE: KEYS AN VALUES MUST ALL BE UNIQUE!
-KNOWN_ITEM_NAME_MAP = {
-    "M249 Light Machine Gun (LMGA)" :"LMGA",
-}
-# inverted one for lookups
-KNOWN_ITEM_NAME_MAP_INV = {v: k for k, v in KNOWN_ITEM_NAME_MAP.items()}
-
-# Skins for players
-SKINS_LIST = [
-    "clown",
-    "prisoner",
-    "naked",
-    "farmer",
-    "russian",
-    "nato",
-    "german"
-]
 
 
 ###############################################################
@@ -425,30 +371,7 @@ def button_switch_map():
     logger.info(switch_str)
     asyncio.run(send_rcon(switch_str))
 
-###############################################################
-# Class to modify a button so you know when you are hovering
-# over it
-###############################################################
-class HoverButton(tk.Button):
-    def __init__(self, master, **kw):
-        tk.Button.__init__(self,master=master,**kw)
-        self.bind("<Enter>", self.on_enter)
-        self.bind("<Leave>", self.on_leave)
 
-    def on_enter(self, e):
-        #logger.info("Enter")
-        if platform.system() == "Darwin":  ### if its a Mac
-            self['highlightbackground'] = "green"
-        else:
-            self['bg'] = "green"
-
-
-    def on_leave(self, e):
-        #logger.info("leave")
-        if platform.system() == "Darwin":  ### if its a Mac
-            self['highlightbackground'] = "SystemButtonFace"
-        else:
-            self['bg'] = "SystemButtonFace"
 
 ###############################################################
 # Tkinter holder and manager for all connected players
