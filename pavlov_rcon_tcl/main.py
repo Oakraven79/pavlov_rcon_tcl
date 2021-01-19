@@ -27,7 +27,7 @@ KNOWN_ITEM_NAME_MAP_INV = {v: k for k, v in KNOWN_ITEM_NAME_MAP.items()}
 # Set up the logger, just push to STDOUT
 ###############################################################
 logger = logging.getLogger()
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -196,7 +196,7 @@ async def send_rcon(command, use_persisted_connection=False):
     if not use_persisted_connection:
         await rcon_obj.send("Disconnect")
         await rcon_obj.close()
-        
+
     logger.info(data)
     return data
 
@@ -477,9 +477,6 @@ class PlayerListFrame:
         main_frame.move_player_label_frame.team_1_button = HoverButton(main_frame.move_player_label_frame, text="1", command=lambda: button_switch_team(data_dict['UniqueId'], 1), padx=5, pady=2)
         main_frame.move_player_label_frame.team_1_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.move_player_label_frame.team_1_button.pack(side="left")
-        main_frame.move_player_label_frame.team_2_button = HoverButton(main_frame.move_player_label_frame, text="2", command=lambda: button_switch_team(data_dict['UniqueId'], 2), padx=5, pady=2)
-        main_frame.move_player_label_frame.team_2_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.move_player_label_frame.team_2_button.pack(side="left")
 
         # Give money button
         main_frame.give_money_label_frame = tk.LabelFrame(main_frame, text="Give Money", bd=5, borderwidth=3)
@@ -500,14 +497,16 @@ class PlayerListFrame:
 
         main_frame.give_item_label_frame.choice_var = tk.StringVar()
 
+        selected_give_item = ''
         if len(items_list) > 0:
             main_frame.give_item_label_frame.choice_var.set(items_list[0])
+            selected_give_item = "{}".format(items_list[0])
 
 
         main_frame.give_item_label_frame.selected_item = ttk.OptionMenu(
             main_frame.give_item_label_frame,
             main_frame.give_item_label_frame.choice_var,
-            *items_list
+            selected_give_item, *items_list
         )
         main_frame.give_item_label_frame.selected_item.configure(width=20)
         main_frame.give_item_label_frame.selected_item.pack(side='left')
@@ -525,7 +524,8 @@ class PlayerListFrame:
         main_frame.switch_skin_label_frame.choice_var = tk.StringVar()
         if len(SKINS_LIST) > 0:
             main_frame.switch_skin_label_frame.choice_var.set(SKINS_LIST[0])
-        main_frame.switch_skin_label_frame.selected_item = ttk.OptionMenu(
+
+        main_frame.switch_skin_label_frame.selected_item = tk.OptionMenu(
             main_frame.switch_skin_label_frame,
             main_frame.switch_skin_label_frame.choice_var,
             *SKINS_LIST
@@ -785,17 +785,6 @@ class Application(tk.Frame):
         frame.give_team_cash_frame.team_1_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_team_cash_frame.team_1_1000_button.pack(side="left", fill='x', expand=True)
 
-        frame.give_team_cash_frame.team_2_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 2\n+$1000",
-                                                                    command=lambda: button_give_team_cash(2, 1000),
-                                                                    padx=15,
-                                                                    pady=2)
-        frame.give_team_cash_frame.team_2_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
-        frame.give_team_cash_frame.team_2_1000_button.pack(side="left", fill='x', expand=True)
-
-
-
-
-
         # Show list of banned players, allows for unbans
 
         # Give item to all connected players
@@ -805,15 +794,18 @@ class Application(tk.Frame):
 
         frame.give_all_players_item_frame.choice_var = tk.StringVar()
 
-        items_list = ["None", ]
+        items_list = []
         frame.give_all_players_item_frame.choice_var.set("")
+        selected_give_item = ""
         if hasattr(self, 'current_map_items'):
             items_list = self.current_map_items
             frame.give_all_players_item_frame.choice_var.set(items_list[0])
+            selected_give_item = "{}".format(items_list[0])
 
-        frame.give_all_players_item_frame.item_selection = ttk.OptionMenu(frame.give_all_players_item_frame,
-                                                             frame.give_all_players_item_frame.choice_var,
-                                                             *items_list)
+        frame.give_all_players_item_frame.item_selection = ttk.OptionMenu(
+                                                                    frame.give_all_players_item_frame,
+                                                                    frame.give_all_players_item_frame.choice_var,
+                                                                    selected_give_item, *items_list)
         frame.give_all_players_item_frame.item_selection.configure(width=30)
         frame.give_all_players_item_frame.item_selection.pack(side="left")
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
@@ -903,7 +895,7 @@ class Application(tk.Frame):
 
         # Now need to update the server actions to include the new items list
         if list_is_new and len(new_item_list) >0:
-            self.server_actions_frame.give_all_players_item_frame.item_selection.set_menu(*new_item_list)
+            self.server_actions_frame.give_all_players_item_frame.item_selection.set_menu(new_item_list[0] ,*new_item_list)
             self.server_actions_frame.give_all_players_item_frame.choice_var.set(new_item_list[0])
 
 
