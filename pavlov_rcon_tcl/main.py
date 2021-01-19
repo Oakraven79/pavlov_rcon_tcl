@@ -169,6 +169,7 @@ async def send_rcon(command, use_persisted_connection=False):
     #                             "PlayerName": "Oakraven{}".format(unique_id[-4:]),
     #                             "UniqueId": "{}".format(unique_id),
     #                             "KDA": "0/4/0",
+    #                             "Score": "0",
     #                             "Cash": "9400",
     #                             "TeamId": "0"
     #                     }
@@ -178,7 +179,8 @@ async def send_rcon(command, use_persisted_connection=False):
     #     data = {'ItemList': ['ak', 'vanas', 'AUG', 'awp', 'smg', 'shotgun', 'AR', 'sock', 'm9', 'cet9', 'Armour', 'kevlarhelmet', 'Grenade', 'grenade_ru', 'AK47', 'AK12', 'DE', '1911', 'mp5', 'p90', 'Smoke', 'smoke_ru', 'flash', 'flash_ru', 'sawedoff', 'Pliers', 'LMGA', 'AutoShotgun', 'AntiTank', 'kar98', 'AutoSniper', '57', 'uzi', 'Knife', 'DrumShotgun', 'Revolver', 'supp_pistol', 'supp_rifle', 'scope', 'Grip_Angled', 'Grip_Vertical', 'acog', 'holo', 'reddot', 'painkillers', 'ammo_rifle', 'ammo_sniper', 'ammo_smg', 'ammo_pistol', 'ammo_shotgun', 'ammo_special', 'taser', 'crowbar', 'boltcutters', 'lockpick', 'handcuffs', 'repairtool', 'pickaxe', 'keycard', 'syringe', 'luger', 'mp40', 'G43', 'Tokarev', 'webley', 'm1garand', 'svt40', 'grenade_us', 'smoke_us', 'grenade_ger', 'smoke_ger', 'grenade_svt', 'smoke_svt', 'bar', 'bren', 'ppsh', 'sten', 'mosin', 'springfield', 'thompson', 'mg42', 'leeenfield', 'RL_M1A1', 'RL_PIAT', 'rl_panzer', 'stg44', 'dp27', 'kross', 'vss', 'tankmg', 'tankturret', 'backblast', 'runover', 'Fire', 'fall', 'scar', 'skinhelmet_us', 'skinhelmet_ger', 'skinhelmet_svt', 'FlashLight', 'Katana', 'AdminSword', 'DiamondSword', 'OneHandedSword', 'BlueRoseSword', 'ContributorSword', 'ContributorSwordSecond', 'ContributorSwordThird', 'ContributorSwordFour', 'ContributorSwordFifth', 'Torch', 'AncientSWORD', 'TwitchSword', 'DarkAncientSword', 'NetherScythe', 'PerkBottleBase', 'juggernautbottle', 'staminupbottle', 'ExcaliburSword', 'TestingBow', 'MCBow', 'PatreonBow', 'Enderpearl', 'SnakeBow', 'PatreonSword', 'DiamondAxe']}
     #
     # elif command == "ServerInfo":
-    #     data = {'ServerInfo': {'MapLabel': 'UGC1741218360', 'GameMode': 'ZWV', 'ServerName': 'Great Leap To Zombies', 'RoundState': 'Started', 'PlayerCount': '0/16'}}
+    #     data = {'ServerInfo': {'MapLabel': 'UGC1741218360', 'GameMode': 'ZWV', 'ServerName': 'Great Leap To Zombies', "Teams": True, "Team0Score": "0", "Team1Score": "0",'RoundState': 'Started', 'PlayerCount': '0/16'}}
+    #
     #
     # else:
 
@@ -194,14 +196,14 @@ async def send_rcon(command, use_persisted_connection=False):
     if not use_persisted_connection:
         await rcon_obj.send("Disconnect")
         await rcon_obj.close()
+        
     logger.info(data)
     return data
 
 ###############################################################
 # Action button handlers
 ###############################################################
-def button_hi():
-    logger.info("Button")
+
 
 def button_set_ammo_limit_type(ammo_limit_type):
     """
@@ -408,16 +410,23 @@ class PlayerListFrame:
             player_info = refresh_item_dict['PlayerInfo']
             unique_id = player_info['UniqueId']
             if unique_id in current_player_ids_list:
-                self.update_single_player_frame(self.player_frame_dict[unique_id], player_info, items_list)
+                player_label_frame_obj = self.player_frame_dict.get(unique_id, None)
+                if player_label_frame_obj is not None:
+                    self.update_single_player_frame(player_label_frame_obj, player_info, items_list)
+                else:
+                    logger.warning("Tried to update a player frame that has been deleted. Skipping ")
             else:
                 self.player_frame_dict[unique_id] = self.create_single_player_frame(player_info, items_list)
             seen_unique_ids_list.append(unique_id)
         # now check to see if any have gone missing
         for unique_id in current_player_ids_list:
             if unique_id not in seen_unique_ids_list:
-                self.delete_single_player_frame(self.player_frame_dict[unique_id])
-                del(self.player_frame_dict[unique_id])
-
+                player_label_frame_obj = self.player_frame_dict.get(unique_id, None)
+                if player_label_frame_obj is not None:
+                    self.delete_single_player_frame(self.player_frame_dict[unique_id])
+                    del(self.player_frame_dict[unique_id])
+                else:
+                    logger.warning("Tried to delete a player frame that has been already deleted. Skipping ")
         # Update the current items list
         self.current_items_list = items_list
 
@@ -444,11 +453,13 @@ class PlayerListFrame:
         main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=30)
         main_frame.player_name_label.grid(row=0,column=0, sticky="ns", pady = 5, padx = 5)
 
-        main_frame.player_kda_label = tk.Label(main_frame, text="K/D/A: {}".format(data_dict['KDA']))
+        kills, deaths, assists = data_dict.get('KDA', "0/0/0").split("/")
+
+        main_frame.player_kda_label = tk.Label(main_frame, text="Kills: {}\nDeaths: {}\nAssists: {}".format(kills, deaths, assists))
         main_frame.player_kda_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
         main_frame.player_kda_label.grid(row=0,column=1, sticky="nsew", pady = 5, padx = 5)
 
-        main_frame.player_cash_label = tk.Label(main_frame, text="Cash: ${}".format(data_dict['Cash']))
+        main_frame.player_cash_label = tk.Label(main_frame, text="Cash: ${}\nScore: {}".format(data_dict['Cash'],data_dict['Score']))
         main_frame.player_cash_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3), width=20)
         main_frame.player_cash_label.grid(row=0,column=2, sticky="nsew", pady = 5, padx = 5)
 
@@ -559,8 +570,11 @@ class PlayerListFrame:
         logger.info("updating Frame: {}".format(data_dict))
 
         label_frame_obj.player_name_label['text'] = data_dict['PlayerName']
-        label_frame_obj.player_kda_label['text'] = "K/D/A: {}".format(data_dict['KDA'])
-        label_frame_obj.player_cash_label['text'] = "Cash: ${}".format(data_dict['Cash'])
+
+        kills, deaths, assists = data_dict.get('KDA', "0/0/0").split("/")
+
+        label_frame_obj.player_kda_label['text'] = "Kills: {}\nDeaths: {}\nAssists: {}".format(kills, deaths, assists)
+        label_frame_obj.player_cash_label['text'] = "Cash: ${}\nScore: {}".format(data_dict['Cash'],data_dict['Score'])
         label_frame_obj.player_team_label['text'] = "Team: {}".format(data_dict['TeamId'])
 
         # If the items list has changed at all, then we overwrite the list of items
@@ -659,13 +673,17 @@ class Application(tk.Frame):
         frame.server_map_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.server_map_label.pack(fill=tk.BOTH, expand=tk.YES)
 
+        frame.server_teams_label = tk.Label(frame, text="Teams Status")
+        frame.server_teams_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.server_teams_label.pack(fill=tk.BOTH, expand=tk.YES)
+
         frame.server_player_count_label = tk.Label(frame, text="Player Count")
         frame.server_player_count_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE+2))
         frame.server_player_count_label.pack(fill=tk.BOTH, expand=tk.YES)
 
 
 
-    def update_server_window(self, server_name, current_map, game_mode, game_status, player_count):
+    def update_server_window(self, server_name, current_map, game_mode, game_status, player_count, teams_status, teams_0_score, teams_1_score ):
         """
 
         :param server_name:
@@ -677,6 +695,7 @@ class Application(tk.Frame):
             current_map = "{} - {}".format(list(MAP_IDS.keys())[map_values_list.index(current_map)], current_map)
         self.server_info_frame.server_name_label['text'] = "Server: {}".format(server_name)
 
+        self.server_info_frame.server_teams_label['text'] = "Teams: {}\nTeam 0 Score: {}\nTeam 1 Score:{}".format(teams_status, teams_0_score, teams_0_score)
 
         self.server_info_frame.server_map_label['text'] = "Map: {}\nMode: {}\nStatus: {}".format(current_map, game_mode, game_status)
         self.server_info_frame.server_player_count_label['text'] = "{} Players Connected".format(player_count)
@@ -915,8 +934,11 @@ async def main_update():
         game_mode = data.get('ServerInfo', {}).get('GameMode', '')
         game_status = data.get('ServerInfo', {}).get('RoundState', '')
         player_count = data.get('ServerInfo', {}).get('PlayerCount', '')
+        teams_status = "{}".format(data.get('ServerInfo', {}).get('Teams', ''))
+        teams_0_score = "{}".format(data.get('ServerInfo', {}).get('Team0Score', ''))
+        teams_1_score = "{}".format(data.get('ServerInfo', {}).get('Team1Score', ''))
         max_players = int(player_count.split("/")[1])
-        app.update_server_window(server_name, map_name, game_mode, game_status, player_count)
+        app.update_server_window(server_name, map_name, game_mode, game_status, player_count, teams_status, teams_0_score, teams_1_score )
     else:
         app.update_server_window_for_error()
     # Get the Item list from the server Which shows what items the players are allowed to have here

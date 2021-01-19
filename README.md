@@ -45,3 +45,4 @@ On the TODO List:
 - Make the map list easier to read.
 - Make the window scale appropriately to the screen size. 
 - Multi server support
+- Make a youtube video showing this in action
