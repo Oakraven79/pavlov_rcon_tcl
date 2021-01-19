@@ -2,8 +2,7 @@
 
 import pavlovrcon
 import logging
-
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 PERSISTED_RCON = None
 
@@ -15,10 +14,6 @@ def get_rcon(rcon_host=None, rcon_port=None, rcon_pass=None, use_persisted_conne
 
     :return:
     """
-
-
-
-
     if use_persisted_connection:
         global PERSISTED_RCON
         if PERSISTED_RCON is None:

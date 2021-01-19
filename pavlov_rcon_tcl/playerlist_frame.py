@@ -18,7 +18,7 @@ from skins_list import SKINS_LIST
 from config_items import (MENU_FONT_SIZE, MENU_FONT_NAME)
 
 import logging
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 class PlayerListFrame:
 

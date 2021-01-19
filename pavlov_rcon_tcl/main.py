@@ -7,30 +7,21 @@ import asyncio
 import json
 
 import tkinter as tk
-from tkinter import ttk
-
-import logging
-import sys
-
-
-from server_frame import SingleServerFrame
-from rcon_connector import send_rcon
-
-
-
-
-
 
 ###############################################################
 # Set up the logger, just push to STDOUT
 ###############################################################
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+import logging
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+###############################################################
+# Set up the logger, just push to STDOUT
+###############################################################
+
+from server_frame import SingleServerFrame
+from rcon_connector import send_rcon
 
 ###############################################################
 # Some help if the server.json config goes missing
@@ -75,10 +66,6 @@ def init_app():
 
     app = SingleServerFrame(master=root, rcon_host=rcon_host, rcon_port=rcon_port, rcon_pass=rcon_pass)
     return root, app
-
-
-
-
 
 ###############################################################
 # Functions to be used to update the server contents

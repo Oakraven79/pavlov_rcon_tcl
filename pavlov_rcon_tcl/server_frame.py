@@ -6,7 +6,8 @@ import asyncio
 import tkinter as tk
 from tkinter import ttk
 
-
+import logging
+logger = logging.getLogger(__name__)
 
 from widgets import HoverButton
 from rcon_connector import send_rcon
@@ -17,8 +18,7 @@ from items_list import (KNOWN_ITEM_NAME_MAP, KNOWN_ITEM_NAME_MAP_INV)
 from games_modes import GAME_MODES
 from maps_list import MAP_IDS
 
-import logging
-logger = logging.getLogger()
+
 
 class SingleServerFrame(tk.Frame):
 
@@ -141,9 +141,11 @@ class SingleServerFrame(tk.Frame):
         frame = self.server_actions_frame
 
         # Disconnect (COmmented out as we don't really need this at the moment)
+        # Perhaps use this to disconnect and remove a server from a multi server config?
         # frame.disconnect_button = HoverButton(frame, text="Disconnect RCON", command=button_hi, padx=5, pady=2)
         # frame.disconnect_button.config(font=("Helvetica", MENU_FONT_SIZE))
         # frame.disconnect_button.pack(fill='x')
+
         # ResetSND
         frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy", command=self.button_reset_snd,
                                              padx=5, pady=2)
@@ -247,8 +249,6 @@ class SingleServerFrame(tk.Frame):
         frame.give_all_players_item_frame.apply_button.pack(fill="x")
 
 
-
-
     def get_current_map_selection_values(self):
         """
         GEt the current values in the switch map area of the server actions
@@ -273,7 +273,6 @@ class SingleServerFrame(tk.Frame):
         self.player_frame = PlayerListFrame(self.server_players_frame, self.rcon_host, self.rcon_port, self.rcon_pass )
 
 
-
     def update_player_window(self, player_list_dict, max_players):
         """
         Given a list of the players currently connected it will
@@ -284,12 +283,8 @@ class SingleServerFrame(tk.Frame):
         :return:
         """
         logger.info("update_player_window: {}".format(player_list_dict))
-
-
         self.all_player_ids = [ int(x['PlayerInfo']['UniqueId']) for x in player_list_dict]
         logger.info("All player IDS: {}".format(self.all_player_ids))
-
-
         self.player_frame.update_player_frame(player_list_dict, self.get_available_items())
 
 
@@ -311,17 +306,13 @@ class SingleServerFrame(tk.Frame):
             else:
                 new_item_list.append(item)
         new_item_list.sort()
-
         list_is_new = False
-
         if hasattr(self, "current_map_items"):
             if new_item_list !=  self.current_map_items:
                 list_is_new = True
         else:
             list_is_new = True
-
         self.current_map_items = new_item_list
-
         # Now need to update the server actions to include the new items list
         if list_is_new and len(new_item_list) >0:
             self.server_actions_frame.give_all_players_item_frame.item_selection.set_menu(new_item_list[0] ,*new_item_list)
@@ -411,9 +402,7 @@ class SingleServerFrame(tk.Frame):
         # mapped_map_id is ready to submit to the server
         switch_str = "SwitchMap {} {}".format(mapped_map_id, mapped_game_mode)
         logger.info(switch_str)
-
         asyncio.run(send_rcon(switch_str, self.rcon_host, self.rcon_port, self.rcon_pass))
-
 
 
     def button_give_players_item(self, unique_id_list, item):
