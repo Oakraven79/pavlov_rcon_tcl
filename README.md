@@ -40,7 +40,6 @@ On the TODO List:
 
 - Add scroll bars when there are more players than available screen
 - Add ability to list banned players and unban in server actions
-- Sometimes the background tasks freeze the UI, working to background that properly.
 - Make the item list easy to read.
 - Make the map list easier to read.
 - Make the window scale appropriately to the screen size. 

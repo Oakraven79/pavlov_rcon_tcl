@@ -22,13 +22,14 @@ logger = logging.getLogger(__name__)
 
 class PlayerListFrame:
 
-    def __init__(self, parent_frame, rcon_host, rcon_port, rcon_pass):
+    def __init__(self, parent_frame, rcon_host, rcon_port, rcon_pass, loop):
         """
 
         :param parent_frame:
         """
         self.parent_frame = parent_frame
         self.player_frame_dict = dict()
+        self.loop = loop
 
         # Pass this in here otherwise we just have to keep reaching back the parent
         self.rcon_host = rcon_host
@@ -123,13 +124,13 @@ class PlayerListFrame:
         main_frame.move_player_label_frame.grid(row=0, column=4, sticky="nsew", pady=5, padx=5)
 
         main_frame.move_player_label_frame.team_0_button = HoverButton(main_frame.move_player_label_frame, text="0",
-                                                                       command=lambda: self.button_switch_team(
-                                                                           data_dict['UniqueId'], 0), padx=5, pady=2)
+                                                                       command=lambda: self.loop.create_task(self.button_switch_team(
+                                                                           data_dict['UniqueId'], 0)), padx=5, pady=2)
         main_frame.move_player_label_frame.team_0_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.move_player_label_frame.team_0_button.pack(side="left", fill=tk.BOTH, expand=tk.YES)
         main_frame.move_player_label_frame.team_1_button = HoverButton(main_frame.move_player_label_frame, text="1",
-                                                                       command=lambda: self.button_switch_team(
-                                                                           data_dict['UniqueId'], 1), padx=5, pady=2)
+                                                                       command=lambda: self.loop.create_task(self.button_switch_team(
+                                                                           data_dict['UniqueId'], 1)), padx=5, pady=2)
         main_frame.move_player_label_frame.team_1_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.move_player_label_frame.team_1_button.pack(side="left", fill=tk.BOTH, expand=tk.YES)
 
@@ -139,15 +140,15 @@ class PlayerListFrame:
 
         main_frame.give_money_label_frame.give_money_button = HoverButton(main_frame.give_money_label_frame,
                                                                           text="+$1000",
-                                                                          command=lambda: self.button_give_money(
-                                                                              data_dict['UniqueId'], 1000), padx=5,
+                                                                          command=lambda: self.loop.create_task(self.button_give_money(
+                                                                              data_dict['UniqueId'], 1000)), padx=5,
                                                                           pady=2)
         main_frame.give_money_label_frame.give_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.give_money_label_frame.give_money_button.pack(side="left")
         main_frame.give_money_label_frame.give_more_money_button = HoverButton(main_frame.give_money_label_frame,
                                                                                text="+$5000",
-                                                                               command=lambda: self.button_give_money(
-                                                                                   data_dict['UniqueId'], 5000), padx=2,
+                                                                               command=lambda: self.loop.create_task(self.button_give_money(
+                                                                                   data_dict['UniqueId'], 5000)), padx=2,
                                                                                pady=2)
         main_frame.give_money_label_frame.give_more_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.give_money_label_frame.give_more_money_button.pack(side="left")
@@ -174,9 +175,9 @@ class PlayerListFrame:
 
         main_frame.give_item_label_frame.give_item_button = HoverButton(main_frame.give_item_label_frame,
                                                                         text="Give Item",
-                                                                        command=lambda: self.button_give_item(
+                                                                        command=lambda: self.loop.create_task(self.button_give_item(
                                                                             data_dict['UniqueId'],
-                                                                            main_frame.give_item_label_frame.choice_var.get()),
+                                                                            main_frame.give_item_label_frame.choice_var.get())),
                                                                         padx=2,
                                                                         pady=0)
         main_frame.give_item_label_frame.give_item_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
@@ -200,9 +201,9 @@ class PlayerListFrame:
 
         main_frame.switch_skin_label_frame.give_item_button = HoverButton(main_frame.switch_skin_label_frame,
                                                                           text="Switch!",
-                                                                          command=lambda: self.button_switch_skins(
+                                                                          command=lambda: self.loop.create_task(self.button_switch_skins(
                                                                               data_dict['UniqueId'],
-                                                                              main_frame.switch_skin_label_frame.choice_var.get()),
+                                                                              main_frame.switch_skin_label_frame.choice_var.get())),
                                                                           padx=2,
                                                                           pady=0)
         main_frame.switch_skin_label_frame.give_item_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
@@ -210,19 +211,19 @@ class PlayerListFrame:
 
         # Kill Player
         main_frame.kill_button = HoverButton(main_frame, text="Kill Player",
-                                             command=lambda: self.button_kill_player(data_dict['UniqueId']), padx=5, pady=0)
+                                             command=lambda: self.loop.create_task(self.button_kill_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.kill_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.kill_button.grid(row=0, column=8, sticky="nsew", pady=5, padx=5)
 
         # Kick player
         main_frame.kick_button = HoverButton(main_frame, text="Kick Player",
-                                             command=lambda:self.button_kick_player(data_dict['UniqueId']), padx=5, pady=0)
+                                             command=lambda: self.loop.create_task(self.button_kick_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.kick_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.kick_button.grid(row=0, column=9, sticky="nsew", pady=5, padx=5)
 
         # Ban player
         main_frame.ban_button = HoverButton(main_frame, text="BAN PLAYER",
-                                            command=lambda: self.button_ban_player(data_dict['UniqueId']), padx=5, pady=0)
+                                            command=lambda: self.loop.create_task(self.button_ban_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.ban_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 5))
         main_frame.ban_button.grid(row=0, column=10, sticky="nsew", pady=5, padx=5)
 
@@ -276,34 +277,34 @@ class PlayerListFrame:
 
         label_frame_obj.destroy()
 
-    def button_kill_player(self, unique_id):
+    async def button_kill_player(self, unique_id):
         """
 
         :param unique_id:
         :return:
         """
         logger.info("Kill {}".format(unique_id))
-        asyncio.run(send_rcon("Kill {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("Kill {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_kick_player(self, unique_id):
+    async def button_kick_player(self, unique_id):
         """
 
         :param unique_id:
         :return:
         """
         logger.info("Kick {}".format(unique_id))
-        asyncio.run(send_rcon("Kick {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("Kick {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_ban_player(self, unique_id):
+    async def button_ban_player(self, unique_id):
         """
 
         :param unique_id:
         :return:
         """
         logger.info("Ban {}".format(unique_id))
-        asyncio.run(send_rcon("Ban {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("Ban {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_give_money(self, unique_id, amount):
+    async def button_give_money(self, unique_id, amount):
         """
 
 
@@ -313,9 +314,9 @@ class PlayerListFrame:
         """
 
         logger.info("Give {} ${}".format(unique_id, amount))
-        asyncio.run(send_rcon("GiveCash {} {}".format(unique_id, amount), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("GiveCash {} {}".format(unique_id, amount), self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_switch_team(self, unique_id, team_id):
+    async def button_switch_team(self, unique_id, team_id):
         """
 
         :param unique_id:
@@ -323,9 +324,9 @@ class PlayerListFrame:
         :return:
         """
         logger.info("SwitchTeam {} {}".format(unique_id, team_id))
-        asyncio.run(send_rcon("SwitchTeam {} {}".format(unique_id, team_id), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("SwitchTeam {} {}".format(unique_id, team_id), self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_switch_skins(self, unique_id, skin_name):
+    async def button_switch_skins(self, unique_id, skin_name):
         """
 
 
@@ -334,9 +335,9 @@ class PlayerListFrame:
         :return:
         """
         logger.info("SetPlayerSkin {} {}".format(unique_id, skin_name))
-        asyncio.run(send_rcon("SetPlayerSkin {} {}".format(unique_id, skin_name), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("SetPlayerSkin {} {}".format(unique_id, skin_name), self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_give_item(self, unique_id, item):
+    async def button_give_item(self, unique_id, item):
         """
 
         :param unique_id:
@@ -349,7 +350,7 @@ class PlayerListFrame:
         replace_item = KNOWN_ITEM_NAME_MAP.get(item, None)
         if replace_item is not None:
             item = replace_item
-        asyncio.run(send_rcon("GiveItem {} {}".format(unique_id, item), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("GiveItem {} {}".format(unique_id, item), self.rcon_host, self.rcon_port, self.rcon_pass)
 
 
 

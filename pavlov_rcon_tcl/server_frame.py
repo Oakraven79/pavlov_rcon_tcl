@@ -147,12 +147,15 @@ class SingleServerFrame(tk.Frame):
         # frame.disconnect_button.pack(fill='x')
 
         # ResetSND
-        frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy", command=self.button_reset_snd,
+        frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy",
+                                             command=lambda: self.master.loop.create_task(self.button_reset_snd()),
                                              padx=5, pady=2)
         frame.reset_snd_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.reset_snd_button.grid(row=0,column=0, sticky="nsew", pady = 5, padx = 5)
         # RotateMap
-        frame.rotate_map_button = HoverButton(frame, text="Rotate Map", command=self.button_rotate_map, padx=5, pady=2)
+        frame.rotate_map_button = HoverButton(frame, text="Rotate Map",
+                                              command=lambda: self.master.loop.create_task(self.button_rotate_map()),
+                                              padx=5, pady=2)
         frame.rotate_map_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.rotate_map_button.grid(row=1,column=0,columnspan=2, sticky="nsew", pady = 5, padx = 5)
 
@@ -166,8 +169,8 @@ class SingleServerFrame(tk.Frame):
 
         frame.set_limited_ammo_type_frame.apply_button = HoverButton(frame.set_limited_ammo_type_frame,
                                                                      text="Apply Ammo Limit",
-                                                                     command=lambda: self.button_set_ammo_limit_type(
-                                                                         frame.set_limited_ammo_type_frame.ammo_spin.get()),
+                                                                     command=lambda: self.master.loop.create_task(self.button_set_ammo_limit_type(
+                                                                         frame.set_limited_ammo_type_frame.ammo_spin.get())),
                                                                      padx=5, pady=2)
         frame.set_limited_ammo_type_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_limited_ammo_type_frame.apply_button.pack(fill="x")
@@ -191,8 +194,8 @@ class SingleServerFrame(tk.Frame):
         frame.set_switch_map_frame.game_mode.pack(side='left')
         # Apply button
         frame.set_switch_map_frame.apply_button = HoverButton(frame.set_switch_map_frame,
-                                                              text="Switch Map", command=lambda: self.button_switch_map(
-                                                                    self.get_current_map_selection_values()), padx=5,
+                                                              text="Switch Map", command=lambda: self.master.loop.create_task(self.button_switch_map(
+                                                                    self.get_current_map_selection_values())), padx=5,
                                                               pady=2)
         frame.set_switch_map_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_switch_map_frame.apply_button.pack(side="right")
@@ -203,14 +206,14 @@ class SingleServerFrame(tk.Frame):
         frame.give_team_cash_frame.grid(row=1, column=2, columnspan=2, sticky="nsew", pady=5, padx=5)
 
         frame.give_team_cash_frame.team_0_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 0\n+$1000",
-                                                                    command=lambda: self.button_give_team_cash(0, 1000),
+                                                                    command=lambda: self.master.loop.create_task(self.button_give_team_cash(0, 1000)),
                                                                     padx=15,
                                                                     pady=2)
         frame.give_team_cash_frame.team_0_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_team_cash_frame.team_0_1000_button.pack(side="left", fill='x', expand=True)
 
         frame.give_team_cash_frame.team_1_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 1\n+$1000",
-                                                                    command=lambda: self.button_give_team_cash(1, 1000),
+                                                                    command=lambda: self.master.loop.create_task(self.button_give_team_cash(1, 1000)),
                                                                     padx=15,
                                                                     pady=2)
         frame.give_team_cash_frame.team_1_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
@@ -241,8 +244,8 @@ class SingleServerFrame(tk.Frame):
         frame.give_all_players_item_frame.item_selection.pack(side="left")
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
                                                                 text="Give this to all players",
-                                                                command=lambda: self.button_give_players_item(self.all_player_ids,
-                                                                      frame.give_all_players_item_frame.choice_var.get()),
+                                                                command=lambda: self.master.loop.create_task(self.button_give_players_item(self.all_player_ids,
+                                                                      frame.give_all_players_item_frame.choice_var.get())),
                                                                 padx=5,
                                                                 pady=2)
         frame.give_all_players_item_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
@@ -270,7 +273,7 @@ class SingleServerFrame(tk.Frame):
         """
         logger.info("Creating player frame...")
         # Create the player window (bit of chaining between fucntions though, this needs self.server_players_frame to exist)
-        self.player_frame = PlayerListFrame(self.server_players_frame, self.rcon_host, self.rcon_port, self.rcon_pass )
+        self.player_frame = PlayerListFrame(self.server_players_frame, self.rcon_host, self.rcon_port, self.rcon_pass, loop=self.master.loop )
 
 
     def update_player_window(self, player_list_dict, max_players):
@@ -329,14 +332,14 @@ class SingleServerFrame(tk.Frame):
         else:
             return list()
 
-    def button_rotate_map(self):
+    async def button_rotate_map(self):
         """
 
         :return:
         """
-        asyncio.run(send_rcon("RotateMap", self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("RotateMap", self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_give_team_cash(self, team_id, cash_amount):
+    async def button_give_team_cash(self, team_id, cash_amount):
         """
 
         :param team_id:
@@ -344,17 +347,17 @@ class SingleServerFrame(tk.Frame):
         :return:
         """
         logger.info("GiveTeamCash {} {}".format(team_id, cash_amount))
-        asyncio.run(send_rcon("GiveTeamCash {} {}".format(team_id, cash_amount), self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("GiveTeamCash {} {}".format(team_id, cash_amount), self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_reset_snd(self):
+    async def button_reset_snd(self):
         """
         ResetSND
 
         :return:
         """
-        asyncio.run(send_rcon("ResetSND", self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("ResetSND", self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_set_ammo_limit_type(self, ammo_limit_type):
+    async def button_set_ammo_limit_type(self, ammo_limit_type):
         """
 
         SetLimitedAmmoType AmmoType
@@ -363,9 +366,9 @@ class SingleServerFrame(tk.Frame):
         :return:
         """
         logger.info("SetLimitedAmmoType {}".format(ammo_limit_type))
-        asyncio.run(send_rcon("SetLimitedAmmoType {}".format(ammo_limit_type),self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon("SetLimitedAmmoType {}".format(ammo_limit_type),self.rcon_host, self.rcon_port, self.rcon_pass)
 
-    def button_switch_map(self, selections):
+    async def button_switch_map(self, selections):
         """
         Calling this inspects the apps state for the selections
 
@@ -402,10 +405,9 @@ class SingleServerFrame(tk.Frame):
         # mapped_map_id is ready to submit to the server
         switch_str = "SwitchMap {} {}".format(mapped_map_id, mapped_game_mode)
         logger.info(switch_str)
-        asyncio.run(send_rcon(switch_str, self.rcon_host, self.rcon_port, self.rcon_pass))
+        await send_rcon(switch_str, self.rcon_host, self.rcon_port, self.rcon_pass)
 
-
-    def button_give_players_item(self, unique_id_list, item):
+    async def button_give_players_item(self, unique_id_list, item):
         """
 
         TODO: Make this use the entries in the player frame
@@ -418,4 +420,4 @@ class SingleServerFrame(tk.Frame):
         if hasattr(self, "player_frame"):
             # TODO: Async this call as it goes slow with lots of players
             for unique_id in unique_id_list:
-                self.player_frame.button_give_item(unique_id, item)
+                await self.player_frame.button_give_item(unique_id, item)

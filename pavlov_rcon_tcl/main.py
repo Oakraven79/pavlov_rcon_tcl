@@ -2,26 +2,27 @@
 Main file the executes the app
 
 """
-
+import logging
+import sys
 import asyncio
 import json
 
 import tkinter as tk
 
-###############################################################
-# Set up the logger, just push to STDOUT
-###############################################################
-import logging
-import sys
-logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-
-###############################################################
-# Set up the logger, just push to STDOUT
-###############################################################
-
 from server_frame import SingleServerFrame
 from rcon_connector import send_rcon
+
+
+###############################################################
+# Set up the logger, just push to STDOUT
+###############################################################
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 ###############################################################
 # Some help if the server.json config goes missing
@@ -38,6 +39,56 @@ Ideally the file looks like this:
 }
         
 """
+###############################################################
+# Overridden class for blending tkinter event loop with asyncio
+###############################################################
+
+class AsyncApp(tk.Tk):
+
+    def __init__(self, loop, interval=1/120):
+        super().__init__()
+        self.loop = loop
+        self.protocol("WM_DELETE_WINDOW", self.close)
+        self.tasks = []
+
+        # create these tasks so i can destory them later.
+        self.tasks.append(loop.create_task(self.run_rcon_updates()))
+        self.tasks.append(loop.create_task(self.updater(interval)))
+
+    # This is core to the tkinter update
+    async def updater(self, interval):
+        """
+        This run the tkinter updates
+
+        :param interval:
+        :return:
+        """
+        while True:
+            self.update()
+            await asyncio.sleep(interval)
+
+    async def run_rcon_updates(self, interval=5):
+        """
+        This runs the
+
+        :param interval:
+        :return:
+        """
+        logger.info("Starting Initial update")
+        await main_update()
+
+        while await asyncio.sleep(interval, True):
+            logger.info("Running update")
+            await main_update()
+            logger.info("Finishing update")
+
+
+    # This is for the closed
+    def close(self):
+        for task in self.tasks:
+            task.cancel()
+        self.loop.stop()
+        self.destroy()
 
 
 ###############################################################
@@ -57,7 +108,8 @@ def init_app():
 
 
     logger.info("SUPPLIED CREDS: {} {} {}".format(rcon_host, rcon_port, rcon_pass))
-    root = tk.Tk()
+    loop = asyncio.get_event_loop()
+    root = AsyncApp(loop)
     root.title("Pavlov RCON Helper V0.01")
     root.iconbitmap("rcon.ico")
     root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
@@ -121,9 +173,6 @@ def update_windows():
 ###############################################################
 # Application kick off stuff
 ###############################################################
-
-
-
 root, app = init_app()
 
 
@@ -137,11 +186,14 @@ def handle_configure(event):
 
 
 # Now that i have the bulk of the windows working
-# I need to do the following
-# 1. Handle connects and disconnects
+
 try:
-    root.after(20, update_windows)
+    loop = asyncio.get_event_loop()
+
+    loop.run_forever()
+    loop.close()
+    #root.after(20, update_windows)
     # start the app main loop
-    app.mainloop()
+    #app.mainloop()
 except Exception as exc:
     logger.info("Exception occurred: {}".format(exc))
