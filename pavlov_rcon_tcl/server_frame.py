@@ -111,7 +111,7 @@ class SingleServerFrame(tk.Frame):
         :param server_name:
         :return:
         """
-        # Try look up the map from the values to logger.info a better looking one
+        # Try look up the map from the values to convert it an easier to read one. 
         map_values_list = list(MAP_IDS.values())
         if current_map in map_values_list:
             current_map = "{} - {}".format(list(MAP_IDS.keys())[map_values_list.index(current_map)], current_map)
@@ -418,6 +418,6 @@ class SingleServerFrame(tk.Frame):
         """
         # Check to see if the player frame has been drawn
         if hasattr(self, "player_frame"):
-            # TODO: Async this call as it goes slow with lots of players
+            # This executes all the calls to give players this item in parallel. Make it rain guns!
             await asyncio.gather(*[self.player_frame.button_give_item(unique_id, item) for unique_id in unique_id_list])
 
