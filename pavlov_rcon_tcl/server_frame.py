@@ -31,7 +31,6 @@ class SingleServerFrame(tk.Frame):
         self.rcon_pass = rcon_pass
 
         self.pack(fill='both')
-        self.create_menu()
         self.create_frames()
 
     def get_server_creds(self):
@@ -45,17 +44,52 @@ class SingleServerFrame(tk.Frame):
             'rcon_pass' : self.rcon_pass
         }
 
-    def create_menu(self):
+    async def exec_rcon_update(self):
         """
-        Draws the File Menu
+        Method that triggers the update of the current server frame and all its components
+
+        TODO: Add some visual flag to mark connection issues
 
         :return:
         """
-        menubar = tk.Menu(self.master)
-        self.master.config(menu=menubar)
-        filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Exit", command=self.master.quit)
-        menubar.add_cascade(label="File", menu=filemenu)
+
+        server_creds = self.get_server_creds()
+
+        data = await send_rcon("ServerInfo", **server_creds, use_persisted_connection=False)
+
+        max_players = 0  # Init this for further down
+
+        if data is not None:
+            # Update the server details
+            server_name = data.get('ServerInfo', {}).get('ServerName', '')
+            map_name = data.get('ServerInfo', {}).get('MapLabel', '')
+            game_mode = data.get('ServerInfo', {}).get('GameMode', '')
+            game_status = data.get('ServerInfo', {}).get('RoundState', '')
+            player_count = data.get('ServerInfo', {}).get('PlayerCount', '')
+            teams_status = "{}".format(data.get('ServerInfo', {}).get('Teams', ''))
+            teams_0_score = "{}".format(data.get('ServerInfo', {}).get('Team0Score', ''))
+            teams_1_score = "{}".format(data.get('ServerInfo', {}).get('Team1Score', ''))
+            max_players = int(player_count.split("/")[1])
+            self.update_server_window(server_name, map_name, game_mode, game_status, player_count, teams_status,
+                                     teams_0_score, teams_1_score)
+        else:
+            self.update_server_window_for_error()
+        # Get the Item list from the server Which shows what items the players are allowed to have here
+        data = await send_rcon("ItemList", **server_creds, use_persisted_connection=False)
+        if data is not None:
+            self.update_server_items(data.get("ItemList", list()))
+        # Get the player info
+        data = await send_rcon("RefreshList", **server_creds, use_persisted_connection=False)
+        if data is not None:
+            players_dict = {k: v for k, v in zip([x['Username'] for x in data['PlayerList']],
+                                                 [x['UniqueId'] for x in data['PlayerList']])}
+        if data is not None:
+            data = await asyncio.gather(
+                *[send_rcon("InspectPlayer {}".format(x), **server_creds) for x in list(players_dict.values())])
+            self.update_player_window(data, max_players)
+
+
+
 
     def create_frames(self):
         """
