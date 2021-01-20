@@ -205,14 +205,14 @@ class SingleServerFrame(tk.Frame):
                                                           text="Give Team Cash", padx=5, pady=2)
         frame.give_team_cash_frame.grid(row=1, column=2, columnspan=2, sticky="nsew", pady=5, padx=5)
 
-        frame.give_team_cash_frame.team_0_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 0\n+$1000",
+        frame.give_team_cash_frame.team_0_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team 0\n+$1000",
                                                                     command=lambda: self.master.loop.create_task(self.button_give_team_cash(0, 1000)),
                                                                     padx=15,
                                                                     pady=2)
         frame.give_team_cash_frame.team_0_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_team_cash_frame.team_0_1000_button.pack(side="left", fill='x', expand=True)
 
-        frame.give_team_cash_frame.team_1_1000_button = HoverButton(frame.give_team_cash_frame, text="Team 1\n+$1000",
+        frame.give_team_cash_frame.team_1_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team 1\n+$1000",
                                                                     command=lambda: self.master.loop.create_task(self.button_give_team_cash(1, 1000)),
                                                                     padx=15,
                                                                     pady=2)
@@ -419,5 +419,5 @@ class SingleServerFrame(tk.Frame):
         # Check to see if the player frame has been drawn
         if hasattr(self, "player_frame"):
             # TODO: Async this call as it goes slow with lots of players
-            for unique_id in unique_id_list:
-                await self.player_frame.button_give_item(unique_id, item)
+            await asyncio.gather(*[self.player_frame.button_give_item(unique_id, item) for unique_id in unique_id_list])
+

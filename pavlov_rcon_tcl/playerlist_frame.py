@@ -5,7 +5,6 @@ This is imported by SingleServerFrame and used from within it
 
 
 """
-import asyncio
 import tkinter as tk
 
 from tkinter import ttk
@@ -45,13 +44,9 @@ class PlayerListFrame:
         :return:
         """
         logger.info("Updating the players with {}".format(data))
-
-
         # Each player has a Unique ID, so we build a list of those as each frame, if the user dissappears so does the frame
         # and all its child widgets.
-
         # The list is sorted according to who arrived first. If you want a leaderboard, be in the game.
-
         # Create or update as needed
         current_player_ids_list = list(self.player_frame_dict.keys())
         seen_unique_ids_list = list()
@@ -138,14 +133,14 @@ class PlayerListFrame:
         main_frame.give_money_label_frame = tk.LabelFrame(main_frame, text="Give Money", bd=5, borderwidth=3)
         main_frame.give_money_label_frame.grid(row=0, column=5, sticky="nsew", pady=5, padx=5)
 
-        main_frame.give_money_label_frame.give_money_button = HoverButton(main_frame.give_money_label_frame,
+        main_frame.give_money_label_frame.give_money_button = HoverButton(main_frame.give_money_label_frame, button_colour="lime green",
                                                                           text="+$1000",
                                                                           command=lambda: self.loop.create_task(self.button_give_money(
                                                                               data_dict['UniqueId'], 1000)), padx=5,
                                                                           pady=2)
         main_frame.give_money_label_frame.give_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.give_money_label_frame.give_money_button.pack(side="left")
-        main_frame.give_money_label_frame.give_more_money_button = HoverButton(main_frame.give_money_label_frame,
+        main_frame.give_money_label_frame.give_more_money_button = HoverButton(main_frame.give_money_label_frame, button_colour="lime green",
                                                                                text="+$5000",
                                                                                command=lambda: self.loop.create_task(self.button_give_money(
                                                                                    data_dict['UniqueId'], 5000)), padx=2,
@@ -210,19 +205,19 @@ class PlayerListFrame:
         main_frame.switch_skin_label_frame.give_item_button.pack(side="left")
 
         # Kill Player
-        main_frame.kill_button = HoverButton(main_frame, text="Kill Player",
+        main_frame.kill_button = HoverButton(main_frame, text="Kill Player", button_colour="pale green",
                                              command=lambda: self.loop.create_task(self.button_kill_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.kill_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.kill_button.grid(row=0, column=8, sticky="nsew", pady=5, padx=5)
 
         # Kick player
-        main_frame.kick_button = HoverButton(main_frame, text="Kick Player",
+        main_frame.kick_button = HoverButton(main_frame, text="Kick Player", button_colour="orange",
                                              command=lambda: self.loop.create_task(self.button_kick_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.kick_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.kick_button.grid(row=0, column=9, sticky="nsew", pady=5, padx=5)
 
         # Ban player
-        main_frame.ban_button = HoverButton(main_frame, text="BAN PLAYER",
+        main_frame.ban_button = HoverButton(main_frame, text="BAN PLAYER", button_colour="red",
                                             command=lambda: self.loop.create_task(self.button_ban_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.ban_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 5))
         main_frame.ban_button.grid(row=0, column=10, sticky="nsew", pady=5, padx=5)
@@ -351,7 +346,3 @@ class PlayerListFrame:
         if replace_item is not None:
             item = replace_item
         await send_rcon("GiveItem {} {}".format(unique_id, item), self.rcon_host, self.rcon_port, self.rcon_pass)
-
-
-
-

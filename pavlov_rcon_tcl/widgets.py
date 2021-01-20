@@ -8,10 +8,11 @@ import tkinter as tk
 # over it
 ###############################################################
 class HoverButton(tk.Button):
-    def __init__(self, master, **kw):
-        tk.Button.__init__(self,master=master,**kw)
+    def __init__(self, master, button_colour="sky blue", **kw):
+        tk.Button.__init__(self,master=master, **kw)
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
+        self.custom_colour = button_colour
 
     def on_enter(self, e):
         """
@@ -21,9 +22,9 @@ class HoverButton(tk.Button):
         :return:
         """
         if platform.system() == "Darwin":  ### if its a Mac
-            self['highlightbackground'] = "green"
+            self['highlightbackground'] = self.custom_colour
         else:
-            self['bg'] = "green"
+            self['bg'] = self.custom_colour
 
 
     def on_leave(self, e):
