@@ -160,40 +160,14 @@ async def main_update():
     # TODO: Add a visual flag to the app for a connection problem
 
 
-def update_windows():
-    logger.info("Running")
-    try:
-        asyncio.run(main_update())
-    except asyncio.exceptions.TimeoutError as exc:
-        logger.info("Server took tool long to respond, Will try again shortly...")
-    # Add itself back in to the main loop so it runs again.
-    root.after(5000, update_windows)
-
-
 ###############################################################
 # Application kick off stuff
 ###############################################################
 root, app = init_app()
 
-
-
-# testing resize handling
-# Bind the action to the root container so it gets the event and then let app object sort out the layout
-
-def handle_configure(event):
-    logger.info("window geometry:\n" + root.geometry())
-#root.bind("<Configure>", handle_configure)
-
-
-# Now that i have the bulk of the windows working
-
 try:
     loop = asyncio.get_event_loop()
-
     loop.run_forever()
     loop.close()
-    #root.after(20, update_windows)
-    # start the app main loop
-    #app.mainloop()
 except Exception as exc:
     logger.info("Exception occurred: {}".format(exc))

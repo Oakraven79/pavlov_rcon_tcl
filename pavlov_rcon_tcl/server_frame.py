@@ -219,7 +219,7 @@ class SingleServerFrame(tk.Frame):
         frame.give_team_cash_frame.team_1_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_team_cash_frame.team_1_1000_button.pack(side="left", fill='x', expand=True)
 
-        # Show list of banned players, allows for unbans
+        # Show list of banned players, allows for unbans # TODO
 
         # Give item to all connected players
         frame.give_all_players_item_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
