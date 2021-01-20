@@ -16,7 +16,7 @@ from async_app import AsyncApp
 
 logging.basicConfig(
     stream=sys.stdout,
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
@@ -53,7 +53,8 @@ def main():
                 servers_list.append({
                     'rcon_host' : data['host'],
                     'rcon_port' : int(data['port']),
-                    'rcon_pass' : data['password']
+                    'rcon_pass' : data['password'],
+                    'rcon_name' : data.get("display_name", "No Name")
                 })
 
     except Exception as exc:
@@ -77,7 +78,6 @@ def main():
         loop.close()
     except Exception as exc:
         logger.info("Exception occurred during app initialisation: {}".format(exc))
-
 
 
 if __name__ == '__main__':

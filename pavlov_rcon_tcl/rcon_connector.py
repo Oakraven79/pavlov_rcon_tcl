@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 PERSISTED_RCON = None
 
-def get_rcon(rcon_host=None, rcon_port=None, rcon_pass=None, use_persisted_connection=False):
+def get_rcon(rcon_host=None, rcon_port=None, rcon_pass=None):
     """
     This is responsible for providing an active connection to the desired server connection.
 
@@ -14,18 +14,10 @@ def get_rcon(rcon_host=None, rcon_port=None, rcon_pass=None, use_persisted_conne
 
     :return:
     """
-    if use_persisted_connection:
-        global PERSISTED_RCON
-        if PERSISTED_RCON is None:
-            PERSISTED_RCON = pavlovrcon.PavlovRCON(rcon_host, rcon_port, rcon_pass)
-        if not PERSISTED_RCON.is_connected():
-            PERSISTED_RCON = pavlovrcon.PavlovRCON(rcon_host, rcon_port, rcon_pass)
-        return PERSISTED_RCON
-    else:
-        return pavlovrcon.PavlovRCON(rcon_host, rcon_port, rcon_pass)
+    return pavlovrcon.PavlovRCON(rcon_host, rcon_port, rcon_pass)
 
 # Send a command
-async def send_rcon(command, rcon_host=None, rcon_port=None, rcon_pass=None, use_persisted_connection=False):
+async def send_rcon(command, rcon_host=None, rcon_port=None, rcon_pass=None):
 
     # if command == "RefreshList":
     #
@@ -105,16 +97,15 @@ async def send_rcon(command, rcon_host=None, rcon_port=None, rcon_pass=None, use
 
 
     try:
-        rcon_obj = get_rcon(rcon_host=rcon_host, rcon_port=rcon_port, rcon_pass=rcon_pass, use_persisted_connection=use_persisted_connection)
+        rcon_obj = get_rcon(rcon_host=rcon_host, rcon_port=rcon_port, rcon_pass=rcon_pass)
 
         data = await rcon_obj.send(command)
+        await rcon_obj.send("Disconnect")
+        await rcon_obj.close()
     except Exception as exc:
         logger.error("Unable to Send RCON COMMAND: {}".format(exc))
         return None
-    # close the rcon connection
-    if not use_persisted_connection:
-        await rcon_obj.send("Disconnect")
-        await rcon_obj.close()
+
 
     logger.info(data)
     return data

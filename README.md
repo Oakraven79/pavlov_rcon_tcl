@@ -16,6 +16,8 @@ Supports most RCON commands (more to be added)
 
 You can specify the workshop ID of a custom map into the switch map button (as described in the RCON instructions above)
 
+Supports multiple servers, add seperate entries in the `server.json`
+
 For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
 
 See screen shot [here](http://www.greatleapskyward.com/pavlov.jpg) (please note the data is faked to show the layout)
@@ -30,7 +32,7 @@ Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
 Step 3. Unzip that file where you want.
 
-Step 4. edit `server.json` and supply the credentials for your server
+Step 4. edit `server.json` and supply the credentials for your server ("display_name" is what you want to see it in this app )
 
 Step 5. either `run_win.bat` (for windows machines) or run `python main.py` from the `pavlov_rcon_tcl` folder 
 
@@ -43,5 +45,4 @@ On the TODO List:
 - Make the item list easy to read.
 - Make the map list easier to read.
 - Make the window scale appropriately to the screen size. 
-- Multi server support
 - Make a youtube video showing this in action

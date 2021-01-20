@@ -1,7 +1,14 @@
 [
   {
-    "host"      : "192.168.0.15",
-    "password"  : "password",
-    "port"      : "9102"
+    "display_name" : "My Custom Server",
+    "host"         : "192.168.0.15",
+    "password"     : "password",
+    "port"         : "9102"
+  },
+  {
+    "display_name" : "My Custom Server 2",
+    "host"         : "192.168.0.15",
+    "password"     : "password",
+    "port"         : "9102"
   }
 ]

@@ -23,12 +23,13 @@ from maps_list import MAP_IDS
 class SingleServerFrame(tk.Frame):
 
 
-    def __init__(self, master=None, rcon_host=None, rcon_port=None, rcon_pass=None):
+    def __init__(self, master=None, loop=None, rcon_host=None, rcon_port=None, rcon_pass=None):
         super().__init__(master, width=master.winfo_screenwidth(), height=master.winfo_screenheight())
         self.master = master
         self.rcon_host = rcon_host
         self.rcon_port = rcon_port
         self.rcon_pass = rcon_pass
+        self.loop = loop
 
         self.pack(fill='both')
         self.create_frames()
@@ -55,7 +56,7 @@ class SingleServerFrame(tk.Frame):
 
         server_creds = self.get_server_creds()
 
-        data = await send_rcon("ServerInfo", **server_creds, use_persisted_connection=False)
+        data = await send_rcon("ServerInfo", **server_creds)
 
         max_players = 0  # Init this for further down
 
@@ -75,11 +76,11 @@ class SingleServerFrame(tk.Frame):
         else:
             self.update_server_window_for_error()
         # Get the Item list from the server Which shows what items the players are allowed to have here
-        data = await send_rcon("ItemList", **server_creds, use_persisted_connection=False)
+        data = await send_rcon("ItemList", **server_creds)
         if data is not None:
             self.update_server_items(data.get("ItemList", list()))
         # Get the player info
-        data = await send_rcon("RefreshList", **server_creds, use_persisted_connection=False)
+        data = await send_rcon("RefreshList", **server_creds)
         if data is not None:
             players_dict = {k: v for k, v in zip([x['Username'] for x in data['PlayerList']],
                                                  [x['UniqueId'] for x in data['PlayerList']])}
@@ -182,13 +183,13 @@ class SingleServerFrame(tk.Frame):
 
         # ResetSND
         frame.reset_snd_button = HoverButton(frame, text="Reset Seek and Destroy",
-                                             command=lambda: self.master.loop.create_task(self.button_reset_snd()),
+                                             command=lambda: self.loop.create_task(self.button_reset_snd()),
                                              padx=5, pady=2)
         frame.reset_snd_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.reset_snd_button.grid(row=0,column=0, sticky="nsew", pady = 5, padx = 5)
         # RotateMap
         frame.rotate_map_button = HoverButton(frame, text="Rotate Map",
-                                              command=lambda: self.master.loop.create_task(self.button_rotate_map()),
+                                              command=lambda: self.loop.create_task(self.button_rotate_map()),
                                               padx=5, pady=2)
         frame.rotate_map_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.rotate_map_button.grid(row=1,column=0,columnspan=2, sticky="nsew", pady = 5, padx = 5)
@@ -203,7 +204,7 @@ class SingleServerFrame(tk.Frame):
 
         frame.set_limited_ammo_type_frame.apply_button = HoverButton(frame.set_limited_ammo_type_frame,
                                                                      text="Apply Ammo Limit",
-                                                                     command=lambda: self.master.loop.create_task(self.button_set_ammo_limit_type(
+                                                                     command=lambda: self.loop.create_task(self.button_set_ammo_limit_type(
                                                                          frame.set_limited_ammo_type_frame.ammo_spin.get())),
                                                                      padx=5, pady=2)
         frame.set_limited_ammo_type_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
@@ -228,7 +229,7 @@ class SingleServerFrame(tk.Frame):
         frame.set_switch_map_frame.game_mode.pack(side='left')
         # Apply button
         frame.set_switch_map_frame.apply_button = HoverButton(frame.set_switch_map_frame,
-                                                              text="Switch Map", command=lambda: self.master.loop.create_task(self.button_switch_map(
+                                                              text="Switch Map", command=lambda: self.loop.create_task(self.button_switch_map(
                                                                     self.get_current_map_selection_values())), padx=5,
                                                               pady=2)
         frame.set_switch_map_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
@@ -240,14 +241,14 @@ class SingleServerFrame(tk.Frame):
         frame.give_team_cash_frame.grid(row=1, column=2, columnspan=2, sticky="nsew", pady=5, padx=5)
 
         frame.give_team_cash_frame.team_0_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team 0\n+$1000",
-                                                                    command=lambda: self.master.loop.create_task(self.button_give_team_cash(0, 1000)),
+                                                                    command=lambda: self.loop.create_task(self.button_give_team_cash(0, 1000)),
                                                                     padx=15,
                                                                     pady=2)
         frame.give_team_cash_frame.team_0_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_team_cash_frame.team_0_1000_button.pack(side="left", fill='x', expand=True)
 
         frame.give_team_cash_frame.team_1_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team 1\n+$1000",
-                                                                    command=lambda: self.master.loop.create_task(self.button_give_team_cash(1, 1000)),
+                                                                    command=lambda: self.loop.create_task(self.button_give_team_cash(1, 1000)),
                                                                     padx=15,
                                                                     pady=2)
         frame.give_team_cash_frame.team_1_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
@@ -278,7 +279,7 @@ class SingleServerFrame(tk.Frame):
         frame.give_all_players_item_frame.item_selection.pack(side="left")
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
                                                                 text="Give this to all players",
-                                                                command=lambda: self.master.loop.create_task(self.button_give_players_item(self.all_player_ids,
+                                                                command=lambda: self.loop.create_task(self.button_give_players_item(self.all_player_ids,
                                                                       frame.give_all_players_item_frame.choice_var.get())),
                                                                 padx=5,
                                                                 pady=2)
@@ -307,7 +308,7 @@ class SingleServerFrame(tk.Frame):
         """
         logger.info("Creating player frame...")
         # Create the player window (bit of chaining between fucntions though, this needs self.server_players_frame to exist)
-        self.player_frame = PlayerListFrame(self.server_players_frame, self.rcon_host, self.rcon_port, self.rcon_pass, loop=self.master.loop )
+        self.player_frame = PlayerListFrame(self.server_players_frame, self.rcon_host, self.rcon_port, self.rcon_pass, loop=self.loop )
 
 
     def update_player_window(self, player_list_dict, max_players):
