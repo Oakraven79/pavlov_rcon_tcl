@@ -4,7 +4,7 @@ A small app written in Python Tkinter and asyncio to interface with Pavlov's RCO
 This is under active development.
 
 ## Why does this exist?
-I wanted to build a tool that I could use to admin Pavlov from within VR but set myself a challenge to use as much vanilla python as possible. So part fun project but also hoping to contribute to what is a really cool game!
+I wanted to build a tool that I could use to admin Pavlov from within VR (via Virtual Desktop)but set myself a challenge to use as much vanilla python as possible. So part fun project but also hoping to contribute to what is a really cool game!
 
 There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface
 
