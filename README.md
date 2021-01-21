@@ -43,7 +43,7 @@ On the TODO List:
 - Add ability to list banned players and unban in server actions
 - Make the item list easy to read.
 - Make the map list easier to read.
-- Make the window scale appropriately to the screen size. 
+- Make the window and fonts scale appropriately to the screen size. 
 - Make a youtube video showing this in action
 - Turn this into something that is installable via pip
 - Make this a standalone .exe for windows machines 
