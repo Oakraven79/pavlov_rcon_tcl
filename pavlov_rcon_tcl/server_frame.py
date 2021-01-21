@@ -9,7 +9,7 @@ from tkinter import ttk
 import logging
 logger = logging.getLogger(__name__)
 
-from widgets import HoverButton
+from widgets import (HoverButton, ScrollableFrame)
 from rcon_connector import send_rcon
 from playerlist_frame import PlayerListFrame
 
@@ -107,8 +107,7 @@ class SingleServerFrame(tk.Frame):
         self.server_actions_frame.place(relx=0.35, rely=0, relheight=0.3, relwidth=0.65)
         self.create_server_action_buttons()
         # Server Players Frame
-        self.server_players_frame = tk.LabelFrame(self, relief="raised", borderwidth=3, text="Current Players")
-        self.server_players_frame.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
+        self.server_players_frame = ScrollableFrame(self, relief="raised", borderwidth=3)
         self.server_players_frame.place(relx=0, rely=0.3, relheight=0.7, relwidth=1)
         self.create_player_info_items()
 
@@ -182,6 +181,8 @@ class SingleServerFrame(tk.Frame):
         frame.grid_columnconfigure(1, weight=1)
         frame.grid_columnconfigure(2, weight=1)
         frame.grid_columnconfigure(3, weight=1)
+
+
 
 
         # Disconnect (COmmented out as we don't really need this at the moment)
@@ -290,10 +291,10 @@ class SingleServerFrame(tk.Frame):
                                                                     frame.give_all_players_item_frame,
                                                                     frame.give_all_players_item_frame.choice_var,
                                                                     selected_give_item, *items_list, style='server_frame.TMenubutton')
-        frame.give_all_players_item_frame.item_selection.configure(width=30)
+        frame.give_all_players_item_frame.item_selection.configure(width=15)
         frame.give_all_players_item_frame.item_selection.pack(side="left", fill="both", expand=tk.YES)
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
-                                                                text="Give this to all players",
+                                                                text="Give to all",
                                                                 command=lambda: self.loop.create_task(self.button_give_players_item(self.all_player_ids,
                                                                       frame.give_all_players_item_frame.choice_var.get())),
                                                                 padx=5,

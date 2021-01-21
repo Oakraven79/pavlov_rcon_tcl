@@ -40,7 +40,6 @@ Please Note that it is very new and sometimes crashes and needs a restart. Work 
 
 On the TODO List: 
 
-- Add scroll bars when there are more players than available screen
 - Add ability to list banned players and unban in server actions
 - Make the item list easy to read.
 - Make the map list easier to read.

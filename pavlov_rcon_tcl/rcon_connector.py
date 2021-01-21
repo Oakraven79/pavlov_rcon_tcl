@@ -2,6 +2,8 @@
 
 import pavlovrcon
 import logging
+import random
+
 logger = logging.getLogger(__name__)
 
 PERSISTED_RCON = None
@@ -20,8 +22,8 @@ def get_rcon(rcon_host=None, rcon_port=None, rcon_pass=None):
 async def send_rcon(command, rcon_host=None, rcon_port=None, rcon_pass=None):
 
     # if command == "RefreshList":
-    #
-    #         data = {
+    #         if random.randint(0,10) > 4:
+    #             data = {
     #                     "PlayerList": [
     #                             {
     #                                     "Username": "Oakraven",
@@ -53,7 +55,7 @@ async def send_rcon(command, rcon_host=None, rcon_port=None, rcon_pass=None):
     #                         },
     #                         {
     #                             "Username": "Oakraven8",
-    #                             "UniqueId": "76561198040783513"
+    #                             "UniqueId": "76561198040783517"
     #                         },
     #                         {
     #                             "Username": "Oakraven9",
@@ -70,7 +72,21 @@ async def send_rcon(command, rcon_host=None, rcon_port=None, rcon_pass=None):
     #
     #                     ]
     #             }
+    #         else:
+    #             data = {
+    #                 "PlayerList": [
+    #                     {
+    #                         "Username": "Oakraven",
+    #                         "UniqueId": "76561198040783597"
+    #                     },
+    #                     {
+    #                         "Username": "Oakraven2",
+    #                         "UniqueId": "76561198040783598"
+    #                     },
     #
+    #
+    #                 ]
+    #             }
     # elif command.startswith("InspectPlayer"):
     #     unique_id = command.split(" ")[1]
     #

@@ -2,6 +2,8 @@
 import platform
 import tkinter as tk
 
+from tkinter import ttk
+
 
 ###############################################################
 # Class to modify a button so you know when you are hovering
@@ -38,3 +40,51 @@ class HoverButton(tk.Button):
             self['highlightbackground'] = "SystemButtonFace"
         else:
             self['bg'] = "SystemButtonFace"
+
+
+
+
+class ScrollableFrame(ttk.LabelFrame):
+    """
+    I wanted a frame with scroll bars that i could add lots of content to.
+
+    This is modified from https://blog.tecladocode.com/tkinter-scrollable-frames/
+
+    Thank you Jose Salvatierra!
+
+    Expands the canvas properly came from
+    https://stackoverflow.com/questions/29319445/tkinter-how-to-get-frame-in-canvas-window-to-expand-to-the-size-of-the-canvas
+
+
+    """
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+        self.canvas = tk.Canvas(self)
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas,relief="raised", borderwidth=10)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.canvas_frame = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        self.scrollable_frame.bind("<Configure>", self.OnFrameConfigure)
+        self.canvas.bind('<Configure>', self.FrameWidth)
+
+        self.canvas.pack(side="left", fill="both", expand=tk.YES)
+        scrollbar.pack(side="right", fill="y")
+
+    def FrameWidth(self, event):
+        canvas_width = event.width
+        self.canvas.itemconfig(self.canvas_frame, width=canvas_width)
+
+    def OnFrameConfigure(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+

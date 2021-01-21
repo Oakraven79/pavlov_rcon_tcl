@@ -26,7 +26,8 @@ class PlayerListFrame:
 
         :param parent_frame:
         """
-        self.parent_frame = parent_frame
+        self.parent_frame = parent_frame # The LabelFrame that contains all of this
+
         self.player_frame_dict = dict()
         self.loop = loop
 
@@ -53,14 +54,20 @@ class PlayerListFrame:
         for refresh_item_dict in data:
             player_info = refresh_item_dict['PlayerInfo']
             unique_id = player_info['UniqueId']
-            if unique_id in current_player_ids_list:
-                player_label_frame_obj = self.player_frame_dict.get(unique_id, None)
-                if player_label_frame_obj is not None:
-                    self.update_single_player_frame(player_label_frame_obj, player_info, items_list)
-                else:
-                    logger.warning("Tried to update a player frame that has been deleted. Skipping ")
+            if unique_id in seen_unique_ids_list:
+                # Somehow we've got 2 players steam ideas that are exactly the same...
+                logger.warning("Saw Unique_ID {} two times in a player list...")
             else:
-                self.player_frame_dict[unique_id] = self.create_single_player_frame(player_info, items_list)
+                if unique_id in current_player_ids_list:
+
+                    player_label_frame_obj = self.player_frame_dict.get(unique_id, None)
+                    if player_label_frame_obj is not None:
+                        self.update_single_player_frame(player_label_frame_obj, player_info, items_list)
+                    else:
+                        logger.warning("Tried to update a player frame that has been deleted. Skipping ")
+                else:
+                    self.player_frame_dict[unique_id] = self.create_single_player_frame(player_info, items_list)
+            # Mark this as seen
             seen_unique_ids_list.append(unique_id)
         # now check to see if any have gone missing
         for unique_id in current_player_ids_list:
@@ -88,12 +95,11 @@ class PlayerListFrame:
         :return:
         """
         logger.info("Creating Frame: {}".format(data_dict))
-        main_frame = tk.LabelFrame(self.parent_frame, text=data_dict['UniqueId'], bd=5)
+        main_frame = tk.LabelFrame(self.parent_frame.scrollable_frame, text=data_dict['UniqueId'], bd=5)
+
+        main_frame.pack(fill='x', expand=tk.YES)
+
         main_frame.grid_rowconfigure(0, weight=1) # only 1 row, and it can expand as needed
-
-
-        # Main Frame for all the player info to live in
-        main_frame.pack(fill='x') # TODO: likely move this up a level to add scroll bars?
 
         main_frame.player_name_label = tk.Label(main_frame, text=data_dict['PlayerName'])
         main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=30)

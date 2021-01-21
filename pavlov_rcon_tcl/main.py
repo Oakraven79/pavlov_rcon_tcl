@@ -65,7 +65,7 @@ def main():
     try:
         loop = asyncio.get_event_loop()
         root = AsyncApp(loop)
-        root.title("Pavlov RCON Helper V0.01")
+        root.title("Pavlov RCON Helper V0.5")
         root.iconbitmap("rcon.ico")
         root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
         root.state('zoomed')
