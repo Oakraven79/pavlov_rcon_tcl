@@ -174,6 +174,15 @@ class SingleServerFrame(tk.Frame):
         :return:
         """
         frame = self.server_actions_frame
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_rowconfigure(2, weight=1)
+
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_columnconfigure(1, weight=1)
+        frame.grid_columnconfigure(2, weight=1)
+        frame.grid_columnconfigure(3, weight=1)
+
 
         # Disconnect (COmmented out as we don't really need this at the moment)
         # Perhaps use this to disconnect and remove a server from a multi server config?
@@ -187,6 +196,9 @@ class SingleServerFrame(tk.Frame):
                                              padx=5, pady=2)
         frame.reset_snd_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.reset_snd_button.grid(row=0,column=0, sticky="nsew", pady = 5, padx = 5)
+
+
+
         # RotateMap
         frame.rotate_map_button = HoverButton(frame, text="Rotate Map",
                                               command=lambda: self.loop.create_task(self.button_rotate_map()),
@@ -208,17 +220,20 @@ class SingleServerFrame(tk.Frame):
                                                                          frame.set_limited_ammo_type_frame.ammo_spin.get())),
                                                                      padx=5, pady=2)
         frame.set_limited_ammo_type_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
-        frame.set_limited_ammo_type_frame.apply_button.pack(fill="x")
+        frame.set_limited_ammo_type_frame.apply_button.pack(side="left", fill="x", expand=tk.YES)
 
         # SwitchMap {MapName/ID} {GameMode}
         frame.set_switch_map_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
-                                                          text="Switch Map", padx=5, pady=2)
+                                                          text="Switch Map", padx=2, pady=2)
         frame.set_switch_map_frame.grid(row=2,column=0, columnspan=2,sticky="nsew", pady = 5, padx = 5)
 
         # Map combo box
-        frame.set_switch_map_frame.map_id_combo = ttk.Combobox(frame.set_switch_map_frame, values=list(MAP_IDS.keys()))
+        frame.set_switch_map_frame.map_id_combo = ttk.Combobox(frame.set_switch_map_frame,
+                                                               values=list(MAP_IDS.keys()),
+                                                               font = (MENU_FONT_NAME, MENU_FONT_SIZE)
+                                                )
         frame.set_switch_map_frame.map_id_combo.configure(width=40)
-        frame.set_switch_map_frame.map_id_combo.pack(side='left')
+        frame.set_switch_map_frame.map_id_combo.pack(side="left", fill="both", expand=tk.YES)
 
         # Game Mode Choice
         frame.set_switch_map_frame.choice_var = tk.StringVar()
@@ -226,14 +241,14 @@ class SingleServerFrame(tk.Frame):
         frame.set_switch_map_frame.game_mode = tk.OptionMenu( frame.set_switch_map_frame, frame.set_switch_map_frame.choice_var,
             *(list(GAME_MODES.keys())))
         frame.set_switch_map_frame.game_mode.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
-        frame.set_switch_map_frame.game_mode.pack(side='left')
+        frame.set_switch_map_frame.game_mode.pack(side='left', fill="y", expand=tk.YES)
         # Apply button
         frame.set_switch_map_frame.apply_button = HoverButton(frame.set_switch_map_frame,
                                                               text="Switch Map", command=lambda: self.loop.create_task(self.button_switch_map(
-                                                                    self.get_current_map_selection_values())), padx=5,
+                                                                    self.get_current_map_selection_values())), padx=2,
                                                               pady=2)
         frame.set_switch_map_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
-        frame.set_switch_map_frame.apply_button.pack(side="right")
+        frame.set_switch_map_frame.apply_button.pack(side="left", fill="both", expand=tk.YES)
 
         # GiveTeamCash {TeamId} {CashAmt}
         frame.give_team_cash_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
@@ -274,9 +289,9 @@ class SingleServerFrame(tk.Frame):
         frame.give_all_players_item_frame.item_selection = ttk.OptionMenu(
                                                                     frame.give_all_players_item_frame,
                                                                     frame.give_all_players_item_frame.choice_var,
-                                                                    selected_give_item, *items_list)
+                                                                    selected_give_item, *items_list, style='server_frame.TMenubutton')
         frame.give_all_players_item_frame.item_selection.configure(width=30)
-        frame.give_all_players_item_frame.item_selection.pack(side="left")
+        frame.give_all_players_item_frame.item_selection.pack(side="left", fill="both", expand=tk.YES)
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
                                                                 text="Give this to all players",
                                                                 command=lambda: self.loop.create_task(self.button_give_players_item(self.all_player_ids,
@@ -284,7 +299,7 @@ class SingleServerFrame(tk.Frame):
                                                                 padx=5,
                                                                 pady=2)
         frame.give_all_players_item_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
-        frame.give_all_players_item_frame.apply_button.pack(fill="x")
+        frame.give_all_players_item_frame.apply_button.pack(side="left", fill="both", expand=tk.YES)
 
 
     def get_current_map_selection_values(self):

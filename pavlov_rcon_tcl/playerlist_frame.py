@@ -89,34 +89,37 @@ class PlayerListFrame:
         """
         logger.info("Creating Frame: {}".format(data_dict))
         main_frame = tk.LabelFrame(self.parent_frame, text=data_dict['UniqueId'], bd=5)
+        main_frame.grid_rowconfigure(0, weight=1) # only 1 row, and it can expand as needed
+
 
         # Main Frame for all the player info to live in
-        main_frame.pack(fill='x')
+        main_frame.pack(fill='x') # TODO: likely move this up a level to add scroll bars?
 
         main_frame.player_name_label = tk.Label(main_frame, text=data_dict['PlayerName'])
         main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=30)
-        main_frame.player_name_label.grid(row=0,column=0, sticky="ns", pady = 5, padx = 5)
+        main_frame.player_name_label.grid(row=0,column=0, sticky="nesw", pady = 2, padx = 5)
+        main_frame.grid_columnconfigure(0, weight=1) #We want player name to expand, default weight is 0
 
         kills, deaths, assists = data_dict.get('KDA', "0/0/0").split("/")
 
         main_frame.player_kda_label = tk.Label(
             main_frame, text="Kills: {}\nDeaths: {}\nAssists: {}".format(kills, deaths, assists)
         )
-        main_frame.player_kda_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3))
-        main_frame.player_kda_label.grid(row=0,column=1, sticky="nsew", pady = 5, padx = 5)
+        main_frame.player_kda_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE-3), width=20)
+        main_frame.player_kda_label.grid(row=0,column=1, sticky="nesw", pady=2, padx = 5)
 
         main_frame.player_cash_label = tk.Label(main_frame, text="Cash: ${}\nScore: {}".format(data_dict['Cash'],
                                                                                                data_dict['Score']))
         main_frame.player_cash_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3), width=20)
-        main_frame.player_cash_label.grid(row=0,column=2, sticky="nsew", pady = 5, padx = 5)
+        main_frame.player_cash_label.grid(row=0,column=2, sticky="nesw", pady = 2, padx = 5)
 
         main_frame.player_team_label = tk.Label(main_frame, text="Team: {}".format(data_dict['TeamId']))
         main_frame.player_team_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.player_team_label.grid(row=0,column=3, sticky="nsew", pady = 5, padx = 5)
+        main_frame.player_team_label.grid(row=0,column=3, sticky="nesw", pady = 2, padx = 5)
 
         # Switch teams
         main_frame.move_player_label_frame = tk.LabelFrame(main_frame, text="Switch Team", bd=5, borderwidth=3)
-        main_frame.move_player_label_frame.grid(row=0, column=4, sticky="nsew", pady=5, padx=5)
+        main_frame.move_player_label_frame.grid(row=0, column=4, sticky="nesw", pady=2, padx=5)
 
         main_frame.move_player_label_frame.team_0_button = HoverButton(main_frame.move_player_label_frame, text="0",
                                                                        command=lambda: self.loop.create_task(self.button_switch_team(
@@ -131,7 +134,8 @@ class PlayerListFrame:
 
         # Give money button
         main_frame.give_money_label_frame = tk.LabelFrame(main_frame, text="Give Money", bd=5, borderwidth=3)
-        main_frame.give_money_label_frame.grid(row=0, column=5, sticky="nsew", pady=5, padx=5)
+        main_frame.give_money_label_frame.grid(row=0, column=5, sticky="nesw", pady=2, padx=5)
+        main_frame.grid_columnconfigure(5, weight=1)  # We want give money  to expand, default weight is 0
 
         main_frame.give_money_label_frame.give_money_button = HoverButton(main_frame.give_money_label_frame, button_colour="lime green",
                                                                           text="+$1000",
@@ -139,18 +143,19 @@ class PlayerListFrame:
                                                                               data_dict['UniqueId'], 1000)), padx=5,
                                                                           pady=2)
         main_frame.give_money_label_frame.give_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.give_money_label_frame.give_money_button.pack(side="left")
+        main_frame.give_money_label_frame.give_money_button.pack(side="left", fill=tk.BOTH, expand=tk.YES)
         main_frame.give_money_label_frame.give_more_money_button = HoverButton(main_frame.give_money_label_frame, button_colour="lime green",
                                                                                text="+$5000",
                                                                                command=lambda: self.loop.create_task(self.button_give_money(
                                                                                    data_dict['UniqueId'], 5000)), padx=2,
                                                                                pady=2)
         main_frame.give_money_label_frame.give_more_money_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.give_money_label_frame.give_more_money_button.pack(side="left")
+        main_frame.give_money_label_frame.give_more_money_button.pack(side="left", fill=tk.BOTH, expand=tk.YES)
 
         # Item Selector
         main_frame.give_item_label_frame = tk.LabelFrame(main_frame, text="Give Item", bd=5, borderwidth=3)
-        main_frame.give_item_label_frame.grid(row=0,column=6, sticky="nsew", pady = 5, padx = 5)
+        main_frame.give_item_label_frame.grid(row=0,column=6, sticky="nesw", pady = 2, padx = 5)
+        main_frame.grid_columnconfigure(6, weight=1)  # We want give item to expand, default weight is 0
 
         main_frame.give_item_label_frame.choice_var = tk.StringVar()
 
@@ -163,10 +168,10 @@ class PlayerListFrame:
         main_frame.give_item_label_frame.selected_item = ttk.OptionMenu(
             main_frame.give_item_label_frame,
             main_frame.give_item_label_frame.choice_var,
-            selected_give_item, *items_list
+            selected_give_item, *items_list, style = 'player_frame.TMenubutton'
         )
         main_frame.give_item_label_frame.selected_item.configure(width=20)
-        main_frame.give_item_label_frame.selected_item.pack(side='left')
+        main_frame.give_item_label_frame.selected_item.pack(side='left', fill=tk.BOTH, expand=tk.YES)
 
         main_frame.give_item_label_frame.give_item_button = HoverButton(main_frame.give_item_label_frame,
                                                                         text="Give Item",
@@ -176,23 +181,24 @@ class PlayerListFrame:
                                                                         padx=2,
                                                                         pady=0)
         main_frame.give_item_label_frame.give_item_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.give_item_label_frame.give_item_button.pack(side="left")
+        main_frame.give_item_label_frame.give_item_button.pack(side="left", fill=tk.BOTH, expand=tk.YES)
 
         # Switch Skin
         main_frame.switch_skin_label_frame = tk.LabelFrame(main_frame, text="Set Player Skin", bd=5, borderwidth=3)
-        main_frame.switch_skin_label_frame.grid(row=0, column=7, sticky="nsew", pady=5, padx=5)
+        main_frame.switch_skin_label_frame.grid(row=0, column=7, sticky="nesw", pady=2, padx=5)
+        main_frame.grid_columnconfigure(7, weight=1)  # We want switch skin  to expand, default weight is 0
 
         main_frame.switch_skin_label_frame.choice_var = tk.StringVar()
         if len(SKINS_LIST) > 0:
             main_frame.switch_skin_label_frame.choice_var.set(SKINS_LIST[0])
 
-        main_frame.switch_skin_label_frame.selected_item = tk.OptionMenu(
+        main_frame.switch_skin_label_frame.selected_item = ttk.OptionMenu(
             main_frame.switch_skin_label_frame,
             main_frame.switch_skin_label_frame.choice_var,
-            *SKINS_LIST
+            SKINS_LIST[0], *SKINS_LIST, style = 'player_frame.TMenubutton'
         )
         main_frame.switch_skin_label_frame.selected_item.configure(width=10)
-        main_frame.switch_skin_label_frame.selected_item.pack(side='left')
+        main_frame.switch_skin_label_frame.selected_item.pack(side='left', fill=tk.BOTH, expand=tk.YES)
 
         main_frame.switch_skin_label_frame.give_item_button = HoverButton(main_frame.switch_skin_label_frame,
                                                                           text="Switch!",
@@ -202,25 +208,25 @@ class PlayerListFrame:
                                                                           padx=2,
                                                                           pady=0)
         main_frame.switch_skin_label_frame.give_item_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.switch_skin_label_frame.give_item_button.pack(side="left")
+        main_frame.switch_skin_label_frame.give_item_button.pack(side="left", fill=tk.BOTH, expand=tk.YES)
 
         # Kill Player
         main_frame.kill_button = HoverButton(main_frame, text="Kill Player", button_colour="pale green",
                                              command=lambda: self.loop.create_task(self.button_kill_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.kill_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.kill_button.grid(row=0, column=8, sticky="nsew", pady=5, padx=5)
+        main_frame.kill_button.grid(row=0, column=8, sticky="nesw", pady=2, padx=5)
 
         # Kick player
         main_frame.kick_button = HoverButton(main_frame, text="Kick Player", button_colour="orange",
                                              command=lambda: self.loop.create_task(self.button_kick_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.kick_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
-        main_frame.kick_button.grid(row=0, column=9, sticky="nsew", pady=5, padx=5)
+        main_frame.kick_button.grid(row=0, column=9, sticky="nesw", pady=2, padx=5)
 
         # Ban player
         main_frame.ban_button = HoverButton(main_frame, text="BAN PLAYER", button_colour="red",
                                             command=lambda: self.loop.create_task(self.button_ban_player(data_dict['UniqueId'])), padx=5, pady=0)
         main_frame.ban_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 5))
-        main_frame.ban_button.grid(row=0, column=10, sticky="nsew", pady=5, padx=5)
+        main_frame.ban_button.grid(row=0, column=10, sticky="nesw", pady=2, padx=5)
 
 
         return main_frame

@@ -32,6 +32,7 @@ class AsyncApp(tk.Tk):
         self.loop = loop
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.tasks = []
+        self.give_the_app_some_style()
         self.create_menu()
         # Create the tabs for multiple servers
         self.create_server_tabs()
@@ -53,6 +54,27 @@ class AsyncApp(tk.Tk):
         filemenu.add_command(label="Exit", command=self.close)
         menubar.add_cascade(label="File", menu=filemenu)
 
+    def give_the_app_some_style(self):
+        """
+        ttk has some global style options, as some child objects repeat i'd rather not set them
+        over and over again, so i'll do it here.
+
+        :return:
+        """
+        style = ttk.Style()
+        # set the drop down options in the player frame
+        style.configure('player_frame.TMenubutton', font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE-3), 'normal'))
+        # set the drop down options in the server frame
+        style.configure('server_frame.TMenubutton', font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE), 'normal'))
+        # make the notebook tabs look big and clickable (width 1000 so they always fill the top)
+        style.configure('TNotebook.Tab',
+                    font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE - 3), 'normal'),
+                    width=1000,
+                    padding=15
+                    )
+
+
+
     def create_server_tabs(self):
         """
         Create the Notebook tab
@@ -60,12 +82,6 @@ class AsyncApp(tk.Tk):
         :return:
         """
         self.tabbed_server = ttk.Notebook(self)
-        s = ttk.Style()
-        s.configure('TNotebook.Tab',
-                    font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE- 3), 'normal'),
-                    width = 1000,
-                    padding = 15
-        )
         self.tabbed_server.pack(expand = 1, fill ="both")
 
     # This is core to the tkinter update
