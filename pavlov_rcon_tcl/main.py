@@ -16,7 +16,7 @@ from async_app import AsyncApp
 
 logging.basicConfig(
     stream=sys.stdout,
-    level=logging.DEBUG,
+    level=logging.WARNING,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
@@ -27,14 +27,31 @@ logger = logging.getLogger(__name__)
 
 SERVER_JSON_CONFIG_EXAMPLE = """
 
-Ideally the file looks like this:
+Ideally the file looks like this for one server(JSON):
 
 [
-  {
-    "host"      : "192.168.0.15",
-    "password"  : "password",
-    "port"      : "9102"
-  }
+    {
+        "display_name"  : "My Server",
+        "host"          : "1.1.1.1",
+        "password"      : "password",
+        "port"          : "910"
+    }
+]
+
+For multiple servers:
+
+[
+    {
+        "display_name"  : "My Server",
+        "host"          : "1.1.1.1",
+        "password"      : "password",
+        "port"          : "910"
+    },{
+        "display_name"  : "My Server 2",
+        "host"          : "2.2.2.2",
+        "password"      : "password",
+        "port"          : "9100"
+    }
 ]
         
 """
