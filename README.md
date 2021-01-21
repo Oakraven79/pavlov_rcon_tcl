@@ -32,9 +32,9 @@ Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
 Step 3. Unzip that file where you want.
 
-Step 4. edit `server.json` and supply the credentials for your server ("display_name" is what you want to see it in this app )
+Step 4. edit `server.json` and supply the credentials for your servers or servers ("display_name" is what you want to see it in this app )
 
-Step 5. either `run_win.bat` (for windows machines) or run `python main.py` from the `pavlov_rcon_tcl` folder 
+Step 5. either `run_win.bat` in the `pavlov_rcon_tcl` folder (for windows machines) or run `python main.py` from the `pavlov_rcon_tcl` folder 
 
 Please Note that it is very new and sometimes crashes and needs a restart. Work in progress! 
 
