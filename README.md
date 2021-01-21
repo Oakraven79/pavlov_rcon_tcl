@@ -45,3 +45,5 @@ On the TODO List:
 - Make the map list easier to read.
 - Make the window scale appropriately to the screen size. 
 - Make a youtube video showing this in action
+- Turn this into something that is installable via pip
+- Make this a standalone .exe for windows machines 
