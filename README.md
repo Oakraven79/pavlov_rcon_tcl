@@ -33,7 +33,7 @@ Step 0. Make sure your Pavlov server has RCON set up as per [the Official Pavlov
 
 ### Option 1:  Stand alone .exe (Windows Only)
 
-Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/v0.51-alpha/pavlov_rcon_tcl-0-51.zip
+Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/v0.51-alpha2/pavlov_rcon_tcl-0-51.zip
 
 Step 2. Unzip that file where you want.
 
