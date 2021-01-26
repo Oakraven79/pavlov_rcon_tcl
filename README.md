@@ -72,5 +72,5 @@ Step 5. either `run_win.bat` in the `pavlov_rcon_tcl` folder (for windows machin
 
 For feedback and suggestions on this tool contact @Oakraven on the official Pavlov Discord (https://discord.com/invite/pavlov-vr)
 
-###Please note i'm just a fan writing a tool for the game, not an official member of the team at all. 
-###They are much cooler than me.
+### Please note i'm just a fan writing a tool for the game, not an official member of the team at all. 
+### They are much cooler than me.
