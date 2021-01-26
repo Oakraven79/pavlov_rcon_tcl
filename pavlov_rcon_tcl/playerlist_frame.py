@@ -53,7 +53,10 @@ class PlayerListFrame:
         seen_unique_ids_list = list()
         for refresh_item_dict in data:
             player_info = refresh_item_dict['PlayerInfo']
-            unique_id = player_info['UniqueId']
+            unique_id = player_info.get('UniqueId', None)
+            if unique_id is None:
+                logger.warning("Got null data for a player.. Skipping")
+                continue
             if unique_id in seen_unique_ids_list:
                 # Somehow we've got 2+ players steam ids that are exactly the same...
                 logger.warning("Saw Unique_ID {} 2+ times in a player list, skipping this player...")
@@ -249,9 +252,14 @@ class PlayerListFrame:
         :param data_dict:
         :return:
         """
+        if data_dict is None:
+            logger.warning("Update frame for player is None, no update performed")
+            return
+
         logger.info("updating Frame: {}".format(data_dict))
 
-        label_frame_obj.player_name_label['text'] = data_dict['PlayerName']
+
+        label_frame_obj.player_name_label['text'] = data_dict.get('PlayerName', "Unknown")
 
         kills, deaths, assists = data_dict.get('KDA', "0/0/0").split("/")
 

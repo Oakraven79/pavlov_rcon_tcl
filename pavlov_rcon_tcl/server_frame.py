@@ -344,7 +344,8 @@ class SingleServerFrame(tk.Frame):
         :return:
         """
         logger.info("update_player_window: {}".format(player_list_dict))
-        self.all_player_ids = [ int(x['PlayerInfo']['UniqueId']) for x in player_list_dict]
+        # For the ID list iu've been given try to get all the ids, make sure strip out null values
+        self.all_player_ids =[y for y in [ int(x.get('PlayerInfo',{}).get('UniqueId', None)) for x in player_list_dict] if y is not None]
         logger.info("All player IDS: {}".format(self.all_player_ids))
         self.player_frame.update_player_frame(player_list_dict, self.get_available_items())
 
