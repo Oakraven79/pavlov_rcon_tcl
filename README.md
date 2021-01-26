@@ -1,7 +1,7 @@
 # pavlov_rcon_tcl
 Want to manage your Pavlov server from within VR?
 
-What does it look like? https://www.youtube.com/watch?v=5LaPFFVmiqA
+What does it look like? https://www.youtube.com/watch?v=OrHwuWEGjaA
 
 This is a small app written in Python Tkinter and asyncio to interface with Pavlov's RCON from within VR.
 
