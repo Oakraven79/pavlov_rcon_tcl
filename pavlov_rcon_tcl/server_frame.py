@@ -9,6 +9,8 @@ from tkinter import ttk
 import logging
 logger = logging.getLogger(__name__)
 
+import local_utils
+
 from widgets import (HoverButton, ScrollableFrame)
 from rcon_connector import send_rcon
 from playerlist_frame import PlayerListFrame
@@ -85,11 +87,14 @@ class SingleServerFrame(tk.Frame):
             players_dict = {k: v for k, v in zip([x['Username'] for x in data['PlayerList']],
                                                  [x['UniqueId'] for x in data['PlayerList']])}
         if data is not None:
-            data = await asyncio.gather(
-                *[send_rcon("InspectPlayer {}".format(x), **server_creds) for x in list(players_dict.values())])
-            self.update_player_window(data, max_players)
-
-
+            player_data_list = []
+            chunk_size = 5 # only do 5 players at a time
+            for chunked_list in local_utils.chunker(list(players_dict.values()), chunk_size):
+                player_data_list.extend(
+                    await asyncio.gather(
+                        *[send_rcon("InspectPlayer {}".format(x), **server_creds) for x in chunked_list])
+                )
+            self.update_player_window(player_data_list, max_players)
 
 
     def create_frames(self):
@@ -183,8 +188,6 @@ class SingleServerFrame(tk.Frame):
         frame.grid_columnconfigure(3, weight=1)
 
 
-
-
         # Disconnect (COmmented out as we don't really need this at the moment)
         # Perhaps use this to disconnect and remove a server from a multi server config?
         # frame.disconnect_button = HoverButton(frame, text="Disconnect RCON", command=button_hi, padx=5, pady=2)
@@ -231,7 +234,8 @@ class SingleServerFrame(tk.Frame):
         # Map combo box
         frame.set_switch_map_frame.map_id_combo = ttk.Combobox(frame.set_switch_map_frame,
                                                                values=list(MAP_IDS.keys()),
-                                                               font = (MENU_FONT_NAME, MENU_FONT_SIZE)
+                                                               font = (MENU_FONT_NAME, MENU_FONT_SIZE),
+                                                               style='server_frame.TCombobox'
                                                 )
         frame.set_switch_map_frame.map_id_combo.configure(width=40)
         frame.set_switch_map_frame.map_id_combo.pack(side="left", fill="both", expand=tk.YES)
@@ -242,6 +246,7 @@ class SingleServerFrame(tk.Frame):
         frame.set_switch_map_frame.game_mode = tk.OptionMenu( frame.set_switch_map_frame, frame.set_switch_map_frame.choice_var,
             *(list(GAME_MODES.keys())))
         frame.set_switch_map_frame.game_mode.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.set_switch_map_frame.game_mode["menu"].configure(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_switch_map_frame.game_mode.pack(side='left', fill="y", expand=tk.YES)
         # Apply button
         frame.set_switch_map_frame.apply_button = HoverButton(frame.set_switch_map_frame,
@@ -292,6 +297,7 @@ class SingleServerFrame(tk.Frame):
                                                                     frame.give_all_players_item_frame.choice_var,
                                                                     selected_give_item, *items_list, style='server_frame.TMenubutton')
         frame.give_all_players_item_frame.item_selection.configure(width=15)
+        frame.give_all_players_item_frame.item_selection["menu"].configure(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_all_players_item_frame.item_selection.pack(side="left", fill="both", expand=tk.YES)
         frame.give_all_players_item_frame.apply_button = HoverButton(frame.give_all_players_item_frame,
                                                                 text="Give to all",
@@ -329,7 +335,8 @@ class SingleServerFrame(tk.Frame):
 
     def update_player_window(self, player_list_dict, max_players):
         """
-        Given a list of the players currently connected it will
+        Given a list of the players currently connected it will call the player frame object and give it the details of
+        each player.
 
         :param player_dict:
         :param max_players: Int for th emax number (used to format the window
@@ -470,5 +477,6 @@ class SingleServerFrame(tk.Frame):
         # Check to see if the player frame has been drawn
         if hasattr(self, "player_frame"):
             # This executes all the calls to give players this item in parallel. Make it rain guns!
-            await asyncio.gather(*[self.player_frame.button_give_item(unique_id, item) for unique_id in unique_id_list])
-
+            chunk_size = 5  # only do 5 players at a time
+            for chunked_list in local_utils.chunker(unique_id_list, chunk_size):
+                await asyncio.gather(*[self.player_frame.button_give_item(unique_id, item) for unique_id in chunked_list])

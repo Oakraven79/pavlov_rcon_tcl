@@ -55,8 +55,8 @@ class PlayerListFrame:
             player_info = refresh_item_dict['PlayerInfo']
             unique_id = player_info['UniqueId']
             if unique_id in seen_unique_ids_list:
-                # Somehow we've got 2 players steam ideas that are exactly the same...
-                logger.warning("Saw Unique_ID {} two times in a player list...")
+                # Somehow we've got 2+ players steam ids that are exactly the same...
+                logger.warning("Saw Unique_ID {} 2+ times in a player list, skipping this player...")
             else:
                 if unique_id in current_player_ids_list:
 
@@ -177,6 +177,7 @@ class PlayerListFrame:
             selected_give_item, *items_list, style = 'player_frame.TMenubutton'
         )
         main_frame.give_item_label_frame.selected_item.configure(width=20)
+        main_frame.give_item_label_frame.selected_item["menu"].configure(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         main_frame.give_item_label_frame.selected_item.pack(side='left', fill=tk.BOTH, expand=tk.YES)
 
         main_frame.give_item_label_frame.give_item_button = HoverButton(main_frame.give_item_label_frame,
@@ -204,6 +205,8 @@ class PlayerListFrame:
             SKINS_LIST[0], *SKINS_LIST, style = 'player_frame.TMenubutton'
         )
         main_frame.switch_skin_label_frame.selected_item.configure(width=10)
+        main_frame.switch_skin_label_frame.selected_item["menu"].configure(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+
         main_frame.switch_skin_label_frame.selected_item.pack(side='left', fill=tk.BOTH, expand=tk.YES)
 
         main_frame.switch_skin_label_frame.give_item_button = HoverButton(main_frame.switch_skin_label_frame,

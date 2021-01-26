@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.font as TkFont
 import asyncio
 
 from server_frame import SingleServerFrame
@@ -63,15 +64,18 @@ class AsyncApp(tk.Tk):
         """
         style = ttk.Style()
         # set the drop down options in the player frame
-        style.configure('player_frame.TMenubutton', font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE-3), 'normal'))
+        style.configure('player_frame.TMenubutton', font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE), 'normal'))
         # set the drop down options in the server frame
-        style.configure('server_frame.TMenubutton', font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE-3), 'normal'))
+        style.configure('server_frame.TMenubutton', font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE), 'normal'))
         # make the notebook tabs look big and clickable (width 1000 so they always fill the top)
         style.configure('TNotebook.Tab',
                     font=(MENU_FONT_NAME, '{}'.format(MENU_FONT_SIZE - 3), 'normal'),
                     width=1000,
                     padding=15
                     )
+        # ComboBox Font for all Combo Boxes
+        bigfont = TkFont.Font(family=MENU_FONT_NAME, size=(MENU_FONT_SIZE - 3))
+        self.option_add("*TCombobox*Listbox*Font", bigfont)
 
     def create_server_tabs(self):
         """

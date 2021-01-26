@@ -9,32 +9,41 @@ Feel free to customise this and add your own. You just need to make sure the nam
 
 """
 
-
-
 # Map Ids, Keys MUST be Unique as they ge translated into a list!
 MAP_IDS = {
-    'City War' : 'UGC2297877134',
-    '--- Originals' : '',
-    'Data Center':'datacenter',
-    'Sand':'sand',
-    'Bridge' : 'bridge',
-    'Container Yard': 'containeryard',
-    'Siberia' : 'prisonbreak',
-    'Hospital (Zombies)': 'hospital',
-    'Kill House' : 'killhouse',
-    'Shooting Range' : 'range',
-    'Tutorial' : 'tutorial',
     '--- New' : '', #Spacer
     'station' : 'station',
     'stalingrad' : 'stalingrad',
     'santorini':'santorini',
     'industry' : 'industry',
-    '--- PropHunt' : '', # Spacer
-    'PH Warehouse' : 'UGC1810463805',
-    'PH Hotel' : 'UGC1825578429',
-    '--- CS Maps' : ' ', # Spacer
+    '--- Originals': '',
+    'Data Center': 'datacenter',
+    'Sand': 'sand',
+    'Bridge': 'bridge',
+    'Container Yard': 'containeryard',
+    'Siberia': 'prisonbreak',
+    'Hospital (Zombies)': 'hospital',
+    'Kill House': 'killhouse',
+    'Shooting Range': 'range',
+    'Tutorial': 'tutorial',
+    '--- Counter Strike Maps' : ' ', # Spacer
     'DUST II' : "UGC1664873782",
     "Mirage" : "UGC1661803933",
+    "Lake" : "UGC1401905027",
+    "Office" : "UGC1080743206",
+    "Cache" : "UGC1695916905",
+    "--- Call Of Duty": "", # Spacer
+    "Rust" : "UGC1739104662",
+    "--- TTT" : "",
+    "New MC CITY TTT" : "UGC1729478375",
+    "TTT Old West" : "UGC2267134313",
+    '--- PropHunt': '',  # Spacer
+    'PH Warehouse': 'UGC1810463805',
+    'PH Hotel': 'UGC1825578429',
+    "--- Zelda" : '', # Spacer
+    "Outset Island" : "UGC1373830364",
+    "--- BIG MAPS" : "", # Spacer
+    'City War': 'UGC2297877134',
     '--- Zombies' : '  ', # Spacer
     "NachtDerUntoten (CODz)": "UGC1836053818",
     "Der Riese (CODz)" : "UGC1890699727",
