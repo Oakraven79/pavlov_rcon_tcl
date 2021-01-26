@@ -34,22 +34,23 @@ MAP_IDS = {
     "Cache" : "UGC1695916905",
     "--- Call Of Duty": "", # Spacer
     "Rust" : "UGC1739104662",
+    "--- Others": '',  # Spacer
+    "Outset Island (Zelda)": "UGC1373830364",
+    "McDonalds": "UGC1984149656",
+    "--- BIG MAPS": "",  # Spacer
+    'City War': 'UGC2297877134',
+    '--- Zombies': '  ',  # Spacer
+    "NachtDerUntoten (CODz)": "UGC1836053818",
+    "Der Riese (CODz)": "UGC1890699727",
+    "Kino Der Toten (CODz)": "UGC1929882349",
+    "Call of the Dead (CODz)": "UGC1948201228",
+    "Oasis: Minecraft Zombies": "UGC1931739042",
+    "Zombies - Subway - End Days": "UGC1741218360",
+    "Zombies - Three Islands - END DAYS": "UGC1804442427",
     "--- TTT" : "",
     "New MC CITY TTT" : "UGC1729478375",
     "TTT Old West" : "UGC2267134313",
     '--- PropHunt': '',  # Spacer
     'PH Warehouse': 'UGC1810463805',
     'PH Hotel': 'UGC1825578429',
-    "--- Zelda" : '', # Spacer
-    "Outset Island" : "UGC1373830364",
-    "--- BIG MAPS" : "", # Spacer
-    'City War': 'UGC2297877134',
-    '--- Zombies' : '  ', # Spacer
-    "NachtDerUntoten (CODz)": "UGC1836053818",
-    "Der Riese (CODz)" : "UGC1890699727",
-    "Kino Der Toten (CODz)" : "UGC1929882349",
-    "Call of the Dead (CODz)" : "UGC1948201228",
-    "Oasis: Minecraft Zombies":"UGC1931739042",
-    "Zombies - Subway - End Days" : "UGC1741218360",
-    "Zombies - Three Islands - END DAYS" : "UGC1804442427",
 }
