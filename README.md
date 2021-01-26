@@ -1,6 +1,8 @@
 # pavlov_rcon_tcl
 Want to manage your Pavlov server from within VR?
 
+What does it look like? https://www.youtube.com/watch?v=5LaPFFVmiqA
+
 This is a small app written in Python Tkinter and asyncio to interface with Pavlov's RCON from within VR.
 
 This is under active development.
@@ -23,8 +25,6 @@ Has a preloaded set of maps in the map list
 Supports multiple servers, add seperate entries in the `server.json`
 
 For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
-
-See screen shot [here](http://www.greatleapskyward.com/pavlov.jpg) (please note the data is faked to show the layout)
 
 
 ## Installation
@@ -65,7 +65,6 @@ Step 5. either `run_win.bat` in the `pavlov_rcon_tcl` folder (for windows machin
 - Make the item list easy to read.
 - Make the map list easier to read.
 - Make the window and fonts scale appropriately to the screen size. 
-- Make a youtube video showing this in action
 - Turn this into something that is installable via pip
 
 ## Feedback?
