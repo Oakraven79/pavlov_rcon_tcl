@@ -38,6 +38,7 @@ class SingleServerFrame(tk.Frame):
 
     def get_server_creds(self):
         """
+        Each Server frame knows its creds, this is a getter method
 
         :return:
         """
@@ -50,8 +51,6 @@ class SingleServerFrame(tk.Frame):
     async def exec_rcon_update(self):
         """
         Method that triggers the update of the current server frame and all its components
-
-        TODO: Add some visual flag to mark connection issues
 
         :return:
         """
@@ -384,6 +383,8 @@ class SingleServerFrame(tk.Frame):
     def get_available_items(self):
         """
 
+        Returns a list of the current items the server is advertising
+
         :return:
         """
         if hasattr(self, "current_map_items"):
@@ -393,6 +394,7 @@ class SingleServerFrame(tk.Frame):
 
     async def button_rotate_map(self):
         """
+        Sends a RotateMap which will rotate to the next map in the sequence
 
         :return:
         """
@@ -400,6 +402,7 @@ class SingleServerFrame(tk.Frame):
 
     async def button_give_team_cash(self, team_id, cash_amount):
         """
+        Gives a team a specific cash amount
 
         :param team_id:
         :param cash_amount:
@@ -410,7 +413,9 @@ class SingleServerFrame(tk.Frame):
 
     async def button_reset_snd(self):
         """
-        ResetSND
+        Executes a ResetSND
+
+        Resets the match back to round 1 keeping the same teams
 
         :return:
         """

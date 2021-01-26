@@ -292,7 +292,6 @@ class PlayerListFrame:
         :return:
         """
         logger.info("Deleting frame!")
-
         label_frame_obj.destroy()
 
     async def button_kill_player(self, unique_id):
@@ -357,6 +356,7 @@ class PlayerListFrame:
 
     async def button_give_item(self, unique_id, item):
         """
+        Give a single player an item from the list of items.
 
         :param unique_id:
         :param item:

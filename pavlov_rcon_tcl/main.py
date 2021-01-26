@@ -4,6 +4,7 @@ Main file the executes the app
 """
 import logging
 import sys
+import os
 import asyncio
 import json
 
@@ -16,7 +17,7 @@ from async_app import AsyncApp
 
 logging.basicConfig(
     stream=sys.stdout,
-    level=logging.WARNING,
+    level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
@@ -24,6 +25,22 @@ logger = logging.getLogger(__name__)
 ###############################################################
 # Some help if the server.json config goes missing
 ###############################################################
+
+MULTIPLE_SERVER_EXAMPLE = """
+[
+    {
+        "display_name"  : "My Server",
+        "host"          : "1.1.1.1",
+        "password"      : "password",
+        "port"          : "9100"
+    },{
+        "display_name"  : "My Server 2",
+        "host"          : "2.2.2.2",
+        "password"      : "password",
+        "port"          : "9100"
+    }
+]
+"""
 
 SERVER_JSON_CONFIG_EXAMPLE = """
 
@@ -39,22 +56,8 @@ Ideally the file looks like this for one server(JSON):
 ]
 
 For multiple servers:
-
-[
-    {
-        "display_name"  : "My Server",
-        "host"          : "1.1.1.1",
-        "password"      : "password",
-        "port"          : "910"
-    },{
-        "display_name"  : "My Server 2",
-        "host"          : "2.2.2.2",
-        "password"      : "password",
-        "port"          : "9100"
-    }
-]
         
-"""
+"""+ MULTIPLE_SERVER_EXAMPLE
 
 
 ###############################################################
@@ -73,20 +76,25 @@ def main():
                     'rcon_pass' : data['password'],
                     'rcon_name' : data.get("display_name", "No Name")
                 })
-
+    except FileNotFoundError as exc:
+        print("Could not find server.json. I created a sample one for you to edit.")
+        f = open("server.json", "w")
+        f.write(MULTIPLE_SERVER_EXAMPLE)
+        f.close()
+        sys.exit(1)
     except Exception as exc:
-        print("There was a problem reading server.json! Error: {}".format(exc))
+        print("There was a problem reading server.json! {}: {}".format(exc.__class__.__name__,exc))
         print(SERVER_JSON_CONFIG_EXAMPLE)
         sys.exit(1)
     # init the app and run it
     try:
         loop = asyncio.get_event_loop()
         root = AsyncApp(loop)
-        root.title("Pavlov RCON Helper V0.5")
-        root.iconbitmap("rcon.ico")
+        root.title("Pavlov RCON Helper V0.51")
+        if os.path.isfile('rcon.ico'):
+            root.iconbitmap("rcon.ico")
         root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
         root.state('zoomed')
-
         for server_dict in servers_list:
             logger.info("SUPPLIED CREDS: {} {} {}".format(*(list(server_dict.values()))))
             root.add_new_server_frame(**server_dict)
