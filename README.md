@@ -3,6 +3,8 @@ Want to manage your Pavlov server from within VR?
 
 What does it look like? https://www.youtube.com/watch?v=OrHwuWEGjaA
 
+<img src="http://www.greatleapskyward.com/pavlov_rcon.jpg" />
+
 This is a small app written in Python Tkinter and asyncio to interface with Pavlov's RCON from within VR.
 
 This is under active development.
