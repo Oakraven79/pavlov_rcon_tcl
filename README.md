@@ -1,11 +1,11 @@
 # pavlov_rcon_tcl
-Want to manage your Pavlov server from within VR?
+Want to manage your Pavlov server(s) (via RCON commands) from within VR?
 
 What does it look like? https://www.youtube.com/watch?v=OrHwuWEGjaA
 
 <img src="http://www.greatleapskyward.com/pavlov_rcon.jpg" />
 
-This is a small app written in Python Tkinter and asyncio to interface with Pavlov's RCON from within VR.
+This is a small app written in Python Tkinter and asyncio to quickly interface with Pavlov's RCON from within VR.
 
 This is under active development.
 
@@ -14,7 +14,6 @@ I wanted to build a tool that I could use to admin Pavlov from within VR (via Vi
 
 There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface
 
-This was my attempt at the simplest way to connect to your servers in game and quickly fire off commands.  
 
 ## Features:
 
