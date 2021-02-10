@@ -25,7 +25,7 @@ Has a preloaded set of maps in the map list
 
 Supports multiple servers, add seperate entries in the `server.json`
 
-Supports custom server commands which allows raw RCON commands to be chained together, applied to all/some players and allows for delays between commands. (see server_custom_commands_example.json for examples) 
+Supports custom server batch commands which allows raw RCON commands to be chained together, applied to all/some players and allows for delays between commands. Demo here: https://youtu.be/nOR2lqD70JQ (see server_custom_commands_example.json for examples) 
 
 For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
 
@@ -64,7 +64,6 @@ Step 5. either `run_win.bat` in the `pavlov_rcon_tcl` folder (for windows machin
 ## On the TODO List 
 
 - Add ability to list banned players and unban in server actions
-- Ability to add custom batch commands. 
 - Make the item list easy to read.
 - Make the map list easier to read.
 - Make the window and fonts scale appropriately to the screen size. 
