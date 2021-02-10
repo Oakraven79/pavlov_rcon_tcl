@@ -71,10 +71,11 @@ def main():
             servers_data = json.load(server_conn_json_file)
             for data in servers_data:
                 servers_list.append({
-                    'rcon_host' : data['host'],
-                    'rcon_port' : int(data['port']),
-                    'rcon_pass' : data['password'],
-                    'rcon_name' : data.get("display_name", "No Name")
+                    'rcon_host'       : data['host'],
+                    'rcon_port'       : int(data['port']),
+                    'rcon_pass'       : data['password'],
+                    'rcon_name'       : data.get("display_name", "No Name"),
+                    'server_commands' : data.get("custom_server_cmds", [])
                 })
     except FileNotFoundError as exc:
         print("Could not find server.json. I created a sample one for you to edit.")
@@ -107,3 +108,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # Insert a pause so you can read the terminal :)
+    input("Press Enter to exit...")

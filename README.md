@@ -25,6 +25,8 @@ Has a preloaded set of maps in the map list
 
 Supports multiple servers, add seperate entries in the `server.json`
 
+Supports custom server commands which allows raw RCON commands to be chained together, applied to all/some players and allows for delays between commands. (see server_custom_commands_example.json for examples) 
+
 For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
 
 

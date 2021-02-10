@@ -36,6 +36,19 @@ class PlayerListFrame:
         self.rcon_port = rcon_port
         self.rcon_pass = rcon_pass
 
+    def get_players_and_teams(self):
+        """
+        return a list of the tuples that are (UniqueID, TeamID)
+
+        :return:
+        """
+        ret_list = []
+        for unique_id, label_frame_obj in self.player_frame_dict.items():
+            team_id = None
+            if hasattr(label_frame_obj, "player_team_number"):
+                team_id = label_frame_obj.player_team_number
+            ret_list.append((unique_id,team_id))
+        return ret_list
 
     def update_player_frame(self, data, items_list):
         """
@@ -266,6 +279,7 @@ class PlayerListFrame:
         label_frame_obj.player_kda_label['text'] = "Kills: {}\nDeaths: {}\nAssists: {}".format(kills, deaths, assists)
         label_frame_obj.player_cash_label['text'] = "Cash: ${}\nScore: {}".format(data_dict['Cash'],data_dict['Score'])
         label_frame_obj.player_team_label['text'] = "Team: {}".format(data_dict['TeamId'])
+        label_frame_obj.player_team_number = int(data_dict['TeamId'])
 
         # If the items list has changed at all, then we overwrite the list of items
         # if nothing has changed, then we do nothing and leave it where it is.

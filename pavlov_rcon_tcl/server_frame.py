@@ -21,19 +21,273 @@ from games_modes import GAME_MODES
 from maps_list import MAP_IDS
 
 
+class CustomServerCommands:
+    """
+    Class to parse and hold custom server commands
+
+    Server commands are expected as a list of commands such as
+
+    [
+        {
+          "command_name"       : "Reset all Money to $1000",
+          "command_short_name" : "ResetMoney",
+          "delay_before_start" : 0,
+          "steps"              : [
+            {
+              "command"      : "SetCash {UniqueID} 1000",
+              "delay_after"  : 0,
+              "comment"      : "{UniqueID} will be replaced with the id of each connected player "
+            }
+          ]
+        },
+        {
+          "command_name" : "50Cal Free for all",
+          "steps"        : [
+            {
+              "command"      : "GiveItem {UniqueID} AntiTank",
+            },
+            {
+              "command"      : "SetCash {UniqueID} 50000",
+            }
+          ]
+        }
+      ]
+
+    A Single command is like this. `command_name` and `steps` are mandatory while `command_short_name`
+    and `delay_before_start` are optional
+
+    {
+      "command_name"       : "Reset all Money to $1000",
+      "command_short_name" : "ResetMoney",
+      "delay_before_start" : 0,
+      "steps"              : [
+        {
+          "command"      : "SetCash {UniqueID} 1000",
+          "delay_after"  : 0,
+          "comment"      : "{UniqueID} will be replaced with the id of each player and apply_to_all will mean this will be applied to all players. "
+        }
+      ]
+    }
+
+    Every command has a series of steps expressed as a list. The commands will be executed in that order.
+
+    The only mandatory field is `command` which refers to the exact RCON command that will be sent. Please see the
+    Offical wiki for how those commands are meant to work.
+
+    The added keyword {UniqueID} tells the parser that this command is to be applied to all currently connected players
+    so for example if there were 20 players connected the command `SetCash {UniqueID} 1000` would be called 20 times
+    with the unique_id of each player in place of {UniqueID}
+
+    Additionally {UniqueID:blue} or {UniqueID:red} will look for players in team 0 or 1 respectively.
+
+    Steps can be repeated via the repeat keyword
+
+    The following example will be executed 20 times with a delay of 3 seconds each time.
+    NOTE: Do understand that if you click this multiple times they will stack and execute in parallel, maybe that is what you want?
+    {
+          "command_name"       : "Smoke Grenade PARTY",
+          "delay_before_start" : 0,
+          "comment"            : "Give everyone a smoke grenade every 3 seconds for 1 minute ",
+          "steps"              : [
+            {
+              "command"      : "GiveItem {UniqueID} smoke",
+              "delay_after"  : 3,
+              "comment"      : "{UniqueID} will be replaced with the id of each player and will mean this will be applied to all players. 'repeat' will execute this command x times",
+              "repeat"       : 20
+            }
+          ]
+        }
+
+
+    """
+
+    VALID_COMMAND_SPECIALS = ['{UniqueID}', '{UniqueID:blue}', '{UniqueID:red}']
+
+    def __init__(self, server_commands, server_frame_obj):
+        """
+
+        :param server_commands: the loaded json data
+        :param server_frame_obj: The parent Frame so this can call methods on it to get player info
+        """
+        self._server_commands_raw = server_commands
+        self._valid_command_name_list = []
+        self._server_frame_obj = server_frame_obj
+        self.validate_server_commands()
+
+
+    def validate_server_commands(self):
+        """
+        Goes through each server command and validates if all the required keywords
+        are there and warns if it sees anything it doesn't know about.
+
+        :return:
+        """
+        commands = self._server_commands_raw
+
+        for cmd in commands:
+            cmd_valid = True
+            print(cmd)
+            # looking for required fields
+            cmd_name = cmd.get('command_name', None)
+            if cmd_name is None:
+                logger.error("Couldn't find 'command_name' in entry {}".format(cmd))
+                cmd_valid = False
+            else:
+                logger.info("Loaded custom command: {}".format(cmd_name))
+            cmd_delay_before = cmd.get('delay_before_start', None)
+            if cmd_delay_before is None:
+                logger.info("delay_before_start not specified so {} will start as soon as button is pressed".format(cmd_name))
+            else:
+                try:
+                    cmd_delay_before = int(cmd_delay_before)
+                    logger.info("delay_before_start set to {} for command {}".format(cmd_delay_before, cmd_name))
+                except ValueError:
+                    logger.warning("delay_before_start for command {} is not an integer. value supplied: {} (this will be ignored FYI)".format(cmd_name, cmd_delay_before))
+            # now to check each step
+            cmd_steps = cmd.get("steps", None)
+            if cmd_steps is None:
+                logger.error("no command steps defined for command: {}".format(cmd_name))
+                cmd_valid = False
+            else:
+                for i, cmd_step in enumerate(cmd_steps, 1):
+                    logger.info("Looking at step {}: {}".format(i, cmd_step))
+                    # Examine command
+                    step_rcon = cmd_step.get("command", None)
+                    if step_rcon is None:
+                        logger.error("No 'command' entry defined for {}".format(cmd_step))
+                    else:
+                        # check the command for special Characters
+                        if step_rcon.find("{") != -1:
+                            all_words = step_rcon.split(" ")
+                            for word in all_words:
+                                if word.find("{") != -1:
+                                    if word not in CustomServerCommands.VALID_COMMAND_SPECIALS:
+                                        logger.error("Keyword '{}' in command '{}' is not a valid special. Valid specials are: {} ".format(
+                                            word, step_rcon, CustomServerCommands.VALID_COMMAND_SPECIALS
+                                        ))
+                                        cmd_valid = False
+                    step_delay = cmd_step.get("delay_after", None)
+                    if step_delay is None:
+                        logger.info("No delay specified for command {}, defaulting to 0".format(step_rcon))
+                    else:
+                        try:
+                            step_delay = int(step_delay)
+                            logger.info("Step will delay {} after executing the command: {}".format(step_delay, step_rcon))
+                        except ValueError:
+                            logger.error("Specified delay for command '{}' is not an Integer in command step:".format(step_delay, cmd_step) )
+                            cmd_valid = False
+            if cmd_valid is True:
+                self._valid_command_name_list.append(cmd_name)
+            else:
+                logger.warning("Not adding command {} as there was missing data".format(cmd_name))
+        logger.info("Valid Commands: {}".format(self._valid_command_name_list))
+
+
+    def get_command_names(self):
+        """
+        return a list of strings of the command names
+
+        :return:
+        """
+        return self._valid_command_name_list
+
+    def get_command_dict_by_name(self, command_name):
+        """
+        Given a command name it will get the correct dict or return None
+
+        :param command_name:
+        :return:
+        """
+        ret_val = None
+        for command in self._server_commands_raw:
+            if command.get("command_name", "") == command_name:
+                return command
+        return ret_val
+
+    async def exec_command_by_name(self, command_name):
+        """
+        Given the string name of a command, it will try to execute it
+
+        This object has access to the server frame so can call out to it get info
+        about the currently connected players etc.
+
+        This assumes that only validated commands will be sent through
+
+        :param command_name:
+        :return:
+        """
+        command_dict = self.get_command_dict_by_name(command_name)
+        # Check if the command has a pre delay
+        delay = int(command_dict.get('delay_before_start', 0))
+        if delay > 0:
+            await asyncio.sleep(delay)
+        # now to cycle through the steps
+        steps_list = command_dict.get("steps")
+        for step_dict in steps_list:
+            await self.process_command_step(step_dict)
+
+    async def process_command_step(self, step_dict):
+        """
+        Given a step dict from a custom command, this will execute it.
+
+        :param step_dict:
+        :return:
+        """
+        repeat_count = 0
+        target_repeats = step_dict.get('repeat', 1)
+        delay_after = step_dict.get('delay_after', 0)
+        while repeat_count < target_repeats:
+            await self.exec_rcon_command(step_dict.get('command', ""))
+            if delay_after > 0:
+                await asyncio.sleep(delay_after)
+            repeat_count += 1
+
+    async def exec_rcon_command(self, rcon_command):
+        """
+
+        :param rcon_command:
+        :return:
+        """
+        if rcon_command.find('{') == -1:
+            # The command contains no substititions
+            send_rcon(rcon_command, **self._server_frame_obj.get_server_creds())
+        else:
+            # now we need to ask the server_frame for its current list of players based on the command
+            # At this stage it is only going to be all, red, blue so it is matter of finding which
+            player_and_team_list = self._server_frame_obj.player_frame.get_players_and_teams()
+            exec_list = []
+            # now to build the command list base on these current parameters
+            if rcon_command.find("{UniqueID}") != -1:
+                for unique_id, team_id in player_and_team_list:
+                    exec_list.append(rcon_command.replace("{UniqueID}", unique_id))
+            elif rcon_command.find("{UniqueID:blue}") != -1:
+                for unique_id, team_id in player_and_team_list:
+                    if team_id == 0:
+                        exec_list.append(rcon_command.replace("{UniqueID}", unique_id))
+            elif rcon_command.find("{UniqueID:red}") != -1:
+                for unique_id, team_id in player_and_team_list:
+                    if team_id == 1:
+                        exec_list.append(rcon_command.replace("{UniqueID}", unique_id))
+            # now to exec the list
+            chunk_size = 5  # only do 5 players at a time
+            for chunked_list in local_utils.chunker(exec_list, chunk_size):
+                await asyncio.gather(*[send_rcon(rcon_string, **self._server_frame_obj.get_server_creds()) for rcon_string in chunked_list])
 
 class SingleServerFrame(tk.Frame):
 
 
-    def __init__(self, master=None, loop=None, rcon_host=None, rcon_port=None, rcon_pass=None):
+    def __init__(self, master=None, loop=None, rcon_host=None, rcon_port=None, rcon_pass=None, server_commands=None):
         super().__init__(master, width=master.winfo_screenwidth(), height=master.winfo_screenheight())
         self.master = master
         self.rcon_host = rcon_host
         self.rcon_port = rcon_port
         self.rcon_pass = rcon_pass
+        self.server_commands_obj = CustomServerCommands(server_commands, self)
         self.loop = loop
 
         self.pack(fill='both')
+
+        # now with all the data loaded we can create the server frames
         self.create_frames()
 
     def get_server_creds(self):
@@ -307,6 +561,34 @@ class SingleServerFrame(tk.Frame):
         frame.give_all_players_item_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_all_players_item_frame.apply_button.pack(side="left", fill="both", expand=tk.YES)
 
+        # Create the custom server action buttons
+        frame.custom_server_command_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3,
+                                                          text="Custom Server Commands", padx=5, pady=2)
+        frame.custom_server_command_frame.grid(row=2, column=2, columnspan=2, sticky="nsew", pady=5, padx=5)
+
+        # now to add the menu selection
+        frame.custom_server_command_frame.choice_var = tk.StringVar()
+        frame.custom_server_command_frame.choice_var.set("")
+        commands_list = self.server_commands_obj.get_command_names()
+        frame.custom_server_command_frame.item_selection = ttk.OptionMenu(
+            frame.custom_server_command_frame,
+            frame.custom_server_command_frame.choice_var,
+            "", *commands_list, style='server_frame.TMenubutton')
+        frame.custom_server_command_frame.item_selection.configure(width=25)
+        frame.custom_server_command_frame.item_selection["menu"].configure(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.custom_server_command_frame.item_selection.pack(side="left", fill="both", expand=tk.YES)
+        # Make an apply button
+        frame.custom_server_command_frame.apply_button = HoverButton(frame.custom_server_command_frame,
+                                                                     text="Execute\nCommand",
+                                                                     command=lambda: self.loop.create_task(
+                                                                         self.button_execute_custom_server_command(
+                                                                             frame.custom_server_command_frame.choice_var.get()
+                                                                         )),
+                                                                     padx=5,
+                                                                     pady=2)
+        frame.custom_server_command_frame.apply_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
+        frame.custom_server_command_frame.apply_button.pack(side="left", fill="both", expand=tk.YES)
+
 
     def get_current_map_selection_values(self):
         """
@@ -391,6 +673,17 @@ class SingleServerFrame(tk.Frame):
             return self.current_map_items
         else:
             return list()
+
+    async def button_execute_custom_server_command(self, command_name):
+        """
+
+
+        :param command_name:
+        :return:
+        """
+        logger.info("Executing custom command: {}".format(command_name))
+        await self.server_commands_obj.exec_command_by_name(command_name)
+
 
     async def button_rotate_map(self):
         """

@@ -1,0 +1,72 @@
+[
+  {
+    "display_name"       : "Main server",
+    "host"               : "1.1.1.1",
+    "password"           : "password",
+    "port"               : "9100",
+    "comment"            : "Rename this file to server.json for it to work",
+    "custom_server_cmds" : [
+      {
+        "command_name"       : "Reset all Money to $1000",
+        "delay_before_start" : 0,
+        "steps"              : [
+          {
+            "command"      : "SetCash {UniqueID} 1000",
+            "delay_after"  : 0,
+            "comment"      : "{UniqueID} will be replaced with the id of each player and will mean this will be applied to all players. "
+          }
+        ]
+      },
+      {
+        "command_name" : "50Cal Free for all",
+        "steps"        : [
+          {
+            "command"      : "GiveItem {UniqueID} AntiTank"
+          },
+          {
+            "command"      : "SetCash {UniqueID} 50000"
+          }
+        ]
+      },
+      {
+        "command_name"       : "Smoke Grenade PARTY (1 Minute)",
+        "delay_before_start" : 0,
+        "comment"            : "Give everyone a smoke grenade every 3 seconds for 1 minute ",
+        "steps"              : [
+          {
+            "command"      : "GiveItem {UniqueID} smoke",
+            "delay_after"  : 3,
+            "comment"      : "{UniqueID} will be replaced with the id of each player and will mean this will be applied to all players. 'repeat' will execute this command x times",
+            "repeat"       : 20
+          }
+        ]
+      },
+     {
+        "command_name"       : "Grenade PARTY (1 minute)",
+        "delay_before_start" : 0,
+        "comment"            : "Give everyone a grenade every 3 seconds for 1 minute ",
+        "steps"              : [
+          {
+            "command"      : "GiveItem {UniqueID} grenade",
+            "delay_after"  : 3,
+            "comment"      : "{UniqueID} will be replaced with the id of each player and will mean this will be applied to all players. 'repeat' will execute this command x times",
+            "repeat"       : 20
+          }
+        ]
+      },
+      {
+        "command_name"       : "Gimme Knives for 1 minute",
+        "delay_before_start" : 0,
+        "comment"            : "Give everyone a smoke grenade every 3 seconds for 1 minute ",
+        "steps"              : [
+          {
+            "command"      : "GiveItem {UniqueID} knife",
+            "delay_after"  : 3,
+            "comment"      : "{UniqueID} will be replaced with the id of each player and will mean this will be applied to all players. 'repeat' will execute this command x times",
+            "repeat"       : 20
+          }
+        ]
+      }
+    ]
+  }
+]

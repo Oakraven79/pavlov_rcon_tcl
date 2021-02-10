@@ -114,7 +114,7 @@ class AsyncApp(tk.Tk):
                 *[rcon_server_frame.exec_rcon_update() for rcon_server_frame in self.rcon_server_frames])
             logger.info("Finishing update")
 
-    def add_new_server_frame(self, rcon_host=None, rcon_port=None, rcon_pass=None, rcon_name=None):
+    def add_new_server_frame(self, rcon_host=None, rcon_port=None, rcon_pass=None, rcon_name=None, server_commands=None):
         """
         CAlling this method with rcon creds registers a SingleServerFrame with this app which will then be
         included in the update cycle
@@ -125,7 +125,7 @@ class AsyncApp(tk.Tk):
         :return:
         """
         single_frame = SingleServerFrame(master=self.tabbed_server, loop=self.loop, rcon_host=rcon_host,
-                                         rcon_port=rcon_port, rcon_pass=rcon_pass)
+                                         rcon_port=rcon_port, rcon_pass=rcon_pass, server_commands=server_commands)
         self.tabbed_server.add(single_frame, text=rcon_name)
         self.rcon_server_frames.append(single_frame)
 
