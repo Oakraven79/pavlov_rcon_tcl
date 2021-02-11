@@ -3,6 +3,8 @@ Want to manage your Pavlov server(s) (via RCON commands) from within VR?
 
 What does it look like? https://www.youtube.com/watch?v=OrHwuWEGjaA
 
+NEW: Added custom server commands -->  https://youtu.be/nOR2lqD70JQ
+
 <img src="http://www.greatleapskyward.com/pavlov_rcon.jpg" />
 
 This is a small app written in Python Tkinter and asyncio to quickly interface with Pavlov's RCON from within VR.
@@ -25,7 +27,7 @@ Has a preloaded set of maps in the map list
 
 Supports multiple servers, add seperate entries in the `server.json`
 
-Supports custom server batch commands which allows raw RCON commands to be chained together, applied to all/some players and allows for delays between commands. Demo here: https://youtu.be/nOR2lqD70JQ (see server_custom_commands_example.json for examples) 
+Supports custom server batch commands which allows raw RCON commands to be chained together, applied to all/some players and allows for delays between commands as per video above. See server_custom_commands_example.json for examples 
 
 For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
 
