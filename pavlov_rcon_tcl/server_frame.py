@@ -409,7 +409,7 @@ class SingleServerFrame(tk.Frame):
             current_map = "{} - {}".format(list(MAP_IDS.keys())[map_values_list.index(current_map)], current_map)
         self.server_info_frame.server_name_label['text'] = "Server: {}".format(server_name)
 
-        self.server_info_frame.server_teams_label['text'] = "Teams: {}\nTeam 0 Score: {}\nTeam 1 Score:{}".format(teams_status, teams_0_score, teams_0_score)
+        self.server_info_frame.server_teams_label['text'] = "Teams: {}\nTeam 0 (Blue) Score: {}\nTeam 1 (Red) Score:{}".format(teams_status, teams_0_score, teams_1_score)
 
         self.server_info_frame.server_map_label['text'] = "Map: {}\nMode: {}\nStatus: {}".format(current_map, game_mode, game_status)
         self.server_info_frame.server_player_count_label['text'] = "{} Players Connected".format(player_count)
