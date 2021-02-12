@@ -106,12 +106,18 @@ class AsyncApp(tk.Tk):
         :return:
         """
         logger.info("Starting Initial update")
-        await asyncio.gather(*[rcon_server_frame.exec_rcon_update() for rcon_server_frame in self.rcon_server_frames])
+        try:
+            await asyncio.gather(*[rcon_server_frame.exec_rcon_update() for rcon_server_frame in self.rcon_server_frames])
+        except Exception as exc:
+            logger.error("Initial Update cycle failed with error: {}".format(exc))
 
         while await asyncio.sleep(interval, True):
             logger.info("Running update")
-            await asyncio.gather(
-                *[rcon_server_frame.exec_rcon_update() for rcon_server_frame in self.rcon_server_frames])
+            try:
+                await asyncio.gather(
+                    *[rcon_server_frame.exec_rcon_update() for rcon_server_frame in self.rcon_server_frames])
+            except Exception as exc:
+                logger.error("Update cycle failed with error: {}".format(exc))
             logger.info("Finishing update")
 
     def add_new_server_frame(self, rcon_host=None, rcon_port=None, rcon_pass=None, rcon_name=None, server_commands=None):

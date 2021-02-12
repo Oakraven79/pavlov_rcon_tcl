@@ -27,16 +27,20 @@ MAP_IDS = {
     'Shooting Range': 'range',
     'Tutorial': 'tutorial',
     '--- Counter Strike Maps' : ' ', # Spacer
-    'DUST II' : "UGC1664873782",
-    "Mirage" : "UGC1661803933",
+    'DUST II': "UGC1664873782",
+    "Mirage": "UGC1661803933",
+    "Office": "UGC1080743206",
+    "Cache": "UGC1695916905",
+    "Inferno":  "UGC1661039078",
+    "Tuscan": "UGC2170893566",
+    "Overpass": "UGC1676961583",
     "Lake" : "UGC1401905027",
-    "Office" : "UGC1080743206",
-    "Cache" : "UGC1695916905",
     "--- Call Of Duty": "", # Spacer
     "Rust" : "UGC1739104662",
     "--- Others": '',  # Spacer
     "Outset Island (Zelda)": "UGC1373830364",
     "McDonalds": "UGC1984149656",
+    "Oilrig": "UGC1701860633",
     "--- BIG MAPS": "",  # Spacer
     'City War': 'UGC2297877134',
     '--- Zombies': '  ',  # Spacer

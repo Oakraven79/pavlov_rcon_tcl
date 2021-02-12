@@ -65,7 +65,13 @@ class PlayerListFrame:
         current_player_ids_list = list(self.player_frame_dict.keys())
         seen_unique_ids_list = list()
         for refresh_item_dict in data:
-            player_info = refresh_item_dict['PlayerInfo']
+            if refresh_item_dict is None:
+                logger.warning("Got None data for a player.. Skipping")
+                continue
+            player_info = refresh_item_dict.get('PlayerInfo', None)
+            if player_info is None:
+                logger.warning("Got None data for a player_info.. Skipping")
+                continue
             unique_id = player_info.get('UniqueId', None)
             if unique_id is None:
                 logger.warning("Got null data for a player.. Skipping")
