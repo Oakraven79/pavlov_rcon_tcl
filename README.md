@@ -35,6 +35,7 @@ For fun I added a "give all" button which cycles through all connected players a
 ## Installation
 Step 0. Make sure your Pavlov server has RCON set up as per [the Official Pavlov wiki](http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Rcon_Overview_and_Commands) 
 
+_Note This doesn't work with Arctic as they have their own server tools._
 
 ### Option 1:  Stand alone .exe (Windows Only)
 
@@ -60,16 +61,19 @@ Step 4. edit `server.json` and supply the credentials for your servers or server
 
 Step 5. either `run_win.bat` in the `pavlov_rcon_tcl` folder (for windows machines) or run `python main.py` from the `pavlov_rcon_tcl` folder 
 
+(Optional)
+
+Step 6. Fiddle with maps_list.py to add your own maps.  
 
 ## Please Note that it is very new and sometimes crashes and needs a restart. Work in progress! 
 
 ## On the TODO List 
 
 - Add ability to list banned players and unban in server actions
-- Make the item list easy to read.
+- Make the item list easy to read as it is a bit fiddly still. 
 - Make the map list easier to read.
 - Make the window and fonts scale appropriately to the screen size. 
-- Turn this into something that is installable via pip
+- Add player avatar pictures
 
 ## Feedback?
 
