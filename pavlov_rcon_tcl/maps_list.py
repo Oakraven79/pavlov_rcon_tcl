@@ -41,6 +41,7 @@ MAP_IDS = {
     "Outset Island (Zelda)": "UGC1373830364",
     "McDonalds": "UGC1984149656",
     "Oilrig": "UGC1701860633",
+    "Elven Ruins" : "UGC2396016789",
     "--- BIG MAPS": "",  # Spacer
     'City War': 'UGC2297877134',
     '--- Zombies': '  ',  # Spacer
