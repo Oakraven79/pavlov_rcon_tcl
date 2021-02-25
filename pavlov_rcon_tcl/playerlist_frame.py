@@ -5,6 +5,8 @@ This is imported by SingleServerFrame and used from within it
 
 
 """
+import webbrowser
+
 import tkinter as tk
 
 from tkinter import ttk
@@ -104,6 +106,7 @@ class PlayerListFrame:
         self.current_items_list = items_list
 
 
+
     def create_single_player_frame(self, data_dict, items_list):
         """
 
@@ -117,15 +120,24 @@ class PlayerListFrame:
         :return:
         """
         logger.info("Creating Frame: {}".format(data_dict))
-        main_frame = tk.LabelFrame(self.parent_frame.scrollable_frame, text=data_dict['UniqueId'], bd=5)
+        main_frame = tk.LabelFrame(self.parent_frame.scrollable_frame, text="{} (Click name to view profile in browser)".format(data_dict['UniqueId']), bd=5)
 
         main_frame.pack(fill='x', expand=tk.YES)
 
         main_frame.grid_rowconfigure(0, weight=1) # only 1 row, and it can expand as needed
 
-        main_frame.player_name_label = tk.Label(main_frame, text=data_dict['PlayerName'])
+        main_frame.player_name_label = HoverButton(main_frame,
+                                                   text=data_dict['PlayerName'],
+                                                   command=lambda: self.loop.create_task(self.view_player_profile(
+                                                       data_dict['UniqueId'])), padx=5, pady=2
+                                        )
+
+
+
+
         main_frame.player_name_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE), width=30)
         main_frame.player_name_label.grid(row=0,column=0, sticky="nesw", pady = 2, padx = 5)
+
         main_frame.grid_columnconfigure(0, weight=1) #We want player name to expand, default weight is 0
 
         kills, deaths, assists = data_dict.get('KDA', "0/0/0").split("/")
@@ -389,3 +401,16 @@ class PlayerListFrame:
         if replace_item is not None:
             item = replace_item
         await send_rcon("GiveItem {} {}".format(unique_id, item), self.rcon_host, self.rcon_port, self.rcon_pass)
+
+
+    async def view_player_profile(self, unique_id):
+        """
+        When called, opens a browser to that players profile
+
+        :param unique_id:
+        :return:
+        """
+        webbrowser.open("https://steamcommunity.com/profiles/{}".format(unique_id))
+
+
+
