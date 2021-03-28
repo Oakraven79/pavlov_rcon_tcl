@@ -28,7 +28,7 @@ MAP_IDS = {
     'Tutorial': 'tutorial',
     '--- Counter Strike Maps' : ' ', # Spacer
     'DUST II': "UGC1664873782",
-    "Mirage": "UGC1661803933",
+    "Mirage": "UGC2405033833",
     "Office": "UGC1080743206",
     "Cache": "UGC1695916905",
     "Inferno":  "UGC1661039078",
