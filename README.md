@@ -39,7 +39,7 @@ _Note This doesn't work with Arctic as they have their own server tools._
 
 ### Option 1:  Stand alone .exe (Windows Only)
 
-Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.62/pavlov_rcon_tcl-0-62.zip
+Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.65/pavlov_rcon_tcl-0-65.zip
 
 _Note: Windows may complain about downloading and running an .exe, it is just doing its job on security. If that bothers you, go with option 2._
 
@@ -48,6 +48,10 @@ Step 2. Unzip that file where you want.
 Step 3. Edit `server.json` and supply the credentials for your servers or servers ("display_name" is the name of the server in the app )
 
 Step 4. Run `PavlovRcon.exe`
+
+(Optional)
+
+Step 5. Edit maps.json and add your own maps.  
 
 ### Option 2: Run from Python source
 
