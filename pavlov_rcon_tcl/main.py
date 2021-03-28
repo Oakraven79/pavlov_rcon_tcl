@@ -2,8 +2,26 @@
 Main file the executes the app
 
 """
+
+
+###############################################################
+# Set up the logger FIRST, just push to STDOUT
+###############################################################
 import logging
 import sys
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
+###############################################################
+# Do the rest of the imports
+###############################################################
+
+
 import os
 import asyncio
 import json
@@ -11,16 +29,7 @@ import json
 from async_app import AsyncApp
 
 
-###############################################################
-# Set up the logger, just push to STDOUT
-###############################################################
 
-logging.basicConfig(
-    stream=sys.stdout,
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 ###############################################################
 # Some help if the server.json config goes missing
