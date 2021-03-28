@@ -51,7 +51,7 @@ Step 4. Run `PavlovRcon.exe`
 
 (Optional)
 
-Step 5. Edit maps.json and add your own maps.  
+Step 5. Edit maps.json and add your own maps. (will need to close and reopen) 
 
 ### Option 2: Run from Python source
 
