@@ -9,8 +9,14 @@ Feel free to customise this and add your own. You just need to make sure the nam
 
 """
 
+import json
+
+import logging
+logger = logging.getLogger(__name__)
+
 # Map Ids, Keys MUST be Unique as they ge translated into a list!
-MAP_IDS = {
+# This list is used if the load lower fails
+DEFAULT_MAP_IDS = {
     '--- New' : '', #Spacer
     'station' : 'station',
     'stalingrad' : 'stalingrad',
@@ -59,3 +65,30 @@ MAP_IDS = {
     'PH Warehouse': 'UGC1810463805',
     'PH Hotel': 'UGC1825578429',
 }
+
+MAP_IDS = None
+
+try:
+    with open('maps.json', 'r') as reader:
+        MAP_IDS = json.loads(reader.read())
+    logger.info("loaded maps.json!")
+
+    # just do a quick check of all the keys to make sure they are strings
+    maps_list_local = []
+    for key, value in MAP_IDS.items():
+        if type(key) is str and type(value) is str:
+
+            if key.startswith("---"):
+                logger.info("Spacer detected: '{}' --> '{}'".format(key, value))
+            else:
+                logger.info("Map loaded: '{}' --> '{}'".format(key,value))
+                maps_list_local.append(key)
+        else:
+            logger.warning("Map values must be strings, invalid pair: '{}'/'{}'".format(key, value))
+            raise Exception("Invalid map supplied: {}/{}".format(key, value))
+    logger.info("{} maps loaded from maps.json".format(len(maps_list_local)))
+
+except Exception as exc:
+    logger.warning("Unable to load maps.json, error: {}".format(exc))
+    logger.info("Using default maps ids. ")
+    MAP_IDS = DEFAULT_MAP_IDS
