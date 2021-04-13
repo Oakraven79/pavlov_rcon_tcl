@@ -6,12 +6,13 @@ is sent to the server.
 
 
 GAME_MODES = {
-    'Seek And Destroy':'SND',
+    'Search And Destroy':'SND',
     'Team Death Match': 'TDM',
     'Deathmatch' : 'DM',
     'Gun Game' : 'GUN',
+    'TTT': 'TTT',
     'Zombie Wave' : 'ZWV',
     "Tank TDM": "TANKTDM",
     "WW2GUN" : "WW2GUN",
-    "King of the Hill":"KOTH"
+    "King of the Hill":"KOTH",
 }
