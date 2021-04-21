@@ -12,7 +12,7 @@ import sys
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(filename)s:%(lineno)d %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 

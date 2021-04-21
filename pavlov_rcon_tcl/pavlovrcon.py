@@ -15,8 +15,8 @@ import hashlib
 import json
 import logging
 
-logging.getLogger("async-pavlov").addHandler(logging.NullHandler())
 
+logger = logging.getLogger(__name__)
 
 class InvalidPassword(Exception):
     pass
@@ -86,16 +86,17 @@ class PavlovRCON:
 
     async def _disconnect(self):
         if self.writer:
+            await self._send("Disconnect")
             self.writer.close()
             await self.writer.wait_closed()
 
     async def _recv(self):
         async with self._recv_lock:
-            data = await asyncio.wait_for(self.reader.read(2048), self.timeout)
+            data = await asyncio.wait_for(self.reader.read(8192), self.timeout)
         data = data.decode()
         logging.info(f"{self.port} - RCON _recv {data=}")
         try:
             return json.loads(data)
         except json.JSONDecodeError:
-            pass
+            logger.warning("JSON Data failed to parse! - RAW data returned: {}".format(data))
         return data

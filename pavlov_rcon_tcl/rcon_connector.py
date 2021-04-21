@@ -115,9 +115,7 @@ async def send_rcon(command, rcon_host=None, rcon_port=None, rcon_pass=None):
     try:
         rcon_obj = get_rcon(rcon_host=rcon_host, rcon_port=rcon_port, rcon_pass=rcon_pass)
 
-        data = await rcon_obj.send(command)
-        await rcon_obj.send("Disconnect")
-        await rcon_obj.close()
+        data = await rcon_obj.send(command, auto_close=True)
     except Exception as exc:
         logger.error("Unable to Send RCON COMMAND: {}".format(exc))
         return None
