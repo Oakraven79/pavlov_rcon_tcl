@@ -100,7 +100,7 @@ def main():
     try:
         loop = asyncio.get_event_loop()
         root = AsyncApp(loop)
-        root.title("Pavlov RCON Helper V0.61")
+        root.title("Pavlov RCON Helper V0.68")
         if os.path.isfile('rcon.ico'):
             root.iconbitmap("rcon.ico")
         root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
