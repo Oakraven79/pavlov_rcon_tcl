@@ -250,7 +250,7 @@ class CustomServerCommands:
         """
         if rcon_command.find('{') == -1:
             # The command contains no substititions
-            send_rcon(rcon_command, **self._server_frame_obj.get_server_creds())
+            await send_rcon(rcon_command, **self._server_frame_obj.get_server_creds())
         else:
             # now we need to ask the server_frame for its current list of players based on the command
             # At this stage it is only going to be all, red, blue so it is matter of finding which

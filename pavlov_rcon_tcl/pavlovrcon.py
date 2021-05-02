@@ -46,6 +46,7 @@ class PavlovRCON:
         return False
 
     async def send(self, command, wait_response=True, auto_close=False):
+        logging.info("Trying to send: {}".format(command))
         if not self.is_connected():
             await self._connect()
         await self._send(command)
