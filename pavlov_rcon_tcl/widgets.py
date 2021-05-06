@@ -80,6 +80,10 @@ class ScrollableFrame(ttk.LabelFrame):
         self.canvas.pack(side="left", fill="both", expand=tk.YES)
         scrollbar.pack(side="right", fill="y")
 
+        self.canvas.bind('<Enter>', self._bound_to_mousewheel)
+        self.canvas.bind('<Leave>', self._unbound_to_mousewheel)
+
+
     def FrameWidth(self, event):
         canvas_width = event.width
         self.canvas.itemconfig(self.canvas_frame, width=canvas_width)
@@ -87,4 +91,11 @@ class ScrollableFrame(ttk.LabelFrame):
     def OnFrameConfigure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+    def _bound_to_mousewheel(self, event):
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
+    def _unbound_to_mousewheel(self, event):
+        self.canvas.unbind_all("<MouseWheel>")
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
