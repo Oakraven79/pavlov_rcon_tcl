@@ -153,7 +153,7 @@ class PlayerListFrame:
         main_frame.player_cash_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3), width=20)
         main_frame.player_cash_label.grid(row=0,column=2, sticky="nesw", pady = 2, padx = 5)
 
-        main_frame.player_team_label = tk.Label(main_frame, text="Team: {}".format(data_dict['TeamId']))
+        main_frame.player_team_label = tk.Label(main_frame, text="Team: {}".format(data_dict['TeamId'].replace("0", "Blue").replace("1", "Red")))
         main_frame.player_team_label.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.player_team_label.grid(row=0,column=3, sticky="nesw", pady = 2, padx = 5)
 
@@ -161,12 +161,12 @@ class PlayerListFrame:
         main_frame.move_player_label_frame = tk.LabelFrame(main_frame, text="Switch Team", bd=5, borderwidth=3)
         main_frame.move_player_label_frame.grid(row=0, column=4, sticky="nesw", pady=2, padx=5)
 
-        main_frame.move_player_label_frame.team_0_button = HoverButton(main_frame.move_player_label_frame, text="0",
+        main_frame.move_player_label_frame.team_0_button = HoverButton(main_frame.move_player_label_frame, text="Blue",
                                                                        command=lambda: self.loop.create_task(self.button_switch_team(
                                                                            data_dict['UniqueId'], 0)), padx=5, pady=2)
         main_frame.move_player_label_frame.team_0_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
         main_frame.move_player_label_frame.team_0_button.pack(side="left", fill=tk.BOTH, expand=tk.YES)
-        main_frame.move_player_label_frame.team_1_button = HoverButton(main_frame.move_player_label_frame, text="1",
+        main_frame.move_player_label_frame.team_1_button = HoverButton(main_frame.move_player_label_frame, text="Red",
                                                                        command=lambda: self.loop.create_task(self.button_switch_team(
                                                                            data_dict['UniqueId'], 1)), padx=5, pady=2)
         main_frame.move_player_label_frame.team_1_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
@@ -296,7 +296,7 @@ class PlayerListFrame:
 
         label_frame_obj.player_kda_label['text'] = "Kills: {}\nDeaths: {}\nAssists: {}".format(kills, deaths, assists)
         label_frame_obj.player_cash_label['text'] = "Cash: ${}\nScore: {}".format(data_dict['Cash'],data_dict['Score'])
-        label_frame_obj.player_team_label['text'] = "Team: {}".format(data_dict['TeamId'])
+        label_frame_obj.player_team_label['text'] = "Team: {}".format(data_dict['TeamId'].replace("0", "Blue").replace("1", "Red"))
         label_frame_obj.player_team_number = int(data_dict['TeamId'])
 
         # If the items list has changed at all, then we overwrite the list of items

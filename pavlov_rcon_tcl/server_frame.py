@@ -514,14 +514,14 @@ class SingleServerFrame(tk.Frame):
                                                           text="Give Team Cash", padx=5, pady=2)
         frame.give_team_cash_frame.grid(row=1, column=2, columnspan=2, sticky="nsew", pady=5, padx=5)
 
-        frame.give_team_cash_frame.team_0_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team 0\n+$1000",
+        frame.give_team_cash_frame.team_0_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team Blue(0)\n+$1000",
                                                                     command=lambda: self.loop.create_task(self.button_give_team_cash(0, 1000)),
                                                                     padx=15,
                                                                     pady=2)
         frame.give_team_cash_frame.team_0_1000_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.give_team_cash_frame.team_0_1000_button.pack(side="left", fill='x', expand=True)
 
-        frame.give_team_cash_frame.team_1_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team 1\n+$1000",
+        frame.give_team_cash_frame.team_1_1000_button = HoverButton(frame.give_team_cash_frame, button_colour="lime green", text="Team Red(1)\n+$1000",
                                                                     command=lambda: self.loop.create_task(self.button_give_team_cash(1, 1000)),
                                                                     padx=15,
                                                                     pady=2)
