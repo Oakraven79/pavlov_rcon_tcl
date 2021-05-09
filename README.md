@@ -34,7 +34,7 @@ _Note This doesn't work with Arctic as they have their own server tools._
 
 ### Option 1:  Stand alone .exe (Windows Only)
 
-Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.67/pavlov_rcon_tcl-0.68.zip
+Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.69/pavlov_rcon_tcl-0.69.zip
 
 _Note: Windows may complain about downloading and running an .exe, it is just doing its job on security. If that bothers you, go with option 2._
 
