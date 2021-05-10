@@ -7,7 +7,7 @@ NEW: Added custom server commands -->  https://youtu.be/nOR2lqD70JQ
 
 <img src="http://www.greatleapskyward.com/pavlov_rcon.jpg" />
 
-This is a small app written in Python Tkinter and asyncio to quickly interface with Pavlov's RCON from within VR.
+This small app is written in Python to interface with Pavlov's RCON from within VR.
 
 This is under active development.
 
@@ -66,10 +66,6 @@ Step 6. Fiddle with maps_list.py to add your own maps.
 
 ## Please Note that it is very new and sometimes crashes and needs a restart. Work in progress! 
 
-## Why does this exist?
-I wanted to build a tool that I could use to admin Pavlov from within VR (via Virtual Desktop)but set myself a challenge to use as much vanilla python as possible. So part fun project but also hoping to contribute to what is a really cool game!
-
-There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface
 
 ## On the TODO List 
 
@@ -79,11 +75,17 @@ There are plenty of more complete tools to manage Pavlov via RCON if you want mo
 - Make the window and fonts scale appropriately to the screen size. 
 - Add player avatar pictures
 
+## Special Thanks to NeRo from _Ne-row's Lounge (https://dsc.gg/nerow)_ for testing and providing valuable feedback, thank you!
+
+
 ## Feedback?
 
 For feedback and suggestions on this tool contact @Oakraven:3967 on the official Pavlov Discord (https://discord.com/invite/pavlov-vr)
 
-## Special Thanks to NeRo for testing and providing valuable feedback, thank you!
-
 ### Please note i'm just a fan writing a tool for the game, not an official member of the team at all. 
-### They are much cooler than me.
+## They are much cooler than me.
+
+## Why does this exist?
+I wanted to build a tool that I could use to admin Pavlov from within VR (via Virtual Desktop)but set myself a challenge to use as much vanilla python as possible. So part fun project but also hoping to contribute to what is a really cool game!
+
+There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface

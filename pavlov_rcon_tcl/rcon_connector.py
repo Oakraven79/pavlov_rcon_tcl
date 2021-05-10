@@ -12,8 +12,6 @@ def get_rcon(rcon_host=None, rcon_port=None, rcon_pass=None):
     """
     This is responsible for providing an active connection to the desired server connection.
 
-    TODO: Makes this persistent and connection shared instead of creating a new one each time, perhaps merge with send rcon
-
     :return:
     """
     return pavlovrcon.PavlovRCON(rcon_host, rcon_port, rcon_pass)
