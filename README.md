@@ -89,3 +89,8 @@ For feedback and suggestions on this tool contact @Oakraven:3967 on the official
 I wanted to build a tool that I could use to admin Pavlov from within VR (via Virtual Desktop)but set myself a challenge to use as much vanilla python as possible. So part fun project but also hoping to contribute to what is a really cool game!
 
 There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface
+
+
+## Shameless side plug
+
+[Like a little Prog Metal?](https://www.youtube.com/watch?v=y9Np_gOwjeI)
