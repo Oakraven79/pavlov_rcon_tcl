@@ -18,13 +18,16 @@ logger = logging.getLogger(__name__)
 # This list is used if the load lower fails
 DEFAULT_MAP_IDS = {
     '--- New' : '', #Spacer
-    'station' : 'station',
-    'stalingrad' : 'stalingrad',
-    'santorini':'santorini',
-    'industry' : 'industry',
+    'Station' : 'station',
+    'Stalingrad' : 'stalingrad',
+    'Santorini':'santorini',
+    'Santorini at night':'santorini_night',
+    'Industry' : 'industry',
+    'Industry at night' : 'industry_night',
     '--- Originals': '',
     'Data Center': 'datacenter',
     'Sand': 'sand',
+    'Sand at night': 'sand_night',
     'Bridge': 'bridge',
     'Container Yard': 'containeryard',
     'Siberia': 'prisonbreak',

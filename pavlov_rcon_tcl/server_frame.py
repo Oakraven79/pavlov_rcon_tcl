@@ -463,11 +463,11 @@ class SingleServerFrame(tk.Frame):
         frame.rotate_map_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.rotate_map_button.grid(row=1,column=0,columnspan=2, sticky="nsew", pady = 5, padx = 5)
 
-        # SetLimitedAmmoType {0-2}
+        # SetLimitedAmmoType {0-5}
         frame.set_limited_ammo_type_frame = tk.LabelFrame(frame, relief="raised", borderwidth=3, text="Set Limited Ammo Type", padx=5, pady=2)
         frame.set_limited_ammo_type_frame.grid(row=0,column=1, sticky="nsew", pady = 5, padx = 5)
 
-        frame.set_limited_ammo_type_frame.ammo_spin = tk.Spinbox(frame.set_limited_ammo_type_frame, from_=0, to=2, width=2)
+        frame.set_limited_ammo_type_frame.ammo_spin = tk.Spinbox(frame.set_limited_ammo_type_frame, from_=0, to=5, width=2)
         frame.set_limited_ammo_type_frame.ammo_spin.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE))
         frame.set_limited_ammo_type_frame.ammo_spin.pack(side="left")
 

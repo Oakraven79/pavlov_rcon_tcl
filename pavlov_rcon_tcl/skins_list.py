@@ -9,5 +9,10 @@ SKINS_LIST = [
     "farmer",
     "russian",
     "nato",
-    "german"
+    "german",
+    "cop",
+    "soviet",
+    "us",
+    "infinitum",
+    "hidden"
 ]

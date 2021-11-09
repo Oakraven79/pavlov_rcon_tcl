@@ -79,7 +79,7 @@ class AsyncApp(tk.Tk):
 
     def create_server_tabs(self):
         """
-        Create the Notebook tab
+        Create the Notebook tab and make it fill the container
 
         :return:
         """
@@ -89,9 +89,11 @@ class AsyncApp(tk.Tk):
     # This is core to the tkinter update
     async def updater(self, interval):
         """
-        This run the tkinter updates for screen element events.
+        This run the tkinter updates for screen element events. 
 
-        :param interval:
+        This runs forever handling inputs until .cancel() is called
+
+        :param interval: How long to sleep before running the update sequence
         :return:
         """
         while True:
@@ -100,7 +102,9 @@ class AsyncApp(tk.Tk):
 
     async def run_rcon_updates(self, interval=5):
         """
-        This runs the
+        This runs the updates against all the server frames. 
+
+        It gets started as a single execution but effecitively runs forever until the .cancel() gets called
 
         :param interval:
         :return:
