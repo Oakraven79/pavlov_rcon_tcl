@@ -100,7 +100,7 @@ def main():
     try:
         # This surfaces the async loop manager in asyncio so we can use it. 
         loop = asyncio.get_event_loop()
-        # The TCL/TK event loop by default is non-async so we use the asyncio version and replace its event loop 
+        # AsyncApp is the main container class for the the entire application, everything here is just getting it ready to go. 
         root = AsyncApp(loop)
         # root is the default variable convention name for tcl/tkinter UI apps. 
         root.title("{} V{}".format(APP_NAME, APP_VERSION)) # This changes the display name at run time, just to make it pretty
@@ -121,7 +121,7 @@ def main():
         loop = asyncio.get_event_loop()
         # This stars the infinte loop until an exit action is called. 
         loop.run_forever()
-        # Close the asyncio otherwise the application will hang until force closed
+        # Close the asyncio tasks otherwise the application will hang until force closed
         loop.close()
     except Exception as exc:
         logger.info("Exception occurred during app initialisation: {}".format(exc))
