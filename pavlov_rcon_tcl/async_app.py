@@ -31,25 +31,31 @@ class AsyncApp(tk.Tk):
     """
 
     def __init__(self, loop, interval=1 / 120):
+        """
+        Class constructor, takes loop (the event loop handler) and the desired interval between updates.
+
+        """
         super().__init__()
         self.loop = loop
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.tasks = []
+        # Apply global style items to this application.
         self.give_the_app_some_style()
+        # Create the very top menus
         self.create_menu()
-        # Create the tabs for multiple servers
+        # Create the empty tabbed notebooks for multiple servers
         self.create_server_tabs()
-        # Where all server frames live
+        # Container for all server frames objects so they are separate from each other.
         self.rcon_server_frames = []
-        # create these tasks so i can destory them later for a clean exit
+        # These two importantly kick off async tasks that maintain themselves but also can be retrieved to be terminated when the
+        # app is to be closed.
         self.tasks.append(loop.create_task(self.run_rcon_updates()))
         self.tasks.append(loop.create_task(self.updater(interval)))
 
     def create_menu(self):
         """
-        Draws the File Menu
+        Draws the File Menu that only has one option, exit.
 
-        :return:
         """
         menubar = tk.Menu(self)
         self.config(menu=menubar)
@@ -62,7 +68,6 @@ class AsyncApp(tk.Tk):
         ttk has some global style options, as some child objects repeat i'd rather not set them
         over and over again, so i'll do it here.
 
-        :return:
         """
         style = ttk.Style()
         # set the drop down options in the player frame
@@ -151,7 +156,7 @@ class AsyncApp(tk.Tk):
         server_commands=None,
     ):
         """
-        CAlling this method with rcon creds registers a SingleServerFrame with this app which will then be
+        Calling this method with rcon creds registers a SingleServerFrame with this app which will then be
         included in the update cycle
 
         :param rcon_host:
@@ -172,7 +177,8 @@ class AsyncApp(tk.Tk):
 
     def close(self):
         """
-        This destory all the perpetually running tasks.
+        This destory all the perpetually running tasks. Using the tasks list set in the constructor, this closes
+        each one so the app can close cleanly.
 
         :return:
         """

@@ -3,7 +3,7 @@ Main file that sets up the app and runs it.
 
 """
 # Variables that display at the top of the window, no other effect other than title text
-APP_VERSION = "0.75"
+APP_VERSION = "0.76"
 APP_NAME = "Pavlov RCON Helper"
 
 ###############################################################

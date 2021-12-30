@@ -9,6 +9,8 @@ import webbrowser
 
 import tkinter as tk
 
+from datetime import datetime
+
 from tkinter import ttk
 
 from widgets import HoverButton
@@ -407,8 +409,10 @@ class PlayerListFrame:
             padx=5,
             pady=0,
         )
-        main_frame.kick_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 3))
+        main_frame.kick_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 5))
         main_frame.kick_button.grid(row=0, column=9, sticky="nesw", pady=2, padx=5)
+        main_frame.kick_button.is_first_click = None
+        main_frame.kick_button.is_first_click_time = None
 
         # Ban player
         main_frame.ban_button = HoverButton(
@@ -423,10 +427,14 @@ class PlayerListFrame:
         )
         main_frame.ban_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 5))
         main_frame.ban_button.grid(row=0, column=10, sticky="nesw", pady=2, padx=5)
+        # Values to handle the confirmation 
+        main_frame.ban_button.is_first_click = None
+        main_frame.ban_button.is_first_click_time = None
+
 
         return main_frame
 
-    def update_single_player_frame(self, label_frame_obj, data_dict, items_list):
+    def update_single_player_frame(self, label_frame_obj, data_dict, items_list, time_to_clear_toggles=5):
         """
         Given a player frame and data dict, it will update the contents of that players window
 
@@ -457,6 +465,10 @@ class PlayerListFrame:
         )
         label_frame_obj.player_team_number = int(data_dict["TeamId"])
 
+        # The player might have an accidental kick or ban toggled but never finally clicked, 
+        # This checks how long it has been active and toggles it back 
+        self.check_toggled_kick_button(data_dict["UniqueId"])
+        self.check_toggled_ban_button(data_dict["UniqueId"])
         # If the items list has changed at all, then we overwrite the list of items
         # if nothing has changed, then we do nothing and leave it where it is.
 
@@ -487,6 +499,7 @@ class PlayerListFrame:
 
     async def button_kill_player(self, unique_id):
         """
+        Kills the player in question
 
         :param unique_id:
         :return:
@@ -496,27 +509,100 @@ class PlayerListFrame:
             "Kill {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
         )
 
+
+    def check_toggled_kick_button(self, unique_id, toggle_timeout=5):
+        """
+
+        """
+        logger.info("Checking for toggled kick for: {}".format(unique_id))
+        # Get that player's frame
+        local_player_frame = self.player_frame_dict.get(unique_id, None)
+        # Incase the player frame is gone
+        if local_player_frame is None:
+            return 
+        if local_player_frame.kick_button.is_first_click is True:
+            time_since_click = (datetime.utcnow() - local_player_frame.kick_button.is_first_click_time ).seconds
+            logger.info("Time since Kick click for {} is {}".format(unique_id, time_since_click))
+            if time_since_click > toggle_timeout:
+                local_player_frame.kick_button.is_first_click_time = None
+                local_player_frame.kick_button["text"] = "Kick\r\nPlayer"
+                local_player_frame.kick_button.is_first_click = None
+
+
     async def button_kick_player(self, unique_id):
         """
 
         :param unique_id:
         :return:
         """
-        logger.info("Kick {}".format(unique_id))
-        await send_rcon(
-            "Kick {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
-        )
+        # Get that player's frame
+        local_player_frame = self.player_frame_dict.get(unique_id, None)
+        # Incase the player frame is gone
+        if local_player_frame is None:
+            return 
+        # Set and timestamp for the ban (so the update can check if too much time has passed. )
+        if local_player_frame.kick_button.is_first_click is None:
+            logger.info("First Kick click for {}".format(unique_id))
+            local_player_frame.kick_button.is_first_click = True
+            local_player_frame.kick_button.is_first_click_time = datetime.utcnow()
+            local_player_frame.kick_button["text"] = "CLICK AGAIN\r\nTO CONFIRM KICK"
+        else:
+            local_player_frame.kick_button.is_first_click = None
+            local_player_frame.kick_button.is_first_click_time = None
+            local_player_frame.kick_button["text"] = "KICKED!"
+            logger.info("Kick {}".format(unique_id))
+            await send_rcon(
+                "Kick {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
+            )
+
+    def check_toggled_ban_button(self, unique_id, toggle_timeout=5):
+        """
+        Given a unique id it will check if the ban toggle has been set and if toggle_timeout seconds has passed
+
+        If so it will reset the state back pre click
+        """
+        logger.info("Checking for toggled ban for: {}".format(unique_id))
+        # Get that player's frame
+        local_player_frame = self.player_frame_dict.get(unique_id, None)
+        # Incase the player frame is gone
+        if local_player_frame is None:
+            return 
+        if local_player_frame.ban_button.is_first_click is True:
+            time_since_click = (datetime.utcnow() - local_player_frame.ban_button.is_first_click_time ).seconds
+            logger.info("Time since ban click for {} is {}".format(unique_id, time_since_click))
+            if time_since_click > toggle_timeout:
+                local_player_frame.ban_button.is_first_click_time = None
+                local_player_frame.ban_button["text"] = "BAN PLAYER"
+                local_player_frame.ban_button.is_first_click = None
 
     async def button_ban_player(self, unique_id):
         """
+        This will have special behaviour where the button will flash warning for confirmation 
 
-        :param unique_id:
-        :return:
+
+
+        :param unique_id: the steam Id of the player to ban
+        :return: nothing
         """
-        logger.info("Ban {}".format(unique_id))
-        await send_rcon(
-            "Ban {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
-        )
+        # Get that player's frame
+        local_player_frame = self.player_frame_dict.get(unique_id, None)
+        # Incase the player frame is gone
+        if local_player_frame is None:
+            return 
+        # Set and timestamp for the ban (so the update can check if too much time has passed. )
+        if local_player_frame.ban_button.is_first_click is None:
+            logger.info("First ban click for {}".format(unique_id))
+            local_player_frame.ban_button.is_first_click = True
+            local_player_frame.ban_button.is_first_click_time = datetime.utcnow()
+            local_player_frame.ban_button["text"] = "CLICK AGAIN\r\nTO CONFIRM BAN"
+        else:
+            local_player_frame.ban_button.is_first_click = None
+            local_player_frame.ban_button.is_first_click_time = None
+            local_player_frame.ban_button["text"] = "BANNED!"
+            logger.info("Ban {}".format(unique_id))
+            await send_rcon(
+                "Ban {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
+            )
 
     async def button_give_money(self, unique_id, amount):
         """
