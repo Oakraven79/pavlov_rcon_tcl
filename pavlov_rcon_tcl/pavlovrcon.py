@@ -18,6 +18,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class InvalidPassword(Exception):
     pass
 
@@ -99,5 +100,7 @@ class PavlovRCON:
         try:
             return json.loads(data)
         except json.JSONDecodeError:
-            logger.warning("JSON Data failed to parse! - RAW data returned: {}".format(data))
+            logger.warning(
+                "JSON Data failed to parse! - RAW data returned: {}".format(data)
+            )
         return data

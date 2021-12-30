@@ -14,5 +14,5 @@ SKINS_LIST = [
     "soviet",
     "us",
     "infinitum",
-    "hidden"
+    "hidden",
 ]

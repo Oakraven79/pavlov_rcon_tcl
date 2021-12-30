@@ -6,7 +6,7 @@ Please note that this dict gets flipped for reverse lookups so make sure everyth
 """
 
 KNOWN_ITEM_NAME_MAP = {
-    "M249 Light Machine Gun (LMGA)" :"LMGA",
+    "M249 Light Machine Gun (LMGA)": "LMGA",
 }
 
 # inverted this list for lookup items
