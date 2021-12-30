@@ -34,7 +34,7 @@ _Note This doesn't work with Arctic as they have their own server tools._
 
 ### Option 1:  Stand alone .exe (Windows Only)
 
-Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.69/pavlov_rcon_tcl-0.69.zip
+Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.76/pavlov_rcon_tcl-0.76.zip
 
 _Note: Windows may complain about downloading and running an .exe, it is just doing its job on security. If that bothers you, go with option 2._
 
@@ -46,7 +46,7 @@ Step 4. Run `PavlovRcon.exe`
 
 (Optional)
 
-Step 5. Edit maps.json and add your own maps. (will need to close and reopen) 
+Step 5. Edit maps.json and add your own maps or game_modes.json for game types. (will need to close and reopen) 
 
 ### Option 2: Run from Python source
 
