@@ -69,8 +69,10 @@ DEFAULT_MAP_IDS = {
     "PH Inc. 2": "UGC2816873",
     "PH Burger King": "UGC2812878",
     "PH Restaurant": "UGC2810539",
+    "PH Warehouse": "UGC2810764",
     "--- Swat 4": "",
     "Fairfax Residence": "UGC2815354",
+    "A Bomb": "UGC3250571",
 }
 
 MAP_IDS = None
