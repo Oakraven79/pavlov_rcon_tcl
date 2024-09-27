@@ -40,19 +40,37 @@ DEFAULT_MAP_IDS = {
     "Mirage": "UGC3020535",
     "Office": "UGC3051820",
     "Inferno": "UGC2996823",
+    "Militia": "UGC2844898",
     "Overpass": "UGC2867687",
+    "Assault": "UGC2812444",
     "Italy": "UGC2879562",
     "Train": "UGC2871454",
+    "DUST": "UGC3113703",
+    "Lake": "UGC2841131",
+    "Zoo": "UGC3002208",
+    "CSGO McDonalds": "UGC3229032",
     "--- Call Of Duty": "",  # Spacer
     "Rust": "UGC3210963",
+    "Nuke Town": "UGC2970978",
+    "--- Modern Warfare": "",
+    "Dome": "UGC2804210",
     "--- Others": "",  # Spacer
     "McDonalds": "UGC2804322",
     "McDonalds at Night": "UGC2819934",
+    "7-11": "UGC3246562",
+    "Inconvenience Store": "UGC2886706",
     "--- Zombies": "  ",  # Spacer
     "Kino Der Toten (CODz)": "UGC2809826",
+    "Killer Jim's Der Riese": "UGC4056425",
     "Oasis: Minecraft Zombies": "UGC3116397",
     "--- PropHunt": "",  # Spacer
     "PH Dunder Mifflin": "UGC2802826",
+    "PH Inc.": "UGC2806952",
+    "PH Inc. 2": "UGC2816873",
+    "PH Burger King": "UGC2812878",
+    "PH Restaurant": "UGC2810539",
+    "--- Swat 4": "",
+    "Fairfax Residence": "UGC2815354",
 }
 
 MAP_IDS = None
