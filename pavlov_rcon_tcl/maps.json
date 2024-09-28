@@ -1,5 +1,5 @@
 {
-    "--- Official": "",  
+    "--- Official": "", 
     "Station": "station",
     "Stalingrad": "stalingrad",
     "Santorini": "santorini",
@@ -16,7 +16,8 @@
     "Kill House": "killhouse",
     "Shooting Range": "range",
     "Tutorial": "tutorial",
-    "--- Counter Strike Maps": " ", 
+    "--- Counter Strike Maps": " ",  
+    "DUST II": "UGC2804502",
     "Mirage": "UGC3020535",
     "Office": "UGC3051820",
     "Inferno": "UGC2996823",
@@ -29,7 +30,7 @@
     "Lake": "UGC2841131",
     "Zoo": "UGC3002208",
     "CSGO McDonalds": "UGC3229032",
-    "--- Call Of Duty": "",  
+    "--- Call Of Duty": "", 
     "Rust": "UGC3210963",
     "Nuke Town": "UGC2970978",
     "--- Modern Warfare": "",
@@ -52,5 +53,5 @@
     "PH Warehouse": "UGC2810764",
     "--- Swat 4": "",
     "Fairfax Residence": "UGC2815354",
-    "A Bomb" : "UGC3250571"
+    "A Bomb": "UGC3250571"
 }
