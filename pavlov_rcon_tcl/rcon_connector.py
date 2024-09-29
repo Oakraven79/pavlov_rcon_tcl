@@ -65,11 +65,11 @@ class RconCommandQueue:
         for _ in range(command_queue_length):
             current_command_id = self.command_queue[current_index].get_command_id()
             if current_command_id in command_ids_to_delete:
-                logger.info("Purging command {}".format(current_command_id))
+                logger.debug("Purging command {}".format(current_command_id))
                 del self.command_hash[current_command_id]
                 del self.command_queue[current_index]
             else:
-                logger.info(
+                logger.debug(
                     "NOT Purging command {} as incomplete".format(current_command_id)
                 )
                 current_index += 1
@@ -79,7 +79,7 @@ class RconCommandQueue:
         Work though any unfinished tasks on the current connection
 
         """
-        logger.info(
+        logger.debug(
             "There are {} items in the queue: {}".format(
                 len(self.command_queue), self.command_queue
             )
@@ -97,12 +97,47 @@ class RconCommandQueue:
             )
             asyncio.sleep(1)
             if not command.is_complete():
-                logger.info("Command {} is NOT finished, sending it...".format(command))
+                logger.debug(
+                    "Command {} is NOT finished, sending it...".format(command)
+                )
                 data = await self.server_connection.send(command.get_command())
+                command.set_reply(data)
                 if data.get(SUCCESS_KEY, False) is True:
                     command.set_reply(data)
             else:
-                logger.info("SKIPPING Command {} as is finished.".format(command))
+                logger.debug("SKIPPING Command {} as is finished.".format(command))
+
+    async def send_command_for_processing(
+        self, command_str, keep_reply_time=-1, retry_count=0
+    ):
+        """
+
+        command_str: The raw command to pass to the server
+
+        keep_reply_time: How many miliiseconds to keep the reply for, 0 = dont bother, -1 keep until cleared manually
+
+
+        :return: returns a unique_string if the keep_reply_time is > 0
+
+
+        """
+        command_id = self.submit_command(
+            command=command_str, keep_reply_time=keep_reply_time
+        )
+
+        logger.info("Command {} submitted with ID: {}".format(command_str, command_id))
+
+        command_obj = self.get_command_by_command_id(command_id)
+        while not command_obj.is_complete():
+            logger.debug(
+                "************** WAITING FOR TASK {}   (Queue.... {})".format(
+                    command_obj, self.command_queue
+                )
+            )
+            await asyncio.sleep(0.5)
+        command_obj.mark_data_extracted()
+        logger.debug("+++++++++++++++++++ Command {} completed!".format(command_obj))
+        return command_obj.get_reply()
 
 
 class RconCommand:

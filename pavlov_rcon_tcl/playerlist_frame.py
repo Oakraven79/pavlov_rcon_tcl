@@ -5,6 +5,7 @@ This is imported by SingleServerFrame and used from within it
 
 
 """
+
 import webbrowser
 
 import tkinter as tk
@@ -26,7 +27,9 @@ logger = logging.getLogger(__name__)
 
 
 class PlayerListFrame:
-    def __init__(self, parent_frame, rcon_host, rcon_port, rcon_pass, loop):
+    def __init__(
+        self, parent_frame, rcon_host, rcon_port, rcon_pass, loop, server_command_queue
+    ):
         """
 
         :param parent_frame:
@@ -40,6 +43,8 @@ class PlayerListFrame:
         self.rcon_host = rcon_host
         self.rcon_port = rcon_port
         self.rcon_pass = rcon_pass
+
+        self.server_command_queue = server_command_queue
 
     def get_players_and_teams(self):
         """
@@ -427,14 +432,15 @@ class PlayerListFrame:
         )
         main_frame.ban_button.config(font=(MENU_FONT_NAME, MENU_FONT_SIZE - 5))
         main_frame.ban_button.grid(row=0, column=10, sticky="nesw", pady=2, padx=5)
-        # Values to handle the confirmation 
+        # Values to handle the confirmation
         main_frame.ban_button.is_first_click = None
         main_frame.ban_button.is_first_click_time = None
 
-
         return main_frame
 
-    def update_single_player_frame(self, label_frame_obj, data_dict, items_list, time_to_clear_toggles=5):
+    def update_single_player_frame(
+        self, label_frame_obj, data_dict, items_list, time_to_clear_toggles=5
+    ):
         """
         Given a player frame and data dict, it will update the contents of that players window
 
@@ -454,9 +460,9 @@ class PlayerListFrame:
 
         kills, deaths, assists = data_dict.get("KDA", "0/0/0").split("/")
 
-        label_frame_obj.player_kda_label[
-            "text"
-        ] = "Kills: {}\nDeaths: {}\nAssists: {}".format(kills, deaths, assists)
+        label_frame_obj.player_kda_label["text"] = (
+            "Kills: {}\nDeaths: {}\nAssists: {}".format(kills, deaths, assists)
+        )
         label_frame_obj.player_cash_label["text"] = "Cash: ${}\nScore: {}".format(
             data_dict["Cash"], data_dict["Score"]
         )
@@ -465,8 +471,8 @@ class PlayerListFrame:
         )
         label_frame_obj.player_team_number = int(data_dict["TeamId"])
 
-        # The player might have an accidental kick or ban toggled but never finally clicked, 
-        # This checks how long it has been active and toggles it back 
+        # The player might have an accidental kick or ban toggled but never finally clicked,
+        # This checks how long it has been active and toggles it back
         self.check_toggled_kick_button(data_dict["UniqueId"])
         self.check_toggled_ban_button(data_dict["UniqueId"])
         # If the items list has changed at all, then we overwrite the list of items
@@ -505,29 +511,32 @@ class PlayerListFrame:
         :return:
         """
         logger.info("Kill {}".format(unique_id))
-        await send_rcon(
-            "Kill {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
+        # await send_rcon(
+        #     "Kill {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
+        # )
+        await self.server_command_queue.send_command_for_processing(
+            "Kill {}".format(unique_id)
         )
 
-
     def check_toggled_kick_button(self, unique_id, toggle_timeout=5):
-        """
-
-        """
+        """ """
         logger.info("Checking for toggled kick for: {}".format(unique_id))
         # Get that player's frame
         local_player_frame = self.player_frame_dict.get(unique_id, None)
         # Incase the player frame is gone
         if local_player_frame is None:
-            return 
+            return
         if local_player_frame.kick_button.is_first_click is True:
-            time_since_click = (datetime.utcnow() - local_player_frame.kick_button.is_first_click_time ).seconds
-            logger.info("Time since Kick click for {} is {}".format(unique_id, time_since_click))
+            time_since_click = (
+                datetime.utcnow() - local_player_frame.kick_button.is_first_click_time
+            ).seconds
+            logger.info(
+                "Time since Kick click for {} is {}".format(unique_id, time_since_click)
+            )
             if time_since_click > toggle_timeout:
                 local_player_frame.kick_button.is_first_click_time = None
                 local_player_frame.kick_button["text"] = "Kick\r\nPlayer"
                 local_player_frame.kick_button.is_first_click = None
-
 
     async def button_kick_player(self, unique_id):
         """
@@ -539,7 +548,7 @@ class PlayerListFrame:
         local_player_frame = self.player_frame_dict.get(unique_id, None)
         # Incase the player frame is gone
         if local_player_frame is None:
-            return 
+            return
         # Set and timestamp for the ban (so the update can check if too much time has passed. )
         if local_player_frame.kick_button.is_first_click is None:
             logger.info("First Kick click for {}".format(unique_id))
@@ -551,8 +560,15 @@ class PlayerListFrame:
             local_player_frame.kick_button.is_first_click_time = None
             local_player_frame.kick_button["text"] = "KICKED!"
             logger.info("Kick {}".format(unique_id))
-            await send_rcon(
-                "Kick {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
+            # await send_rcon(
+            #     "Kick {}".format(unique_id),
+            #     self.rcon_host,
+            #     self.rcon_port,
+            #     self.rcon_pass,
+            # )
+
+            await self.server_command_queue.send_command_for_processing(
+                "Kick {}".format(unique_id)
             )
 
     def check_toggled_ban_button(self, unique_id, toggle_timeout=5):
@@ -566,10 +582,14 @@ class PlayerListFrame:
         local_player_frame = self.player_frame_dict.get(unique_id, None)
         # Incase the player frame is gone
         if local_player_frame is None:
-            return 
+            return
         if local_player_frame.ban_button.is_first_click is True:
-            time_since_click = (datetime.utcnow() - local_player_frame.ban_button.is_first_click_time ).seconds
-            logger.info("Time since ban click for {} is {}".format(unique_id, time_since_click))
+            time_since_click = (
+                datetime.utcnow() - local_player_frame.ban_button.is_first_click_time
+            ).seconds
+            logger.info(
+                "Time since ban click for {} is {}".format(unique_id, time_since_click)
+            )
             if time_since_click > toggle_timeout:
                 local_player_frame.ban_button.is_first_click_time = None
                 local_player_frame.ban_button["text"] = "BAN PLAYER"
@@ -577,7 +597,7 @@ class PlayerListFrame:
 
     async def button_ban_player(self, unique_id):
         """
-        This will have special behaviour where the button will flash warning for confirmation 
+        This will have special behaviour where the button will flash warning for confirmation
 
 
 
@@ -588,7 +608,7 @@ class PlayerListFrame:
         local_player_frame = self.player_frame_dict.get(unique_id, None)
         # Incase the player frame is gone
         if local_player_frame is None:
-            return 
+            return
         # Set and timestamp for the ban (so the update can check if too much time has passed. )
         if local_player_frame.ban_button.is_first_click is None:
             logger.info("First ban click for {}".format(unique_id))
@@ -600,8 +620,14 @@ class PlayerListFrame:
             local_player_frame.ban_button.is_first_click_time = None
             local_player_frame.ban_button["text"] = "BANNED!"
             logger.info("Ban {}".format(unique_id))
-            await send_rcon(
-                "Ban {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
+            # await send_rcon(
+            #     "Ban {}".format(unique_id),
+            #     self.rcon_host,
+            #     self.rcon_port,
+            #     self.rcon_pass,
+            # )
+            await self.server_command_queue.send_command_for_processing(
+                "Ban {}".format(unique_id)
             )
 
     async def button_give_money(self, unique_id, amount):
@@ -614,11 +640,14 @@ class PlayerListFrame:
         """
 
         logger.info("Give {} ${}".format(unique_id, amount))
-        await send_rcon(
-            "GiveCash {} {}".format(unique_id, amount),
-            self.rcon_host,
-            self.rcon_port,
-            self.rcon_pass,
+        # await send_rcon(
+        #     "GiveCash {} {}".format(unique_id, amount),
+        #     self.rcon_host,
+        #     self.rcon_port,
+        #     self.rcon_pass,
+        # )
+        await self.server_command_queue.send_command_for_processing(
+            "GiveCash {} {}".format(unique_id, amount)
         )
 
     async def button_switch_team(self, unique_id, team_id):
@@ -629,11 +658,14 @@ class PlayerListFrame:
         :return:
         """
         logger.info("SwitchTeam {} {}".format(unique_id, team_id))
-        await send_rcon(
-            "SwitchTeam {} {}".format(unique_id, team_id),
-            self.rcon_host,
-            self.rcon_port,
-            self.rcon_pass,
+        # await send_rcon(
+        #     "SwitchTeam {} {}".format(unique_id, team_id),
+        #     self.rcon_host,
+        #     self.rcon_port,
+        #     self.rcon_pass,
+        # )
+        await self.server_command_queue.send_command_for_processing(
+            "SwitchTeam {} {}".format(unique_id, team_id)
         )
 
     async def button_switch_skins(self, unique_id, skin_name):
@@ -645,11 +677,14 @@ class PlayerListFrame:
         :return:
         """
         logger.info("SetPlayerSkin {} {}".format(unique_id, skin_name))
-        await send_rcon(
-            "SetPlayerSkin {} {}".format(unique_id, skin_name),
-            self.rcon_host,
-            self.rcon_port,
-            self.rcon_pass,
+        # await send_rcon(
+        #     "SetPlayerSkin {} {}".format(unique_id, skin_name),
+        #     self.rcon_host,
+        #     self.rcon_port,
+        #     self.rcon_pass,
+        # )
+        await self.server_command_queue.send_command_for_processing(
+            "SetPlayerSkin {} {}".format(unique_id, skin_name)
         )
 
     async def button_give_item(self, unique_id, item):
@@ -666,11 +701,14 @@ class PlayerListFrame:
         replace_item = KNOWN_ITEM_NAME_MAP.get(item, None)
         if replace_item is not None:
             item = replace_item
-        await send_rcon(
-            "GiveItem {} {}".format(unique_id, item),
-            self.rcon_host,
-            self.rcon_port,
-            self.rcon_pass,
+        # await send_rcon(
+        #     "GiveItem {} {}".format(unique_id, item),
+        #     self.rcon_host,
+        #     self.rcon_port,
+        #     self.rcon_pass,
+        # )
+        await self.server_command_queue.send_command_for_processing(
+            "GiveItem {} {}".format(unique_id, item)
         )
 
     async def view_player_profile(self, unique_id):
