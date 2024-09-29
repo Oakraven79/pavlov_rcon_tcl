@@ -1,3 +1,5 @@
+import traceback
+
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as TkFont
@@ -51,6 +53,7 @@ class AsyncApp(tk.Tk):
         # app is to be closed.
         self.tasks.append(loop.create_task(self.run_rcon_updates()))
         self.tasks.append(loop.create_task(self.updater(interval)))
+        self.tasks.append(loop.create_task(self.run_server_commands_queue()))
 
     def create_menu(self):
         """
@@ -186,3 +189,25 @@ class AsyncApp(tk.Tk):
             task.cancel()
         self.loop.stop()
         self.destroy()
+
+    async def run_server_commands_queue(self, interval=1):
+        """
+
+        This method runs periodically and checks with each server frame if there are commands that need to be run on that server and calls for them to be executed
+
+
+        """
+        while await asyncio.sleep(interval, True):
+            try:
+                logger.info("Starting run_server_commands_queue for all frames")
+                await asyncio.gather(
+                    *[
+                        rcon_server_frame.process_server_command_queue()
+                        for rcon_server_frame in self.rcon_server_frames
+                    ]
+                )
+            except Exception as exc:
+                logger.error(
+                    "Exception occurred while running command queue: {}".format(exc)
+                )
+                print(traceback.format_exc())

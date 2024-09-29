@@ -1,10 +1,155 @@
+import asyncio
 import pavlovrcon
 import logging
 import random
+import uuid
 
 logger = logging.getLogger(__name__)
 
-PERSISTED_RCON = None
+
+SUCCESS_KEY = "Successful"
+
+
+class RconCommandQueue:
+    """
+    Object that houses an processes queues of RconCommand's, handles the server connection
+
+    """
+
+    def __init__(self, rcon_host, rcon_port, rcon_pass):
+        """ """
+
+        self.rcon_host = rcon_host
+        self.rcon_port = rcon_port
+        self.rcon_pass = rcon_pass
+
+        self.command_queue = []
+        self.command_hash = {}
+        self.server_connection = get_rcon(
+            rcon_host=self.rcon_host, rcon_port=self.rcon_port, rcon_pass=self.rcon_pass
+        )
+
+    def submit_command(self, command, keep_reply_time):
+        """
+        Adds a command in for processing
+        """
+        command_obj = RconCommand(command=command, keep_reply_time=keep_reply_time)
+
+        self.command_queue.append(command_obj)
+        self.command_hash[command_obj.get_command_id()] = command_obj
+        return command_obj.get_command_id()
+
+    def get_command_by_command_id(self, command_id):
+        return self.command_hash.get(command_id, None)
+
+    def purge_completed_commands(self):
+        """
+        goes through and removes completed commands from the queue
+        """
+        command_ids_to_delete = []
+
+        for command_obj in self.command_queue:
+            if command_obj.is_complete() and command_obj._keep_reply_time == 0:
+                command_ids_to_delete.append(command_obj.get_command_id())
+            elif (
+                command_obj.is_complete()
+                and command_obj._keep_reply_time == -1
+                and command_obj._command_result_extracted
+            ):
+                command_ids_to_delete.append(command_obj.get_command_id())
+
+        current_index = 0
+
+        command_queue_length = len(self.command_queue)
+
+        for _ in range(command_queue_length):
+            current_command_id = self.command_queue[current_index].get_command_id()
+            if current_command_id in command_ids_to_delete:
+                logger.info("Purging command {}".format(current_command_id))
+                del self.command_hash[current_command_id]
+                del self.command_queue[current_index]
+            else:
+                logger.info(
+                    "NOT Purging command {} as incomplete".format(current_command_id)
+                )
+                current_index += 1
+
+    async def process_command_queue(self):
+        """
+        Work though any unfinished tasks on the current connection
+
+        """
+        logger.info(
+            "There are {} items in the queue: {}".format(
+                len(self.command_queue), self.command_queue
+            )
+        )
+
+        current_queue_len = len(
+            self.command_queue
+        )  # Current lenth as queue might be async added to
+
+        for index in range(current_queue_len):
+            command = self.command_queue[index]
+
+            logger.info(
+                "Loading command {}:{} for processing...".format(index, command)
+            )
+            asyncio.sleep(1)
+            if not command.is_complete():
+                logger.info("Command {} is NOT finished, sending it...".format(command))
+                data = await self.server_connection.send(command.get_command())
+                if data.get(SUCCESS_KEY, False) is True:
+                    command.set_reply(data)
+            else:
+                logger.info("SKIPPING Command {} as is finished.".format(command))
+
+
+class RconCommand:
+    """
+    Object to be added to queues and processed
+
+    """
+
+    def __init__(self, command, keep_reply_time=0):
+        """ """
+        self._command = command
+        self._keep_reply_time = keep_reply_time
+        self._command_id = str(uuid.uuid4())  # make an identifier string
+        self._reply = {}  # blank reply
+        self._command_executed = False  # Has the command been run yet?
+        self._command_result_extracted = False  # Did the caller get the data out?
+
+    def get_command(self):
+        return self._command
+
+    def get_command_id(self):
+        return self._command_id
+
+    def is_complete(self):
+        return self._command_executed == True
+
+    def set_reply(self, reply):
+        """
+        Sets the reply and marks as done
+        """
+        self._reply = reply
+        self._command_executed = True
+
+    def mark_data_extracted(self):
+        self._command_result_extracted = True
+
+    def get_reply(self):
+        return self._reply
+
+    def __repr__(self):
+        return "<'{}',ttl:{},complete:{},ack:{},id:{}>".format(
+            self._command,
+            self._keep_reply_time,
+            self._command_executed,
+            self._command_result_extracted,
+            self._command_id,
+        )
 
 
 def get_rcon(rcon_host=None, rcon_port=None, rcon_pass=None):
