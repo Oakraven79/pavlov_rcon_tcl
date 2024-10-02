@@ -62,7 +62,7 @@ class PlayerListFrame:
 
     def update_player_frame(self, data, items_list):
         """
-        Given a data dict which is direct from the API, this interprets and updates the currnet player frame as needed
+        Given a list of data dicts which is direct from the API, this interprets and updates the currnet player frame as needed
 
         :param data_dict:
         :return:
@@ -74,11 +74,7 @@ class PlayerListFrame:
         # Create or update as needed
         current_player_ids_list = list(self.player_frame_dict.keys())
         seen_unique_ids_list = list()
-        for refresh_item_dict in data:
-            if refresh_item_dict is None:
-                logger.warning("Got None data for a player.. Skipping")
-                continue
-            player_info = refresh_item_dict.get("PlayerInfo", None)
+        for player_info in data:
             if player_info is None:
                 logger.warning("Got None data for a player_info.. Skipping")
                 continue
@@ -93,7 +89,6 @@ class PlayerListFrame:
                 )
             else:
                 if unique_id in current_player_ids_list:
-
                     player_label_frame_obj = self.player_frame_dict.get(unique_id, None)
                     if player_label_frame_obj is not None:
                         self.update_single_player_frame(

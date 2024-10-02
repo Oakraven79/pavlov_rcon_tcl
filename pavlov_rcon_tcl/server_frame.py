@@ -456,34 +456,11 @@ class SingleServerFrame(tk.Frame):
         Updates all the connected player info
         """
         # Get the player info
-        data = await self.server_command_queue.send_command_for_processing(
-            "RefreshList"
-        )
-        if data is not None:
-            players_dict = {
-                k: v
-                for k, v in zip(
-                    [x["Username"] for x in data["PlayerList"]],
-                    [x["UniqueId"] for x in data["PlayerList"]],
-                )
-            }
-        if data is not None:
-            player_data_list = []
-            chunk_size = 5  # only do 5 players at a time
-            for chunked_list in local_utils.chunker(
-                list(players_dict.values()), chunk_size
-            ):
-                player_data_list.extend(
-                    await asyncio.gather(
-                        *[
-                            self.server_command_queue.send_command_for_processing(
-                                "InspectPlayer {}".format(x)
-                            )
-                            for x in chunked_list
-                        ]
-                    )
-                )
-            self.update_player_window(player_data_list)
+        data = await self.server_command_queue.send_command_for_processing("InspectAll")
+        if not data:  # exit early if the data is bad
+            return
+        player_data_list = data.get("InspectList", [])
+        self.update_player_window(player_data_list)
 
     async def exec_rcon_update(self):
         """
@@ -969,10 +946,7 @@ class SingleServerFrame(tk.Frame):
         # For the ID list iu've been given try to get all the ids, make sure strip out null values
         self.all_player_ids = [
             y
-            for y in [
-                int(x.get("PlayerInfo", {}).get("UniqueId", None))
-                for x in player_list_dict
-            ]
+            for y in [int(x.get("UniqueId", None)) for x in player_list_dict]
             if y is not None
         ]
         logger.info("All player IDS: {}".format(self.all_player_ids))
