@@ -1,3 +1,9 @@
+# Updated for 2024
+- Migrated maps over to Mod.io versions
+- Uses rcon-plus to add bots
+- Reworked server RCON communication so not spammy (sometimes crashes servers)
+
+
 # pavlov_rcon_tcl
 Want to manage your Pavlov server(s) (via RCON commands) from within VR?
 
@@ -23,8 +29,6 @@ Has a preloaded set of maps in the map list
 Supports multiple servers, add seperate entries in the `server.json`
 
 Supports custom server batch commands which allows raw RCON commands to be chained together, applied to all/some players and allows for delays between commands as per video above. See server_custom_commands_example.json for examples 
-
-For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
 
 
 ## Installation
