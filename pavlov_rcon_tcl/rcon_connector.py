@@ -7,7 +7,7 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
-SUCCESS_KEY = "Successful"
+SUCCESS_KEY = "Successful"  # The return string from Pavlov
 
 
 class RconCommandQueue:
@@ -108,7 +108,7 @@ class RconCommandQueue:
                 logger.debug("SKIPPING Command {} as is finished.".format(command))
 
     async def send_command_for_processing(
-        self, command_str, keep_reply_time=-1, retry_count=0
+        self, command_str, keep_reply_time=-1, retry_count=0, mock_replies=False
     ):
         """
 
@@ -121,6 +121,12 @@ class RconCommandQueue:
 
 
         """
+        if mock_replies:
+            data = test_replies(command_str)
+
+            print("{} --> {}".format(command_str, data))
+            return data
+
         command_id = self.submit_command(
             command=command_str, keep_reply_time=keep_reply_time
         )
@@ -235,7 +241,265 @@ def test_replies(command):
     :param command:
     :return:
     """
-    if command == "RefreshList":
+    data = {}
+    if command == "InspectAll":
+        if random.randint(0, 10) > 5:
+
+            data = {
+                "InspectList": [
+                    {
+                        "PlayerName": "Username",
+                        "UniqueId": "12345678901234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username2",
+                        "UniqueId": "23425678901234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                ]
+            }
+        elif random.randint(0, 10) > 5:
+            data = {"InspectList": []}
+        else:
+            data = {
+                "InspectList": [
+                    {
+                        "PlayerName": "Username",
+                        "UniqueId": "12345678901234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username2",
+                        "UniqueId": "23425678901234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username3",
+                        "UniqueId": "123456789012342567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username4",
+                        "UniqueId": "12345678901223434567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "12345678901234534567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "1234567890121234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "1234564378901234534567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "1234567344890121234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "12323445678901234534567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "123456789345350121234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "1234567890345351234534567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "1234567890133453521234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "12345678901234533453454567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "1234567893453450121234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "3453453453445353",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "12343453534567890121234567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "12345678934534501234534567",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "34534534465665",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username5",
+                        "UniqueId": "44444665547",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                    {
+                        "PlayerName": "Username6",
+                        "UniqueId": "233453453453",
+                        "KDA": "3/1/2",
+                        "Score": "50",
+                        "Dead": False,
+                        "Cash": "3450",
+                        "TeamId": "1",
+                        "Ping": 39.857143402099609,
+                        "Gag": False,
+                    },
+                ]
+            }
+
+    elif command == "RefreshList":
         if random.randint(0, 10) > -1:
             data = {
                 "PlayerList": [
