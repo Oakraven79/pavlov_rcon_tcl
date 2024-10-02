@@ -379,13 +379,12 @@ class SingleServerFrame(tk.Frame):
         await self.server_command_queue.process_command_queue()
         self.server_command_queue.purge_completed_commands()
 
-    async def exec_rcon_update(self):
-        """
-        Method that triggers the update of the current server frame and all its components
-
-        :return:
+    async def check_for_rcon_plus(self):
         """
 
+        Checks if https://mod.io/g/pavlov/m/rcon-plus is installed on the server and intalls it.
+        This mod is so damn good.
+        """
         if self._is_rcon_plus_loaded is False:
             # run a check on loaded mods and look for the rcon-plus
             data = await self.server_command_queue.send_command_for_processing(
@@ -404,8 +403,12 @@ class SingleServerFrame(tk.Frame):
                 "UGCAddMod UGC3462586"
             )
 
-        data = await self.server_command_queue.send_command_for_processing("ServerInfo")
+    async def update_server_info(self):
+        """
+        Gets an updates the server info, returns max players
 
+        """
+        data = await self.server_command_queue.send_command_for_processing("ServerInfo")
         max_players = 0  # Init this for further down
 
         if data is not None:
@@ -435,10 +438,23 @@ class SingleServerFrame(tk.Frame):
             )
         else:
             self.update_server_window_for_error()
+        return max_players
+
+    async def update_server_item_list(self):
+        """
+        Updates the server item list
+
+        """
+
         # Get the Item list from the server Which shows what items the players are allowed to have here
         data = await self.server_command_queue.send_command_for_processing("ItemList")
         if data is not None:
             self.update_server_items(data.get("ItemList", list()))
+
+    async def update_player_info_from_server(self):
+        """
+        Updates all the connected player info
+        """
         # Get the player info
         data = await self.server_command_queue.send_command_for_processing(
             "RefreshList"
@@ -467,7 +483,22 @@ class SingleServerFrame(tk.Frame):
                         ]
                     )
                 )
-            self.update_player_window(player_data_list, max_players)
+            self.update_player_window(player_data_list)
+
+    async def exec_rcon_update(self):
+        """
+        Method that triggers the update of the current server frame and all its components
+
+        :return:
+        """
+        await asyncio.gather(
+            *[
+                self.check_for_rcon_plus(),
+                self.update_server_item_list(),
+                self.update_server_info(),
+            ]
+        )
+        await self.update_player_info_from_server()
 
     def create_frames(self):
         """
@@ -924,7 +955,7 @@ class SingleServerFrame(tk.Frame):
             server_command_queue=self.server_command_queue,
         )
 
-    def update_player_window(self, player_list_dict, max_players):
+    def update_player_window(self, player_list_dict):
         """
         Given a list of the players currently connected it will call the player frame object and give it the details of
         each player.
