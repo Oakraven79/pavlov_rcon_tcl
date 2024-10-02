@@ -148,6 +148,8 @@ class AsyncApp(tk.Tk):
                 )
             except Exception as exc:
                 logger.error("Update cycle failed with error: {}".format(exc))
+                print(traceback.format_exc())
+
             logger.info("Finishing update")
 
     def add_new_server_frame(
