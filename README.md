@@ -1,6 +1,6 @@
 # Updated for 2024
 - Migrated maps over to Mod.io versions
-- Uses rcon-plus to add bots
+- Uses [rcon-plus](https://mod.io/g/pavlov/m/rcon-plus) to add bots 
 - Reworked server RCON communication so not spammy (sometimes crashes servers)
 
 
@@ -54,7 +54,7 @@ Step 5. Edit maps.json and add your own maps or game_modes.json for game types. 
 
 ### Option 2: Run from Python source
 
-Step 1. Go to [the Python website](http://www.python.org/downloads/) and install python 3.8 or above and get it working on your system. 
+Step 1. Go to [the Python website](http://www.python.org/downloads/) and install python 3.10 and get it working on your system. 
 
 Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
@@ -78,6 +78,9 @@ Step 6. Fiddle with maps_list.py to add your own maps.
 - Make the map list easier to read.
 - Make the window and fonts scale appropriately to the screen size. 
 - Add player avatar pictures
+- Add some of the newer features like Gag/Slap
+- Add [rcon-plus](https://mod.io/g/pavlov/m/rcon-plus) features like Revive/Notify etc
+- Add TTT Features
 
 ## Special Thanks to NeRo from _Ne-row's Lounge (https://dsc.gg/nerow)_ for testing and providing valuable feedback, thank you!
 
