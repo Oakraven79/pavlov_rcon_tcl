@@ -9,7 +9,6 @@ I used this to get this app started so thank you very much for an easy to use li
 
 """
 
-
 import asyncio
 import hashlib
 import json
@@ -51,9 +50,12 @@ class PavlovRCON:
         if not self.is_connected():
             await self._connect()
         await self._send(command)
+        logging.debug("Sending was ok for {}".format(command))
         data = None
         if wait_response:
+            logging.debug("Waiting for response for {}".format(command))
             data = await self._recv()
+            logging.debug("Response for {} was {}".format(command, data))
         if auto_close:
             await self._disconnect()
         return data
@@ -66,11 +68,15 @@ class PavlovRCON:
                 pass
 
     async def _send(self, data):
-        logging.info(f"{self.port} - RCON _send {data=}")
+        logging.debug(f"{self.port} - RCON _send {data=}")
         await self._flush_reader()
+        logging.debug(" RCON _send flush ok")
         self.writer.write(data.encode())
+        logging.debug(" RCON _send writer  ok")
         async with self._drain_lock:
+            logging.debug(" RCON _send drain lock start ok")
             await asyncio.wait_for(self.writer.drain(), self.timeout)
+            logging.debug(" RCON _send drain lock awaited ok")
 
     async def _auth(self):
         await self._send(self.password)
@@ -96,7 +102,7 @@ class PavlovRCON:
         async with self._recv_lock:
             data = await asyncio.wait_for(self.reader.read(8192), self.timeout)
         data = data.decode()
-        logging.info(f"{self.port} - RCON _recv {data=}")
+        logging.debug(f"{self.port} - RCON _recv {data=}")
         try:
             return json.loads(data)
         except json.JSONDecodeError:

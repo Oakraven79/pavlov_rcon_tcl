@@ -2,6 +2,7 @@
 This class is for a single server connection
 
 """
+
 import asyncio
 import tkinter as tk
 from tkinter import ttk
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 import local_utils
 
 from widgets import HoverButton, ScrollableFrame
-from rcon_connector import send_rcon
+from rcon_connector import RconCommandQueue
 from playerlist_frame import PlayerListFrame
 
 from config_items import MENU_FONT_SIZE, MENU_FONT_NAME
@@ -126,7 +127,7 @@ class CustomServerCommands:
 
         for cmd in commands:
             cmd_valid = True
-            print(cmd)
+            logger.info("Loading custom command: {}".format(cmd))
             # looking for required fields
             cmd_name = cmd.get("command_name", None)
             if cmd_name is None:
@@ -286,7 +287,10 @@ class CustomServerCommands:
         """
         if rcon_command.find("{") == -1:
             # The command contains no substititions
-            await send_rcon(rcon_command, **self._server_frame_obj.get_server_creds())
+            await self._server_frame_obj.server_command_queue.send_command_for_processing(
+                rcon_command
+            )
+
         else:
             # now we need to ask the server_frame for its current list of players based on the command
             # At this stage it is only going to be all, red, blue so it is matter of finding which
@@ -294,7 +298,7 @@ class CustomServerCommands:
                 self._server_frame_obj.player_frame.get_players_and_teams()
             )
             exec_list = []
-            # now to build the command list base on these current parameters
+            # now to build the command list base on these current parameters for each of the players
             if rcon_command.find("{UniqueID}") != -1:
                 for unique_id, team_id in player_and_team_list:
                     exec_list.append(rcon_command.replace("{UniqueID}", unique_id))
@@ -306,16 +310,25 @@ class CustomServerCommands:
                 for unique_id, team_id in player_and_team_list:
                     if team_id == 1:
                         exec_list.append(rcon_command.replace("{UniqueID}", unique_id))
-            # now to exec the list
-            chunk_size = 5  # only do 5 players at a time
-            for chunked_list in local_utils.chunker(exec_list, chunk_size):
-                await asyncio.gather(
-                    *[
-                        send_rcon(
-                            rcon_string, **self._server_frame_obj.get_server_creds()
-                        )
-                        for rcon_string in chunked_list
-                    ]
+            if len(exec_list) > 0:
+                # now to exec the list
+                chunk_size = (
+                    10  # this could flood the queue however it is pretty resiliant
+                )
+                for chunked_list in local_utils.chunker(exec_list, chunk_size):
+                    await asyncio.gather(
+                        *[
+                            await self._server_frame_obj.server_command_queue.send_command_for_processing(
+                                rcon_string
+                            )
+                            for rcon_string in chunked_list
+                        ]
+                    )
+            else:
+                logger.warning(
+                    "No players connected that match criteria, skipping command: {}".format(
+                        rcon_command
+                    )
                 )
 
 
@@ -332,41 +345,70 @@ class SingleServerFrame(tk.Frame):
         super().__init__(
             master, width=master.winfo_screenwidth(), height=master.winfo_screenheight()
         )
-        self.master = master
+        self.master = master  # store a ref to the master frame which is needed to reference outside the scope of this object sometimes.
+        self.loop = loop  # Store a reference to the event loop so you can fire off commands into it
+
         self.rcon_host = rcon_host
         self.rcon_port = rcon_port
         self.rcon_pass = rcon_pass
+
         self.server_commands_obj = CustomServerCommands(server_commands, self)
-        self.loop = loop
 
         self.pack(fill="both")
+
+        # Init the Queue and server connection
+        self.server_command_queue = RconCommandQueue(
+            rcon_host=rcon_host, rcon_port=rcon_port, rcon_pass=rcon_pass
+        )
+
+        # Is rcon-plus loaded? ( https://mod.io/g/pavlov/m/rcon-plus )
+        # used in the regular updates to check if this mod is loaded
+        self._is_rcon_plus_loaded = False
 
         # now with all the data loaded we can create the server frames
         self.create_frames()
 
-    def get_server_creds(self):
-        """
-        Each Server frame knows its creds, this is a getter method
-
-        :return:
-        """
-        return {
-            "rcon_host": self.rcon_host,
-            "rcon_port": self.rcon_port,
-            "rcon_pass": self.rcon_pass,
-        }
-
-    async def exec_rcon_update(self):
-        """
-        Method that triggers the update of the current server frame and all its components
-
-        :return:
+    async def process_server_command_queue(self):
         """
 
-        server_creds = self.get_server_creds()
+        This is called from the async app as part of the update cycle. This will process all queued items and remove the ones that
+        are complete and have had their results read.
 
-        data = await send_rcon("ServerInfo", **server_creds)
+        """
+        logger.info("Processing command queue for {}".format(self))
+        await self.server_command_queue.process_command_queue()
+        self.server_command_queue.purge_completed_commands()
 
+    async def check_for_rcon_plus(self):
+        """
+
+        Checks if https://mod.io/g/pavlov/m/rcon-plus is installed on the server and intalls it.
+        This mod is so damn good.
+        """
+        if self._is_rcon_plus_loaded is False:
+            # run a check on loaded mods and look for the rcon-plus
+            data = await self.server_command_queue.send_command_for_processing(
+                "UGCMODLIST"
+            )
+            # data = await send_rcon("UGCMODLIST", **server_creds)
+            mods_list = data.get("ModList", [])
+            for mod_id in mods_list:
+                if mod_id == "UGC3462586":  # rcon-plus
+                    self._is_rcon_plus_loaded = True
+                    break
+        if self._is_rcon_plus_loaded is False:
+            # Now we can add bots, man, the amount of people asking if this can add bots
+            # Rcon-plus is great, well done!
+            data = await self.server_command_queue.send_command_for_processing(
+                "UGCAddMod UGC3462586"
+            )
+
+    async def update_server_info(self):
+        """
+        Gets an updates the server info, returns max players
+
+        """
+        data = await self.server_command_queue.send_command_for_processing("ServerInfo")
         max_players = 0  # Init this for further down
 
         if data is not None:
@@ -396,35 +438,44 @@ class SingleServerFrame(tk.Frame):
             )
         else:
             self.update_server_window_for_error()
+        return max_players
+
+    async def update_server_item_list(self):
+        """
+        Updates the server item list
+
+        """
+
         # Get the Item list from the server Which shows what items the players are allowed to have here
-        data = await send_rcon("ItemList", **server_creds)
+        data = await self.server_command_queue.send_command_for_processing("ItemList")
         if data is not None:
             self.update_server_items(data.get("ItemList", list()))
+
+    async def update_player_info_from_server(self):
+        """
+        Updates all the connected player info
+        """
         # Get the player info
-        data = await send_rcon("RefreshList", **server_creds)
-        if data is not None:
-            players_dict = {
-                k: v
-                for k, v in zip(
-                    [x["Username"] for x in data["PlayerList"]],
-                    [x["UniqueId"] for x in data["PlayerList"]],
-                )
-            }
-        if data is not None:
-            player_data_list = []
-            chunk_size = 5  # only do 5 players at a time
-            for chunked_list in local_utils.chunker(
-                list(players_dict.values()), chunk_size
-            ):
-                player_data_list.extend(
-                    await asyncio.gather(
-                        *[
-                            send_rcon("InspectPlayer {}".format(x), **server_creds)
-                            for x in chunked_list
-                        ]
-                    )
-                )
-            self.update_player_window(player_data_list, max_players)
+        data = await self.server_command_queue.send_command_for_processing("InspectAll")
+        if not data:  # exit early if the data is bad
+            return
+        player_data_list = data.get("InspectList", [])
+        self.update_player_window(player_data_list)
+
+    async def exec_rcon_update(self):
+        """
+        Method that triggers the update of the current server frame and all its components
+
+        :return:
+        """
+        await asyncio.gather(
+            *[
+                self.check_for_rcon_plus(),
+                self.update_server_item_list(),
+                self.update_server_info(),
+            ]
+        )
+        await self.update_player_info_from_server()
 
     def create_frames(self):
         """
@@ -504,18 +555,18 @@ class SingleServerFrame(tk.Frame):
             server_name
         )
 
-        self.server_info_frame.server_teams_label[
-            "text"
-        ] = "Teams: {}\nTeam 0 (Blue) Score: {}\nTeam 1 (Red) Score:{}".format(
-            teams_status, teams_0_score, teams_1_score
+        self.server_info_frame.server_teams_label["text"] = (
+            "Teams: {}\nTeam 0 (Blue) Score: {}\nTeam 1 (Red) Score:{}".format(
+                teams_status, teams_0_score, teams_1_score
+            )
         )
 
-        self.server_info_frame.server_map_label[
-            "text"
-        ] = "Map: {}\nMode: {}\nStatus: {}".format(current_map, game_mode, game_status)
-        self.server_info_frame.server_player_count_label[
-            "text"
-        ] = "{} Players Connected".format(player_count)
+        self.server_info_frame.server_map_label["text"] = (
+            "Map: {}\nMode: {}\nStatus: {}".format(current_map, game_mode, game_status)
+        )
+        self.server_info_frame.server_player_count_label["text"] = (
+            "{} Players Connected".format(player_count)
+        )
 
     def update_server_window_for_error(self):
         """
@@ -523,10 +574,10 @@ class SingleServerFrame(tk.Frame):
 
         :return:
         """
-        self.server_info_frame.server_name_label[
-            "text"
-        ] = "ERROR: Unable to connect to server listed in server.json - {}:{}".format(
-            self.rcon_host, self.rcon_port
+        self.server_info_frame.server_name_label["text"] = (
+            "ERROR: Unable to connect to server listed in server.json - {}:{}".format(
+                self.rcon_host, self.rcon_port
+            )
         )
         self.server_info_frame.server_map_label["text"] = "Please see logs."
         self.server_info_frame.server_teams_label["text"] = ""
@@ -541,6 +592,7 @@ class SingleServerFrame(tk.Frame):
         frame.grid_rowconfigure(0, weight=1)
         frame.grid_rowconfigure(1, weight=1)
         frame.grid_rowconfigure(2, weight=1)
+        frame.grid_rowconfigure(3, weight=1)
 
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_columnconfigure(1, weight=1)
@@ -621,7 +673,7 @@ class SingleServerFrame(tk.Frame):
             frame, relief="raised", borderwidth=3, text="Switch Map", padx=2, pady=2
         )
         frame.set_switch_map_frame.grid(
-            row=2, column=0, columnspan=2, sticky="nsew", pady=5, padx=5
+            row=3, column=0, columnspan=2, sticky="nsew", pady=5, padx=5
         )
 
         # Map combo box
@@ -706,6 +758,44 @@ class SingleServerFrame(tk.Frame):
             side="left", fill="x", expand=True
         )
 
+        # Add bots to team
+        frame.addbots_team_frame = tk.LabelFrame(
+            frame, relief="raised", borderwidth=3, text="Add Bots", padx=5, pady=2
+        )
+        frame.addbots_team_frame.grid(
+            row=2, column=2, columnspan=2, sticky="nsew", pady=5, padx=5
+        )
+
+        frame.addbots_team_frame.team_0_1000_button = HoverButton(
+            frame.addbots_team_frame,
+            button_colour="lime green",
+            text="+1 Bot Blue(0)",
+            command=lambda: self.loop.create_task(self.button_add_bot_to_team(0)),
+            padx=15,
+            pady=2,
+        )
+        frame.addbots_team_frame.team_0_1000_button.config(
+            font=(MENU_FONT_NAME, MENU_FONT_SIZE)
+        )
+        frame.addbots_team_frame.team_0_1000_button.pack(
+            side="left", fill="x", expand=True
+        )
+
+        frame.addbots_team_frame.team_1_1000_button = HoverButton(
+            frame.addbots_team_frame,
+            button_colour="lime green",
+            text="+1 Bot Red(1)",
+            command=lambda: self.loop.create_task(self.button_add_bot_to_team(1)),
+            padx=15,
+            pady=2,
+        )
+        frame.addbots_team_frame.team_1_1000_button.config(
+            font=(MENU_FONT_NAME, MENU_FONT_SIZE)
+        )
+        frame.addbots_team_frame.team_1_1000_button.pack(
+            side="left", fill="x", expand=True
+        )
+
         # Show list of banned players, allows for unbans # TODO
 
         # Give item to all connected players
@@ -750,7 +840,6 @@ class SingleServerFrame(tk.Frame):
             text="Give to all",
             command=lambda: self.loop.create_task(
                 self.button_give_players_item(
-                    self.all_player_ids,
                     frame.give_all_players_item_frame.choice_var.get(),
                 )
             ),
@@ -774,7 +863,7 @@ class SingleServerFrame(tk.Frame):
             pady=2,
         )
         frame.custom_server_command_frame.grid(
-            row=2, column=2, columnspan=2, sticky="nsew", pady=5, padx=5
+            row=3, column=2, columnspan=2, sticky="nsew", pady=5, padx=5
         )
 
         # now to add the menu selection
@@ -829,20 +918,17 @@ class SingleServerFrame(tk.Frame):
 
         This relies on a server connection, so really this only needs to be populated and updated as part of the main loop
 
-
         :return:
         """
         logger.info("Creating player frame...")
         # Create the player window (bit of chaining between fucntions though, this needs self.server_players_frame to exist)
         self.player_frame = PlayerListFrame(
             self.server_players_frame,
-            self.rcon_host,
-            self.rcon_port,
-            self.rcon_pass,
             loop=self.loop,
+            server_command_queue=self.server_command_queue,
         )
 
-    def update_player_window(self, player_list_dict, max_players):
+    def update_player_window(self, player_list_dict):
         """
         Given a list of the players currently connected it will call the player frame object and give it the details of
         each player.
@@ -856,10 +942,7 @@ class SingleServerFrame(tk.Frame):
         # For the ID list iu've been given try to get all the ids, make sure strip out null values
         self.all_player_ids = [
             y
-            for y in [
-                int(x.get("PlayerInfo", {}).get("UniqueId", None))
-                for x in player_list_dict
-            ]
+            for y in [int(x.get("UniqueId", None)) for x in player_list_dict]
             if y is not None
         ]
         logger.info("All player IDS: {}".format(self.all_player_ids))
@@ -933,7 +1016,7 @@ class SingleServerFrame(tk.Frame):
 
         :return:
         """
-        await send_rcon("RotateMap", self.rcon_host, self.rcon_port, self.rcon_pass)
+        await self.server_command_queue.send_command_for_processing("RotateMap")
 
     async def button_give_team_cash(self, team_id, cash_amount):
         """
@@ -944,11 +1027,21 @@ class SingleServerFrame(tk.Frame):
         :return:
         """
         logger.info("GiveTeamCash {} {}".format(team_id, cash_amount))
-        await send_rcon(
-            "GiveTeamCash {} {}".format(team_id, cash_amount),
-            self.rcon_host,
-            self.rcon_port,
-            self.rcon_pass,
+        await self.server_command_queue.send_command_for_processing(
+            "GiveTeamCash {} {}".format(team_id, cash_amount)
+        )
+
+    async def button_add_bot_to_team(self, team_id, number_of_bots=1):
+        """
+        Adds bots to a specific team
+
+        :param team_id:
+        :param cash_amount:
+        :return:
+        """
+        logger.info("AddBot {} {}".format(number_of_bots, team_id))
+        await self.server_command_queue.send_command_for_processing(
+            "AddBot {} {}".format(number_of_bots, team_id)
         )
 
     async def button_reset_snd(self):
@@ -959,7 +1052,7 @@ class SingleServerFrame(tk.Frame):
 
         :return:
         """
-        await send_rcon("ResetSND", self.rcon_host, self.rcon_port, self.rcon_pass)
+        await self.server_command_queue.send_command_for_processing("ResetSND")
 
     async def button_set_ammo_limit_type(self, ammo_limit_type):
         """
@@ -970,11 +1063,8 @@ class SingleServerFrame(tk.Frame):
         :return:
         """
         logger.info("SetLimitedAmmoType {}".format(ammo_limit_type))
-        await send_rcon(
-            "SetLimitedAmmoType {}".format(ammo_limit_type),
-            self.rcon_host,
-            self.rcon_port,
-            self.rcon_pass,
+        await self.server_command_queue.send_command_for_processing(
+            "SetLimitedAmmoType {}".format(ammo_limit_type)
         )
 
     async def button_switch_map(self, selections):
@@ -1014,25 +1104,30 @@ class SingleServerFrame(tk.Frame):
         # mapped_map_id is ready to submit to the server
         switch_str = "SwitchMap {} {}".format(mapped_map_id, mapped_game_mode)
         logger.info(switch_str)
-        await send_rcon(switch_str, self.rcon_host, self.rcon_port, self.rcon_pass)
+        await self.server_command_queue.send_command_for_processing(switch_str)
 
-    async def button_give_players_item(self, unique_id_list, item):
+    async def button_give_players_item(self, item, team=None):
         """
+        Uses the GiveAll Command,
 
-        TODO: Make this use the entries in the player frame
+        Todo: make it team specific in the buttons
 
-        :param unique_id_list:
+
         :param item:
         :return:
         """
-        # Check to see if the player frame has been drawn
-        if hasattr(self, "player_frame"):
-            # This executes all the calls to give players this item in parallel. Make it rain guns!
-            chunk_size = 5  # only do 5 players at a time
-            for chunked_list in local_utils.chunker(unique_id_list, chunk_size):
-                await asyncio.gather(
-                    *[
-                        self.player_frame.button_give_item(unique_id, item)
-                        for unique_id in chunked_list
-                    ]
-                )
+        if team == 0:
+            await self.server_command_queue.send_command_for_processing(
+                "GiveAll 0 {}".format(item)
+            )
+        elif team == 1:
+            await self.server_command_queue.send_command_for_processing(
+                "GiveAll 1 {}".format(item)
+            )
+        else:
+            await self.server_command_queue.send_command_for_processing(
+                "GiveAll 0 {}".format(item)
+            )
+            await self.server_command_queue.send_command_for_processing(
+                "GiveAll 1 {}".format(item)
+            )

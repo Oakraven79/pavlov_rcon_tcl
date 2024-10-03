@@ -1,3 +1,9 @@
+# Updated for 2024
+- Migrated maps over to Mod.io versions
+- Uses [rcon-plus](https://mod.io/g/pavlov/m/rcon-plus) to add bots 
+- Reworked server RCON communication so not spammy (sometimes crashes servers)
+
+
 # pavlov_rcon_tcl
 Want to manage your Pavlov server(s) (via RCON commands) from within VR?
 
@@ -24,8 +30,6 @@ Supports multiple servers, add seperate entries in the `server.json`
 
 Supports custom server batch commands which allows raw RCON commands to be chained together, applied to all/some players and allows for delays between commands as per video above. See server_custom_commands_example.json for examples 
 
-For fun I added a "give all" button which cycles through all connected players and gives them the selected item.
-
 
 ## Installation
 Step 0. Make sure your Pavlov server has RCON set up as per [the Official Pavlov wiki](http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Rcon_Overview_and_Commands) 
@@ -34,7 +38,7 @@ _Note This doesn't work with Arctic as they have their own server tools._
 
 ### Option 1:  Stand alone .exe (Windows Only)
 
-Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.76/pavlov_rcon_tcl-0.76.zip
+Step 1. Download https://github.com/Oakraven79/pavlov_rcon_tcl/releases/download/0.80/pavlov_rcon_tcl-0.80.zip
 
 _Note: Windows may complain about downloading and running an .exe, it is just doing its job on security. If that bothers you, go with option 2._
 
@@ -50,7 +54,7 @@ Step 5. Edit maps.json and add your own maps or game_modes.json for game types. 
 
 ### Option 2: Run from Python source
 
-Step 1. Go to [the Python website](http://www.python.org/downloads/) and install python 3.8 or above and get it working on your system. 
+Step 1. Go to [the Python website](http://www.python.org/downloads/) and install python 3.10 and get it working on your system. 
 
 Step 2. Download the code as a zip (`Code` -> `Download zip`)
 
@@ -74,6 +78,9 @@ Step 6. Fiddle with maps_list.py to add your own maps.
 - Make the map list easier to read.
 - Make the window and fonts scale appropriately to the screen size. 
 - Add player avatar pictures
+- Add some of the newer features like Gag/Slap
+- Add [rcon-plus](https://mod.io/g/pavlov/m/rcon-plus) features like Revive/Notify etc
+- Add TTT Features
 
 ## Special Thanks to NeRo from _Ne-row's Lounge (https://dsc.gg/nerow)_ for testing and providing valuable feedback, thank you!
 
@@ -88,7 +95,7 @@ For feedback and suggestions on this tool contact @Oakraven:3967 on the official
 ## Why does this exist?
 I wanted to build a tool that I could use to admin Pavlov from within VR (via Virtual Desktop)but set myself a challenge to use as much vanilla python as possible. So part fun project but also hoping to contribute to what is a really cool game!
 
-There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Tools_available_to_access_Rcon_interface
+There are plenty of more complete tools to manage Pavlov via RCON if you want more depth, check out https://pavlovwiki.com/index.php/Rcon_Overview_and_Commands#Tools_for_connecting_to_RCON
 
 
 ## Shameless side plug
