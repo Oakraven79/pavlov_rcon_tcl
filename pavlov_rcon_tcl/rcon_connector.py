@@ -121,11 +121,13 @@ class RconCommandQueue:
 
 
         """
+        ############ For development only ***********
         if mock_replies:
             data = test_replies(command_str)
-
             print("{} --> {}".format(command_str, data))
             return data
+
+        ############ This part is the part that matters.
 
         command_id = self.submit_command(
             command=command_str, keep_reply_time=keep_reply_time

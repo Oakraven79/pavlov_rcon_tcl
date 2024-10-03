@@ -15,7 +15,6 @@ from datetime import datetime
 from tkinter import ttk
 
 from widgets import HoverButton
-from rcon_connector import send_rcon
 
 from items_list import KNOWN_ITEM_NAME_MAP, KNOWN_ITEM_NAME_MAP_INV
 from skins_list import SKINS_LIST
@@ -27,9 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class PlayerListFrame:
-    def __init__(
-        self, parent_frame, rcon_host, rcon_port, rcon_pass, loop, server_command_queue
-    ):
+    def __init__(self, parent_frame, loop, server_command_queue):
         """
 
         :param parent_frame:
@@ -38,11 +35,6 @@ class PlayerListFrame:
 
         self.player_frame_dict = dict()
         self.loop = loop
-
-        # Pass this in here otherwise we just have to keep reaching back the parent
-        self.rcon_host = rcon_host
-        self.rcon_port = rcon_port
-        self.rcon_pass = rcon_pass
 
         self.server_command_queue = server_command_queue
 
@@ -506,9 +498,6 @@ class PlayerListFrame:
         :return:
         """
         logger.info("Kill {}".format(unique_id))
-        # await send_rcon(
-        #     "Kill {}".format(unique_id), self.rcon_host, self.rcon_port, self.rcon_pass
-        # )
         await self.server_command_queue.send_command_for_processing(
             "Kill {}".format(unique_id)
         )
@@ -555,13 +544,6 @@ class PlayerListFrame:
             local_player_frame.kick_button.is_first_click_time = None
             local_player_frame.kick_button["text"] = "KICKED!"
             logger.info("Kick {}".format(unique_id))
-            # await send_rcon(
-            #     "Kick {}".format(unique_id),
-            #     self.rcon_host,
-            #     self.rcon_port,
-            #     self.rcon_pass,
-            # )
-
             await self.server_command_queue.send_command_for_processing(
                 "Kick {}".format(unique_id)
             )
@@ -615,12 +597,6 @@ class PlayerListFrame:
             local_player_frame.ban_button.is_first_click_time = None
             local_player_frame.ban_button["text"] = "BANNED!"
             logger.info("Ban {}".format(unique_id))
-            # await send_rcon(
-            #     "Ban {}".format(unique_id),
-            #     self.rcon_host,
-            #     self.rcon_port,
-            #     self.rcon_pass,
-            # )
             await self.server_command_queue.send_command_for_processing(
                 "Ban {}".format(unique_id)
             )
@@ -635,12 +611,6 @@ class PlayerListFrame:
         """
 
         logger.info("Give {} ${}".format(unique_id, amount))
-        # await send_rcon(
-        #     "GiveCash {} {}".format(unique_id, amount),
-        #     self.rcon_host,
-        #     self.rcon_port,
-        #     self.rcon_pass,
-        # )
         await self.server_command_queue.send_command_for_processing(
             "GiveCash {} {}".format(unique_id, amount)
         )
@@ -653,12 +623,6 @@ class PlayerListFrame:
         :return:
         """
         logger.info("SwitchTeam {} {}".format(unique_id, team_id))
-        # await send_rcon(
-        #     "SwitchTeam {} {}".format(unique_id, team_id),
-        #     self.rcon_host,
-        #     self.rcon_port,
-        #     self.rcon_pass,
-        # )
         await self.server_command_queue.send_command_for_processing(
             "SwitchTeam {} {}".format(unique_id, team_id)
         )
@@ -672,12 +636,6 @@ class PlayerListFrame:
         :return:
         """
         logger.info("SetPlayerSkin {} {}".format(unique_id, skin_name))
-        # await send_rcon(
-        #     "SetPlayerSkin {} {}".format(unique_id, skin_name),
-        #     self.rcon_host,
-        #     self.rcon_port,
-        #     self.rcon_pass,
-        # )
         await self.server_command_queue.send_command_for_processing(
             "SetPlayerSkin {} {}".format(unique_id, skin_name)
         )
@@ -696,12 +654,6 @@ class PlayerListFrame:
         replace_item = KNOWN_ITEM_NAME_MAP.get(item, None)
         if replace_item is not None:
             item = replace_item
-        # await send_rcon(
-        #     "GiveItem {} {}".format(unique_id, item),
-        #     self.rcon_host,
-        #     self.rcon_port,
-        #     self.rcon_pass,
-        # )
         await self.server_command_queue.send_command_for_processing(
             "GiveItem {} {}".format(unique_id, item)
         )
