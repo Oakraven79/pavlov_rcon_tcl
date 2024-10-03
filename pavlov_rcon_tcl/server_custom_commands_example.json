@@ -57,7 +57,7 @@
       {
         "command_name"       : "Gimme Knives for 1 minute",
         "delay_before_start" : 0,
-        "comment"            : "Give everyone a smoke grenade every 3 seconds for 1 minute ",
+        "comment"            : "Give everyone a knife for throwing every 3 seconds for 1 minute ",
         "steps"              : [
           {
             "command"      : "GiveItem {UniqueID} knife",
