@@ -1031,7 +1031,7 @@ class SingleServerFrame(tk.Frame):
             "GiveTeamCash {} {}".format(team_id, cash_amount)
         )
 
-    async def button_add_bot_to_team(self, team_id, number_of_bots=5):
+    async def button_add_bot_to_team(self, team_id, number_of_bots=1):
         """
         Adds bots to a specific team
 
