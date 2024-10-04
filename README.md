@@ -32,7 +32,7 @@ Supports custom server batch commands which allows raw RCON commands to be chain
 
 
 ## Installation
-Step 0. Make sure your Pavlov server has RCON set up as per [the Official Pavlov wiki](http://wiki.pavlov-vr.com/index.php?title=Dedicated_server#Rcon_Overview_and_Commands) 
+Step 0. Make sure your Pavlov server has RCON set up as per [the Official Pavlov wiki](https://pavlovwiki.com/index.php/Setting_up_a_dedicated_server#Configure_Rcon) 
 
 _Note This doesn't work with Arctic as they have their own server tools._
 
